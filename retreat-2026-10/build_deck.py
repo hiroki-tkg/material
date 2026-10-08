@@ -1,0 +1,601 @@
+"""1day合宿 2026.10.09 全社パート（髙木）— Domuz デザインシステム v2.1「発表スライド」型で .pptx を生成する。
+
+Google スライドへは Drive の pptx 変換で取り込む。
+サイズは 4:3・1128×846px 基準。px 指定は EMU に換算する（Google Slides 24pt ≒ 38px）。
+"""
+import re
+import sys
+
+from pptx import Presentation
+from pptx.dml.color import RGBColor
+from pptx.enum.shapes import MSO_SHAPE
+from pptx.enum.text import MSO_ANCHOR, PP_ALIGN
+from pptx.oxml.ns import qn
+from pptx.util import Emu
+
+# ---- デザイントークン（design-system/domuz_design_system.md §2） ----
+MOSS = RGBColor(0x00, 0x43, 0x47)        # --brand-primary / --text-primary
+LIGHT = RGBColor(0x00, 0xD7, 0x9C)       # --brand-secondary
+FLOWER = RGBColor(0xEF, 0x66, 0x7D)      # --brand-flower
+SECONDARY = RGBColor(0x62, 0x62, 0x62)   # --text-secondary
+STRONG = RGBColor(0xE1, 0x64, 0x64)      # --text-strong
+MUTED = RGBColor(0x99, 0x99, 0x99)       # --text-muted
+WHITE = RGBColor(0xFF, 0xFF, 0xFF)
+BG_GRAY = RGBColor(0xCB, 0xD0, 0xD3)     # --bg-gray（前年）
+BORDER_LIGHT = RGBColor(0xC9, 0xCF, 0xCF)
+
+FONT_EN = "Outfit"
+FONT_JA = "Zen Kaku Gothic New"
+
+W_PX, H_PX = 1128, 846
+EMU_PER_PX = 9144000 / W_PX  # 10in 幅
+
+
+def px(v):
+    return Emu(int(round(v * EMU_PER_PX)))
+
+
+def pt(px_size):
+    """発表スライドの px サイズ → pt（38px ≒ 24pt）。"""
+    return px_size * 24 / 38
+
+
+prs = Presentation()
+prs.slide_width = px(W_PX)
+prs.slide_height = px(H_PX)
+BLANK = prs.slide_layouts[6]
+page_no = 0
+
+
+def _set_font(run, size_px, color, bold, en=None):
+    text = run.text
+    is_en = en if en is not None else bool(re.fullmatch(r"[\x00-\x7F¥×→▲％%]*", text))
+    face = FONT_EN if is_en else FONT_JA
+    f = run.font
+    f.size = Emu(int(pt(size_px) * 12700))
+    f.bold = bold
+    f.color.rgb = color
+    f.name = face
+    rpr = run._r.get_or_add_rPr()
+    for tag in ("a:ea", "a:cs"):
+        el = rpr.find(qn(tag))
+        if el is None:
+            el = rpr.makeelement(qn(tag), {})
+            rpr.append(el)
+        el.set("typeface", face)
+
+
+def text(slide, x, y, w, h, lines, size=25, color=MOSS, bold=False, align=PP_ALIGN.LEFT,
+         anchor=MSO_ANCHOR.TOP, spacing=1.5, en=None, letter=None, para_gap=0):
+    """lines: 文字列 or 文字列のリスト。[[語]] はライトグリーン、**語** は太字。"""
+    tb = slide.shapes.add_textbox(px(x), px(y), px(w), px(h))
+    tf = tb.text_frame
+    tf.word_wrap = True
+    tf.auto_size = None
+    tf.vertical_anchor = anchor
+    for m in ("margin_left", "margin_right", "margin_top", "margin_bottom"):
+        setattr(tf, m, 0)
+    if isinstance(lines, str):
+        lines = [lines]
+    for i, line in enumerate(lines):
+        p = tf.paragraphs[0] if i == 0 else tf.add_paragraph()
+        p.alignment = align
+        p.line_spacing = spacing
+        if para_gap and i > 0:
+            p.space_before = Emu(int(pt(para_gap) * 12700))
+        for part in re.split(r"(\[\[.*?\]\]|\*\*.*?\*\*)", line):
+            if not part:
+                continue
+            c, b = color, bold
+            if part.startswith("[["):
+                part, c, b = part[2:-2], LIGHT, True
+            elif part.startswith("**"):
+                part, b = part[2:-2], True
+            r = p.add_run()
+            r.text = part
+            _set_font(r, size, c, b, en)
+            if letter:
+                r.font._rPr.set("spc", str(int(letter * 100)))
+    return tb
+
+
+def rect(slide, x, y, w, h, fill, line=None, dash=False, shape=MSO_SHAPE.RECTANGLE):
+    s = slide.shapes.add_shape(shape, px(x), px(y), px(w), px(h))
+    if fill is None:
+        s.fill.background()
+    else:
+        s.fill.solid()
+        s.fill.fore_color.rgb = fill
+    if line is None:
+        s.line.fill.background()
+    else:
+        s.line.color.rgb = line
+        s.line.width = Emu(int(1.5 * 12700))
+        if dash:
+            s.line.dash_style = 4  # dash
+    s.shadow.inherit = False
+    return s
+
+
+def hline(slide, x, y, w, color=BORDER_LIGHT, weight=1.0):
+    ln = slide.shapes.add_connector(1, px(x), px(y), px(x + w), px(y))
+    ln.line.color.rgb = color
+    ln.line.width = Emu(int(weight * 12700))
+    return ln
+
+
+TALK = []  # スピーカーノートは talk_script.md に書き出す（pptx を軽くして Drive に載せるため）
+
+
+def notes(slide, body):
+    TALK.append((len(prs.slides), body.strip()))
+
+
+def content_slide(title=None, sub=None):
+    """白背景＋左端ライトグリーン縦帯8px＋左上タイトル＋右下ページ番号。"""
+    global page_no
+    page_no += 1
+    s = prs.slides.add_slide(BLANK)
+    rect(s, 0, 0, 8, H_PX, LIGHT)
+    if title:
+        text(s, 56, 44, 1000, 56, title, size=38, bold=True)
+    if sub:
+        text(s, 56, 104, 1000, 36, sub, size=22, color=SECONDARY)
+    text(s, W_PX - 120, H_PX - 44, 80, 24, str(page_no), size=14, color=MUTED,
+         align=PP_ALIGN.RIGHT, en=True)
+    return s
+
+
+def dark_slide():
+    global page_no
+    page_no += 1
+    s = prs.slides.add_slide(BLANK)
+    s.background.fill.solid()
+    s.background.fill.fore_color.rgb = MOSS
+    return s
+
+
+def divider(num, en_label, title, sub):
+    """P-3 章扉: Moss 全面＋アウトライン章番号＋英字 ALL CAPS＋和文タイトル。ページ番号は出さない。"""
+    s = dark_slide()
+    tb = text(s, 80, 240, 400, 150, num, size=120, color=WHITE, en=True, spacing=1.0)
+    r = tb.text_frame.paragraphs[0].runs[0]
+    rpr = r.font._rPr
+    # 塗りなし＋白アウトライン
+    for el in rpr.findall(qn("a:solidFill")):
+        rpr.remove(el)
+    ln = rpr.makeelement(qn("a:ln"), {"w": "19050"})
+    sf = ln.makeelement(qn("a:solidFill"), {})
+    clr = sf.makeelement(qn("a:srgbClr"), {"val": "FFFFFF"})
+    sf.append(clr)
+    ln.append(sf)
+    rpr.insert(0, ln)
+    nf = rpr.makeelement(qn("a:noFill"), {})
+    rpr.insert(1, nf)
+    text(s, 80, 416, 800, 32, en_label, size=22, color=WHITE, en=True, letter=6)
+    text(s, 80, 460, 900, 64, title, size=46, color=WHITE, bold=True)
+    text(s, 80, 544, 900, 36, sub, size=22, color=WHITE)
+    return s
+
+
+# =====================================================================
+# 1. 表紙（P-1）
+# =====================================================================
+page_no += 1
+s = prs.slides.add_slide(BLANK)
+text(s, 96, 268, 900, 28, "1DAY OFFSITE  2026.10.09", size=18, en=True, letter=5)
+text(s, 96, 324, 960, 140, ["Domuz 全社", "第8期の振り返りと、第9期に向けて"], size=44,
+     bold=True, spacing=1.35)
+rect(s, 96, 500, 64, 4, LIGHT)
+text(s, 96, 540, 600, 30, "株式会社Domuz　髙木", size=20, color=SECONDARY)
+notes(s, """
+おはようございます。今日は一日よろしくお願いします。
+（会場の雰囲気づくり：横浜まで来てくれてありがとう、など一言）
+""")
+
+# =====================================================================
+# 2. 合宿の目的（3つを一覧）— P-11 番号付きリスト
+# =====================================================================
+s = content_slide("今日の合宿の目的")
+items = [("1", "目線を上げる"), ("2", "チーム感を高める"), ("3", "今後の方針を共有する")]
+y = 236
+for n, label in items:
+    text(s, 96, y, 80, 80, n, size=64, color=LIGHT, bold=True, en=True)
+    text(s, 200, y + 12, 800, 64, label, size=46, bold=True)
+    if n != "3":
+        hline(s, 96, y + 116, 936)
+    y += 148
+notes(s, """
+今日の目的は3つです。
+1つずつ、なぜこれをやりたいのかを話します。
+""")
+
+# =====================================================================
+# 3〜5. 目的を1つずつ（P-2 主張文）
+# =====================================================================
+purpose_notes = {
+    "1": "目線を上げる：（口頭）普段の業務から一歩引いて、会社として何を目指しているかを見る日にしたい。",
+    "2": "チーム感を高める：（口頭）普段話さない人とも話して、「この人こんなこと考えてたんだ」を持ち帰ってほしい。",
+    "3": "今後の方針を共有する：（口頭）第9期にどこへ向かうのか、なぜそれをやるのかを全員で揃えたい。",
+}
+for n, label in items:
+    s = content_slide()
+    text(s, 96, 240, 400, 32, f"合宿の目的  {n} / 3", size=22, color=SECONDARY)
+    text(s, 96, 300, 200, 150, n, size=120, color=LIGHT, bold=True, en=True, spacing=1.0)
+    text(s, 96, 470, 960, 90, label, size=64, bold=True)
+    notes(s, purpose_notes[n])
+
+# =====================================================================
+# 6. 第8期 お疲れ様でした（キーメッセージ・Moss 全面）
+# =====================================================================
+s = dark_slide()
+text(s, 80, 300, 968, 200, "第8期、大変お疲れ様でした！", size=64, color=WHITE, bold=True,
+     align=PP_ALIGN.CENTER, anchor=MSO_ANCHOR.MIDDLE)
+notes(s, """
+まずは第8期、本当にお疲れ様でした。
+（ここは自由に：大変だったこと、ありがとうを伝えたい場面など）
+""")
+
+# =====================================================================
+# 7. 章扉 01
+# =====================================================================
+s = divider("01", "FY8 REVIEW", "第8期の振り返り", "数字と、起きたこと")
+
+# =====================================================================
+# 8. 第8期の数字（P-9 3項目の成長）
+# =====================================================================
+s = content_slide("第8期の数字", "第7期 → 第8期（前年比）　※税抜")
+cols = [
+    ("AND PLANTS / AND FLOWER", "売上", 7.2, 7.4, "億円", "+2%", "7.2億 → 7.4億"),
+    ("AND PLANTS / AND FLOWER", "広告費込み限界利益", 1.5, 2.2, "億円", "+47%", "1.5億 → 2.2億"),
+    ("ハナイチ", "売上", 4540, 5527, "万円", "+22%", "4,540万 → 5,527万"),
+]
+x0, colw = 56, 344
+for i, (biz, metric, prev, cur, unit, yoy, cap) in enumerate(cols):
+    x = x0 + i * (colw + 16)
+    text(s, x, 172, colw, 28, biz, size=18, color=SECONDARY, en=False)
+    text(s, x, 204, colw, 40, metric, size=28, bold=True)
+    text(s, x, 250, colw, 72, yoy, size=56, color=LIGHT, bold=True, en=True, spacing=1.0)
+    # 小さな前年比較棒
+    base_y, max_h = 620, 220
+    top = max(prev, cur)
+    for j, (val, col, lab) in enumerate([(prev, BG_GRAY, "第7期"), (cur, MOSS, "第8期")]):
+        h = max_h * val / top
+        bx = x + 48 + j * 136
+        rect(s, bx, base_y - h, 96, h, col)
+        vtxt = f"{val:,}" if unit == "万円" else f"{val}"
+        text(s, bx - 20, base_y - h - 36, 136, 30, vtxt, size=22, bold=True,
+             align=PP_ALIGN.CENTER, en=True)
+        text(s, bx - 20, base_y + 10, 136, 28, lab, size=18, color=SECONDARY,
+             align=PP_ALIGN.CENTER)
+    hline(s, x + 24, base_y, colw - 48, BORDER_LIGHT)
+    text(s, x, 332, colw, 24, f"単位：{unit}", size=16, color=SECONDARY)
+text(s, 56, 690, 1000, 44, "広告を絞っても売上は落とさず、[[利益が大きく残る形]]に変わった", size=28,
+     bold=True)
+text(s, 56, H_PX - 76, 960, 24,
+     "※ AP/AFは自社EC＋モール、税抜（小松資料）。ハナイチは税抜・植木鉢＋生花ほか（比須田資料）。全社合計・イネイブラー／3PLは次ページ",
+     size=14, color=SECONDARY)
+notes(s, """
+AP/AF：売上は+2%とほぼ横ばいだけど、広告費込み限界利益は+47%。広告費を3割減らして利益を1.5倍にした。
+ハナイチ：売上+22%、注文数は2.3倍。生花は1本売れば利益が残る形になった。
+詳細はこのあと各事業の発表で。
+""")
+
+# =====================================================================
+# 9. 全社の数字（P-10 未確定は点線枠「算出中」）
+# =====================================================================
+s = content_slide("全社の数字", "第8期 実績　※税抜")
+boxes = [("全社 売上", "算出中"), ("全社 営業利益", "算出中"), ("イネイブラー／3PL 売上", "算出中")]
+for i, (lab, val) in enumerate(boxes):
+    x = 56 + i * 344
+    text(s, x, 196, 320, 36, lab, size=25, bold=True)
+    rect(s, x, 248, 320, 200, None, line=MOSS, dash=True)
+    text(s, x, 248, 320, 200, val, size=44, bold=True, align=PP_ALIGN.CENTER,
+         anchor=MSO_ANCHOR.MIDDLE)
+text(s, 56, 520, 1000, 120,
+     ["（数字を入れたら、この1行を主張文に差し替え）"], size=28, color=SECONDARY)
+text(s, 56, H_PX - 76, 960, 24, "※ 決算確定値で差し替え", size=14, color=SECONDARY)
+notes(s, """
+（全社の確定値を入れてから話す）
+""")
+
+# =====================================================================
+# 10. 第8期に変わったこと（P-2）
+# =====================================================================
+s = content_slide("第8期に変わったこと")
+text(s, 56, 300, 1000, 160,
+     ["判断の基準が、", "「売れるか」から「[[利益が残るか]]」に変わった。"], size=46, bold=True,
+     spacing=1.4)
+text(s, 56, 520, 1000, 120,
+     ["AP/AFは広告費を約3割削り、利益を1.5倍に。", "ハナイチは広告を減らしながら、注文数を2.3倍に。"],
+     size=25, spacing=1.6)
+notes(s, """
+第8期の一番大きな変化は、数字の見方が変わったこと。
+売上を追うだけでなく、最後に利益が残るかで判断するようになった。
+""")
+
+# =====================================================================
+# 11. 第8期にやったこと（P-7 タイムライン）
+# =====================================================================
+s = content_slide("第8期にやったこと", "2025年10月〜2026年9月")
+events = [
+    ("1月", ["初売り", "セール"]),
+    ("1月", ["広告方針", "の転換"]),
+    ("5月", ["母の日", "月商1億"]),
+    ("5月", ["ブランド", "分割"]),
+    ("7月", ["植物アプリ", "リリース"]),
+    ("8月", ["法人", "コンシェルジュ"]),
+    ("9月", ["中目黒", "イベント"]),
+    ("9月", ["イネイブラー", "卸の再発注"]),
+]
+lx, lw = 72, 984
+ly = 236
+hline(s, lx, ly, lw, BORDER_LIGHT, 2)
+step = lw / (len(events) - 1)
+for i, (m, lab) in enumerate(events):
+    cx = lx + i * step
+    col = LIGHT if i == len(events) - 1 else MOSS
+    rect(s, cx - 9, ly - 9, 18, 18, col, shape=MSO_SHAPE.OVAL)
+    text(s, cx - 60, ly + 28, 120, 34, m, size=25, bold=True, align=PP_ALIGN.CENTER)
+    text(s, cx - 64, ly + 72, 128, 70, lab, size=17, align=PP_ALIGN.CENTER, spacing=1.3)
+hline(s, 56, 440, 1016)
+text(s, 56, 480, 1000, 200,
+     ["ハナイチの生花は、限界利益が赤字から黒字へ。",
+      "中目黒のイベントには約1万人が来場、1,300件を販売。",
+      "イネイブラーは母の日の卸先から、昨年+50%の発注希望。"],
+     size=25, spacing=1.6)
+notes(s, """
+1年を振り返ると、こんなことがありました。（各事業の詳細はこのあと各発表で）
+- 初売り：イベントで勝つ型を覚えた
+- 広告方針の転換：ROAS基準を全施策に
+- 母の日：創業以来はじめての月商1億
+- ブランド分割：花を AND FLOWER として独立
+- 植物アプリ・花アプリ
+- 法人向けコンシェルジュ（グリーンレンタル等）
+- 9/19 中目黒リアルイベント：生産者との関係づくり
+- イネイブラー：卸モデルの追加発注、10月に生花イネイブラー2件スタート
+""")
+
+# =====================================================================
+# 12. 章扉 02
+# =====================================================================
+s = divider("02", "FY9 DIRECTION", "第9期に向けて", "数字の目標と、なぜやるのか")
+
+# =====================================================================
+# 13. 第9期の数字（P-10 実績 vs 計画）
+# =====================================================================
+s = content_slide("第9期の数字", "第8期 実績 → 第9期 計画　※税抜")
+plans = [
+    ("AP/AF 売上", 7.4, 12.0, "億円", "+63%"),
+    ("AP/AF 広告費込み限界利益", 2.2, 3.5, "億円", "+59%"),
+]
+for i, (lab, cur, plan, unit, g) in enumerate(plans):
+    x = 56 + i * 344
+    text(s, x, 172, 330, 36, lab, size=22, bold=True)
+    text(s, x, 210, 320, 24, f"単位：{unit}", size=16, color=SECONDARY)
+    base_y, max_h = 560, 260
+    for j, (val, col, cap) in enumerate([(cur, BG_GRAY, "第8期 実績"), (plan, MOSS, "第9期 計画")]):
+        h = max_h * val / plan
+        bx = x + 32 + j * 136
+        rect(s, bx, base_y - h, 96, h, col)
+        text(s, bx - 20, base_y - h - 36, 136, 30, f"{val}億", size=22, bold=True,
+             align=PP_ALIGN.CENTER)
+        text(s, bx - 30, base_y + 10, 156, 28, cap, size=16, color=SECONDARY,
+             align=PP_ALIGN.CENTER)
+    hline(s, x + 16, base_y, 300)
+    text(s, x, 610, 320, 70, g, size=48, color=LIGHT, bold=True, en=True)
+x = 56 + 2 * 344
+text(s, x, 172, 330, 36, "全社 営業利益", size=22, bold=True)
+rect(s, x, 248, 320, 312, None, line=MOSS, dash=True)
+text(s, x, 248, 320, 312, ["算出中", "（黒字化）"], size=34, bold=True, align=PP_ALIGN.CENTER,
+     anchor=MSO_ANCHOR.MIDDLE, spacing=1.4)
+text(s, 56, 700, 1000, 40, "事業計画を各チームの数字に下ろし、[[毎月計画との差を見て]]動く", size=28,
+     bold=True)
+text(s, 56, H_PX - 76, 960, 24,
+     "※ AP/AFは小松資料の第9期計画。ハナイチ・イネイブラー／3PLの数値目標は事業計画で別途設定", size=14,
+     color=SECONDARY)
+notes(s, """
+第9期は前年比ではなく「計画に対してどうか」で見る。
+AP/AFは売上12億、広告費込み限界利益3.5億が計画。
+全社としては（営業利益の目標を口頭で）。
+""")
+
+# =====================================================================
+# 14. 章扉 03
+# =====================================================================
+s = divider("03", "WHY WE DO THIS", "なぜ、僕らがこれをやるのか", "ミッションと、各事業のつながり")
+notes(s, "ここからは数字の話ではなく、なぜ自分たちがこれをやるのか、の話をします。")
+
+# =====================================================================
+# 15. 出発点：ミッション（P-2）
+# =====================================================================
+s = content_slide("出発点は、ミッション")
+text(s, 56, 236, 900, 30, "- OUR MISSION -", size=20, color=SECONDARY, en=True, letter=4)
+text(s, 56, 288, 1016, 150, ["ITとデザインで、", "[[緑のある暮らし]]をもっと身近に。"], size=52,
+     bold=True, spacing=1.35)
+text(s, 56, 520, 1000, 140,
+     ["根っこにあるのは、「花や植物っていいよね」という気持ち。",
+      "育てる楽しさ、もらったときのうれしさを、もっと多くの人に。"], size=25, spacing=1.7)
+notes(s, """
+Domuzのミッションは「ITとデザインで緑のある暮らしをもっと身近に」。
+根っこにあるのは、花や植物っていいよね、という気持ち。
+植物を育てる楽しさや、花をもらったときのうれしさを、もっと多くの人に届けたい。
+""")
+
+# =====================================================================
+# 16. 危機感（P-2）
+# =====================================================================
+s = content_slide("今、感じている危機感")
+text(s, 56, 280, 1016, 160,
+     ["このままだと、花や植物を楽しむ文化が", "[[小さくなってしまう]]かもしれない。"], size=46, bold=True,
+     spacing=1.4)
+text(s, 56, 500, 1000, 140,
+     ["生産者の減少。花をつくること、売ることの難しさ。",
+      "そこを、Domuzが変えていきたい。"], size=25, spacing=1.7)
+notes(s, """
+一方で、生産者の減少や、花をつくる・売ることの難しさがある。
+このままだと、植物を育てたり、花を贈ったり、楽しんだりする文化が小さくなってしまうかもしれない。
+そこをDomuzが変えていきたい。
+""")
+
+# =====================================================================
+# 17. 裾野を広げる（2カラム）
+# =====================================================================
+s = content_slide("だから、楽しむ人の「裾野」を広げる")
+for i, (head, body) in enumerate([
+    ("植物なら", ["買うとき・育てるときの", "面倒や不安を減らす。", "気軽に育てられる土壌をつくる。"]),
+    ("花なら", ["ほかの贈り物とセットで届けて、", "普段は花を買わない人にも", "受け取ってもらう。"]),
+]):
+    x = 56 + i * 520
+    text(s, x, 196, 480, 50, head, size=34, bold=True, color=LIGHT)
+    text(s, x, 260, 480, 180, body, size=27, spacing=1.6)
+hline(s, 56, 480, 1016)
+text(s, 56, 520, 1016, 200,
+     ["「植物を育てるのっていいな」", "「花をもらうっていいな」", "「次は自分も[[贈ってみよう]]」"],
+     size=34, bold=True, spacing=1.45)
+text(s, 56, 720, 1000, 36, "そんなきっかけを、いろんなシーンにつくっていく。", size=25, color=SECONDARY)
+notes(s, """
+植物なら、買うときや育てるときの面倒や不安を減らす。もっと気軽に育てる土壌を作る。
+花なら、ほかの贈り物とセットで届けることで、普段は花を買わない人にも受け取ってもらう。
+「植物育てるのっていいな」「花をもらうっていいな」「次は自分も贈ってみよう」。
+そんなきっかけを、いろんなシーンにつくっていきたい。
+""")
+
+# =====================================================================
+# 18. 消費者が産業を支える（フロー図）
+# =====================================================================
+s = content_slide("産業を支えているのは、最後に楽しむ人")
+chain = ["種苗", "生産者", "卸", "仲卸", "流通", "小売"]
+cx, cy, cw, ch, gap = 56, 236, 118, 72, 28
+for i, lab in enumerate(chain):
+    x = cx + i * (cw + gap)
+    rect(s, x, cy, cw, ch, None, line=MOSS)
+    text(s, x, cy, cw, ch, lab, size=25, bold=True, align=PP_ALIGN.CENTER,
+         anchor=MSO_ANCHOR.MIDDLE)
+    text(s, x + cw, cy, gap, ch, "▶", size=16, color=LIGHT, align=PP_ALIGN.CENTER,
+         anchor=MSO_ANCHOR.MIDDLE, en=False)
+x = cx + 6 * (cw + gap)
+rect(s, x, cy - 12, 1072 - x, ch + 24, MOSS)
+text(s, x, cy - 12, 1072 - x, ch + 24, ["買って", "楽しむ人"], size=22, color=WHITE, bold=True,
+     align=PP_ALIGN.CENTER, anchor=MSO_ANCHOR.MIDDLE, spacing=1.2)
+text(s, 56, 400, 1016, 160,
+     ["最後にお金を払って、花や植物を楽しむ人が", "いちばん大事。"], size=46, bold=True, spacing=1.4)
+text(s, 56, 590, 1016, 100,
+     ["買う・贈る・もらう・育てる機会を増やすことが、", "[[産業全体への貢献]]につながる。"], size=28,
+     spacing=1.6)
+notes(s, """
+花き産業には、種苗、生産者、卸、仲卸、流通、小売など、多くの人が関わっている。
+その産業を支えるのは、最後にお金を払って花や植物を買い、楽しむ人たち。最終消費者が最も大事。
+買う・贈る・もらう・育てる機会を増やすことが、産業全体への貢献につながる。
+""")
+
+# =====================================================================
+# 19. 各事業はミッションにつながっている（P-11）
+# =====================================================================
+s = content_slide("どの事業も、同じところにつながっている")
+rows = [
+    ("1", "AND PLANTS / AND FLOWER", "自分たちで花や植物を販売し、楽しむ人を増やす"),
+    ("2", "イネイブラー", "いろんな事業者の商品と花をセットで届け、買う・贈る機会を増やす"),
+    ("3", "ハナイチ", "花を売る人・教室や撮影で使う人が、もっと仕入れやすくする"),
+]
+y = 176
+for n, biz, desc in rows:
+    text(s, 56, y, 60, 64, n, size=48, color=LIGHT, bold=True, en=True)
+    text(s, 128, y + 4, 940, 44, biz, size=31, bold=True)
+    text(s, 128, y + 56, 940, 40, desc, size=25)
+    hline(s, 56, y + 116, 1016)
+    y += 136
+flow = ["入口を広げる", "楽しむ人が増える", "産業が良くなる", "Domuzも成長する"]
+fx, fw = 56, 238
+for i, f in enumerate(flow):
+    x = fx + i * (fw + 22)
+    col = LIGHT if i == len(flow) - 1 else MOSS
+    text(s, x, 610, fw, 44, f, size=25, bold=True, color=col, align=PP_ALIGN.CENTER)
+    if i < len(flow) - 1:
+        text(s, x + fw - 4, 610, 30, 44, "▶", size=18, color=LIGHT, align=PP_ALIGN.CENTER,
+             en=False)
+text(s, 56, 680, 1016, 40, "それぞれの事業で入口を広げ、利益を出して、また次の入口をつくる。", size=22,
+     color=SECONDARY, align=PP_ALIGN.CENTER)
+notes(s, """
+・AP／AF：自分たちで花や植物を販売し、楽しむ人を増やす
+・イネイブラー：いろんな事業者の商品と花をセットで届け、花を買う・贈る機会を増やす
+・ハナイチ：花を販売する人や、教室・撮影などで使う人が、もっと仕入れやすくする
+それぞれの事業で入口を広げ、花を楽しむ人、植物を育てる人を増やす。
+その結果、産業がより良くなり、Domuzとしても利益を出して成長する。このつながりをつくりたい。
+""")
+
+# =====================================================================
+# 20. 新規事業 × 届ける現場（川崎）
+# =====================================================================
+s = content_slide("新しい入口は、届ける現場から生まれる", "イネイブラー・高付加価値3PL")
+text(s, 56, 196, 1016, 160,
+     ["他社の贈り物と花をセットにして、", "きれいに、確実に届けられること。",
+      "それ自体が、[[Domuzにしかない強み]]。"], size=36, bold=True, spacing=1.45)
+hline(s, 56, 400, 1016)
+text(s, 56, 424, 600, 32, "第9期に動き出すもの", size=22, color=SECONDARY)
+news = [
+    ("10月", "生花イネイブラー 2件スタート予定（PAPABUBBLE／フレッシュロースター）"),
+    ("10月", "HAKUBA CRAFT：クラフトビールを冷蔵保管し、生花とセットで発送"),
+    ("母の日", "卸モデルの導入先から追加発注（昨年+50%の希望も）"),
+    ("進行中", "カインズ・ハンズとの連携、ギフティとの共同提案"),
+]
+y = 468
+for tag, desc in news:
+    text(s, 56, y, 120, 36, tag, size=22, bold=True, color=LIGHT)
+    text(s, 184, y, 888, 36, desc, size=22)
+    y += 48
+text(s, 56, 684, 1016, 60,
+     "案件が増えるほど、手が慣れるほど、利益は大きくなる。[[川崎の一箱一箱が、次の入口]]になる。", size=25,
+     bold=True)
+notes(s, """
+（特に川崎デリバリーのみんなへ）
+イネイブラーや3PLは、他社の商品と花をセットにして、きれいに、確実に届けられることが肝。
+送料を先方のお客様負担にできるのも、花をセットにしてDomuzから発送するからこそ。
+発送の固定費はロットが大きいほど効率化できるし、習熟度で効率は大きく変わる。
+つまり、案件をたくさん取れば取るほど、現場が慣れるほど、利益率も額も上がっていく。
+今期はPAPABUBBLE、フレッシュロースター、HAKUBA CRAFTのクラフトビール×生花など、新しい贈り物が川崎から出ていく。
+普段は花を買わない人のところに、最初の一本を届けているのは、みんなの手。
+""")
+
+# =====================================================================
+# 21. 5年後、10年後（P-2）
+# =====================================================================
+s = content_slide("5年後、10年後に言われたいこと")
+text(s, 56, 260, 1016, 240,
+     ["「Domuzというチームがいたから、", "花や植物を楽しむ文化が[[広がった]]よね」",
+      "「贈り物の価値が、もっと[[高まった]]よね」"], size=44, bold=True, spacing=1.5)
+text(s, 56, 580, 1000, 40, "そう言われる会社にしたい。", size=28)
+notes(s, """
+「Domuzというチームがいたから、花や植物を楽しむ文化が広がったよね」
+「贈り物の価値がもっと高まったよね」と言われる会社にしたい。
+""")
+
+# =====================================================================
+# 22. ラストメッセージ（P-14）
+# =====================================================================
+s = content_slide("最後に")
+text(s, 56, 250, 1016, 240,
+     ["花や植物を楽しむ人と機会を増やすことが、", "[[産業の未来]]にも、[[Domuzの成長]]にもつながる。"], size=42,
+     bold=True, spacing=1.5)
+text(s, 56, 470, 1000, 120,
+     ["事業は違っても、向かっている先は同じ。", "一人ひとりの仕事が、誰かの「花っていいな」の入口になっている。"],
+     size=25, spacing=1.7)
+text(s, 56, 640, 1016, 60, "第9期も、みんなで[[楽しみながら]]やり切ろう。", size=40, bold=True)
+notes(s, """
+一番伝えたいのは、「花や植物を楽しむ人と機会を増やすことが、産業全体の未来にも、Domuzの成長にもつながる」ということ。
+今日は一日、よろしくお願いします！
+""")
+
+# 使っていないレイアウトを削除してファイルを軽くする（Drive へのアップロード用）
+layouts = prs.slide_master.slide_layouts
+for layout in list(layouts):
+    if layout is not BLANK:
+        layouts.remove(layout)
+
+out = sys.argv[1] if len(sys.argv) > 1 else "deck.pptx"
+prs.save(out)
+with open("talk_script.md", "w") as f:
+    f.write("# 1day合宿 2026.10.09 全社パート — トーク台本（スライド番号つき）\n\n")
+    for n, body in TALK:
+        f.write(f"## {n}\n\n{body}\n\n")
+print("saved", out, "slides:", len(prs.slides))
