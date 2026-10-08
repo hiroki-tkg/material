@@ -28,6 +28,13 @@ head += '''<style>
   .status.go { background: var(--brand-secondary); color: var(--text-primary); }
   .status.wait { background: var(--bg-dull-green); }
   .vcenter { height: calc(100% - 64px); }
+  table.fy { margin-top: 12px; }
+  table.fy th, table.fy td { padding: 9px 12px; font-size: 20px; border-bottom: 1px solid var(--border-light); }
+  table.fy th { background: var(--bg-moss); color: var(--text-on-fill); font-size: 17px; font-weight: 700; text-align: right; }
+  table.fy th:first-child { text-align: left; }
+  table.fy td { font-family: var(--font-en); text-align: right; font-weight: 700; }
+  table.fy td:first-child { font-family: var(--font-ja); text-align: left; font-weight: 700; }
+  table.fy tr.cur td { background: var(--bg-light); }
   .tag { display: inline-block; font-size: 15px; font-weight: 700; padding: 2px 10px; border-radius: 4px; white-space: nowrap; margin-left: auto; }
   .tag.done { background: var(--brand-secondary); color: var(--text-primary); }
   .tag.poc { background: var(--brand-primary); color: var(--text-on-fill); }
@@ -135,42 +142,40 @@ def quarterly_stack(data, w=1000, h=270, unit='百万円'):
         o.append(f'<text x="{16+(4*f+2)*gw:.1f}" y="{h-pb+50}" text-anchor="middle" font-size="15" fill="{SUB}" style="{JA}">{Q_FY[f]}</text>')
     o.append(f'<text x="{w}" y="18" text-anchor="end" font-size="14" fill="{SUB}" style="{JA}">単位: {unit}</text></svg>')
     return ''.join(o)
-QLEGEND=''.join(f'<span style="display:inline-flex;align-items:center;gap:8px;margin-right:24px;font-size:18px;color:var(--text-secondary);"><i style="display:inline-block;width:18px;height:18px;border-radius:3px;background:{Q_COLOR[k]};"></i>{Q_NAME[k]}</span>' for k in ['AP','AF','HI'])
+QLEGEND=''
 
-# ---------- 事業別 月次（2021-05〜2026-09、百万円。Raw シート → monthly_by_business.json） ----------
 import json
+HERE_=HERE
 MB=json.load(open(HERE+'/monthly_by_business.json',encoding='utf-8'))
-M_SALES={'AP':MB['AP_S'],'AF':MB['AF_S'],'HI':MB['HI_S']}
-M_MP   ={'AP':MB['AP_M'],'AF':MB['AF_M'],'HI':MB['HI_M']}
-M_MONTHS=MB['months']
-_i0=M_MONTHS.index('2022-10')
-M_MONTHS=M_MONTHS[_i0:]
-M_SALES={k:v[_i0:] for k,v in M_SALES.items()}
-M_MP={k:v[_i0:] for k,v in M_MP.items()}
+FYB=json.load(open(HERE+'/fy_by_business.json',encoding='utf-8'))
+_i0=MB['months'].index('2022-10')
+M_MONTHS=MB['months'][_i0:]
+M_SERIES={'AP':MB['AP_S'][_i0:],'AF':MB['AF_S'][_i0:]}
 def fy_of(m): y=int(m[:4]); mo=int(m[5:]); return (y+1 if mo>=10 else y)-2018   # 2018-10 創業 → 第1期
-def monthly_stack(data, w=700, h=262, unit='百万円'):
-    """65ヶ月×事業別の積み上げ棒。期ごとに区切り線と期合計ラベル、ラベルは最高月だけ"""
-    segs=['AP','AF','HI']; n=len(M_MONTHS)
-    totals=[sum(data[k][i] for k in segs) for i in range(n)]
-    mx=max(totals)*1.18; pb=60; pt=34; ch=h-pb-pt; gw=w/n; bw=gw*0.72
+def monthly_single(vals, color, w=760, h=330, unit='百万円'):
+    """48ヶ月の単系列棒。期ごとに区切り線・期合計、各期の最高月にだけ数値ラベル"""
+    n=len(M_MONTHS); mx=max(vals)*1.18; pb=60; pt=34; ch=h-pb-pt; gw=w/n; bw=gw*0.72
     o=[_open(w,h),f'<line x1="0" y1="{h-pb}" x2="{w}" y2="{h-pb}" stroke="{LINE}" stroke-width="2"/>']
-    for i in range(n):
-        x=i*gw+(gw-bw)/2; y=h-pb
-        for k in segs:
-            v=data[k][i]; hh=ch*v/mx; y-=hh
-            if hh>0: o.append(f'<rect x="{x:.1f}" y="{y:.1f}" width="{bw:.1f}" height="{hh:.1f}" fill="{Q_COLOR[k]}"/>')
-    # 期の区切りと期合計・最高月ラベル
+    for i,v in enumerate(vals):
+        x=i*gw+(gw-bw)/2; hh=ch*v/mx
+        if hh>0: o.append(f'<rect x="{x:.1f}" y="{h-pb-hh:.1f}" width="{bw:.1f}" height="{hh:.1f}" fill="{color}" rx="2"/>')
     fys=[fy_of(m) for m in M_MONTHS]
     for f in sorted(set(fys)):
         idx=[i for i,v in enumerate(fys) if v==f]; a,b=idx[0],idx[-1]
         if a>0: o.append(f'<line x1="{a*gw:.1f}" y1="{pt-8}" x2="{a*gw:.1f}" y2="{h-pb+30}" stroke="{LINE}" stroke-width="1" stroke-dasharray="4 4"/>')
-        tot=sum(totals[a:b+1]); cx=(a+b+1)/2*gw
+        cx=(a+b+1)/2*gw; tot=sum(vals[a:b+1])
         o.append(f'<text x="{cx:.1f}" y="{h-pb+22}" text-anchor="middle" font-size="15" font-weight="700" fill="{MOSS}" style="{JA}">第{f}期</text>')
         o.append(f'<text x="{cx:.1f}" y="{h-pb+42}" text-anchor="middle" font-size="14" fill="{SUB}" style="{EN}">{tot:.0f}</text>')
-        pk=max(idx,key=lambda i: totals[i]); px=pk*gw+gw/2; py=h-pb-ch*totals[pk]/mx-6
-        o.append(f'<text x="{px:.1f}" y="{py:.1f}" text-anchor="middle" font-size="13" font-weight="700" fill="{MOSS}" style="{EN}">{totals[pk]:.0f}</text>')
+        pk=max(idx,key=lambda i: vals[i]); o.append(f'<text x="{pk*gw+gw/2:.1f}" y="{h-pb-ch*vals[pk]/mx-6:.1f}" text-anchor="middle" font-size="13" font-weight="700" fill="{MOSS}" style="{EN}">{vals[pk]:.0f}</text>')
     o.append(f'<text x="0" y="18" font-size="14" fill="{SUB}" style="{JA}">単位: {unit}　棒の上は各期の最高月、期名の下は期合計</text></svg>')
     return ''.join(o)
+def fy_table(prefix):
+    rows=[]
+    for f in ['5','6','7','8']:
+        d=FYB[f]; S=d[prefix+'_S']; M=d[prefix+'_M']; AD=d[prefix+'_AD']; MA=d[prefix+'_MA']
+        cls=' class="cur"' if f=='8' else ''
+        rows.append(f'<tr{cls}><td>第{f}期</td><td>{S:,.1f}</td><td>{M:,.1f}</td><td>{M/S*100:.1f}%</td><td>{AD:,.1f}</td><td>{S/AD*100:.0f}%</td><td>{MA:,.1f}</td><td>{MA/S*100:.1f}%</td></tr>')
+    return '<table class="fy"><tr><th>期</th><th>売上</th><th>限界利益</th><th>限界利益率</th><th>広告費</th><th>全体ROAS</th><th>広告費込み限界利益</th><th>同率</th></tr>'+''.join(rows)+'</table>'
 pages=[]
 def P(html): pages.append(html)
 
@@ -215,12 +220,22 @@ P('''<section class="page">
   <div class="note">※ 限界利益＝売上総利益−荷造運賃−支払手数料。全体ROAS＝売上高÷広告宣伝費。広告費込み限界利益＝限界利益−広告宣伝費。9月末の実地棚卸（135.9百万円、8月末比 −6.5百万円）を売上原価に反映した暫定値。確定値と差異が出ます</div>
 </section>''')
 
-# 事業別 月次 売上・限界利益（第3期〜第8期）
+# AND PLANTS 月次売上＋期別表
 P(f'''<section class="page">
-  <h1>事業別の月次売上（第5期 → 第8期）</h1>
-  <div style="margin-top: 4px; text-align: center;">{QLEGEND}</div>
-  <div style="margin-top: 24px; width: 760px; margin-left: auto; margin-right: auto;">{monthly_stack(M_SALES,w=760,h=420)}</div>
-    <div class="note">※ 税抜。2022年10月〜2026年9月。第5期＝2022年10月〜2023年9月、第8期＝2025年10月〜2026年9月。モール売上は AND PLANTS に含む。マーケティングマスター集計のため試算表とは集計基準が異なる</div>
+  <h1>AND PLANTS：月次売上と期別の収益性</h1>
+  <div class="cap">第5期（2022年10月）〜 第8期（2026年9月）</div>
+  <div style="margin-top: 4px; width: 760px; margin-left: auto; margin-right: auto;">{monthly_single(M_SERIES['AP'], LIGHT)}</div>
+  {fy_table('AP')}
+  <div class="note">※ 税抜・単位: 百万円。自社EC＋モール（楽天・Amazon・Yahoo!）。広告費＝Web広告の直課＋共通配賦＋モール広告（モール広告は2025年6月以降のみ計上）。マーケティングマスター集計のため試算表とは集計基準が異なる</div>
+</section>''')
+
+# AND FLOWER 月次売上＋期別表
+P(f'''<section class="page">
+  <h1>AND FLOWER：月次売上と期別の収益性</h1>
+  <div class="cap">第5期（2022年10月）〜 第8期（2026年9月）</div>
+  <div style="margin-top: 4px; width: 760px; margin-left: auto; margin-right: auto;">{monthly_single(M_SERIES['AF'], PINK)}</div>
+  {fy_table('AF')}
+  <div class="note">※ 税抜・単位: 百万円。自社EC（モールの花は微小のため含む）。広告費＝Web広告の直課＋共通配賦（母の日・指名検索などの共通広告は自社EC売上比で配賦）。マーケティングマスター集計のため試算表とは集計基準が異なる</div>
 </section>''')
 
 # P-8 広告効率
