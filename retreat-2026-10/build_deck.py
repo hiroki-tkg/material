@@ -525,6 +525,20 @@ for i, t in enumerate(TOPICS):
         text(s, area_x, area_y, area_w, area_h, "写真（届き次第差し替え）", size=25, color=SECONDARY,
              align=PP_ALIGN.CENTER, anchor=MSO_ANCHOR.MIDDLE)
     notes(s, f"{n}. {t}" + (f"（{TOPIC_SUB[n]}）" if n in TOPIC_SUB else "") + "：（口頭で）")
+    if t.startswith("ギフティ"):
+        # 出資の結果（累計調達額と時価総額）
+        s = content_slide("資金調達の到達点")
+        for j, (lab, val, unit) in enumerate([("累計資金調達額", "7.4", "億円"), ("会社の時価総額", "21", "億円")]):
+            x = 56 + j * 520
+            text(s, x, 236, 480, 36, lab, size=28, color=SECONDARY)
+            tb = text(s, x, 284, 480, 140, val, size=120, bold=True, en=True, spacing=1.0)
+            r = tb.text_frame.paragraphs[0].add_run()
+            r.text = unit
+            _set_font(r, 38, MOSS, True, en=False)
+        hline(s, 56, 500, 1016)
+        text(s, 56, 548, 1016, 140, ["累計資金調達額は[[7.4億円]]に到達、", "会社の時価総額は[[21億円]]に。"],
+             size=40, bold=True, spacing=1.45)
+        notes(s, "ギフティからの出資で、累計資金調達額は7.4億円に到達。会社の時価総額は21億円になった。")
 
 # =====================================================================
 # 12. 章扉 02
