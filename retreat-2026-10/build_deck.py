@@ -198,11 +198,22 @@ def divider(num, en_label, title, sub):
 # =====================================================================
 page_no += 1
 s = prs.slides.add_slide(BLANK)
-text(s, 96, 268, 900, 28, "1DAY OFFSITE  2026.10.09", size=18, en=True, letter=5)
-text(s, 96, 324, 960, 140, ["Domuz 全社", "第8期の振り返りと、第9期に向けて"], size=44,
-     bold=True, spacing=1.35)
-rect(s, 96, 500, 64, 4, LIGHT)
-text(s, 96, 540, 600, 30, "株式会社Domuz　髙木", size=20, color=SECONDARY)
+# 背景の透かし: 極太の "Domuz" を3段、薄いグレーで全面に
+WATERMARK = RGBColor(0xEC, 0xEE, 0xEE)  # --watermark
+for row in range(3):
+    tb = text(s, -20, -40 + row * 282, W_PX + 40, 300, "Domuz", size=330, color=WATERMARK, bold=False,
+              en=True, align=PP_ALIGN.CENTER, anchor=MSO_ANCHOR.MIDDLE, spacing=0.8)
+    for r in tb.text_frame.paragraphs[0].runs:
+        r.font.name = "Outfit Black"
+        rpr = r._r.get_or_add_rPr()
+        for tag in ("a:ea", "a:cs"):
+            rpr.find(qn(tag)).set("typeface", "Outfit Black")
+text(s, 0, 236, W_PX, 200, "Domuz", size=170, bold=True, en=True, align=PP_ALIGN.CENTER,
+     anchor=MSO_ANCHOR.MIDDLE, spacing=1.0)
+text(s, 0, 430, W_PX, 160, "1day合宿", size=120, bold=True, align=PP_ALIGN.CENTER,
+     anchor=MSO_ANCHOR.MIDDLE, spacing=1.0)
+text(s, 0, 640, W_PX, 40, "2026.10.09", size=28, color=SECONDARY, en=True, align=PP_ALIGN.CENTER,
+     letter=4)
 notes(s, """
 おはようございます。今日は一日よろしくお願いします。
 （会場の雰囲気づくり：横浜まで来てくれてありがとう、など一言）
@@ -413,29 +424,14 @@ AP/AF：売上は+2%とほぼ横ばいだけど、広告費込み限界利益は
 """)
 
 # =====================================================================
-# 10. 第8期に変わったこと（P-2）
-# =====================================================================
-s = content_slide("第8期に変わったこと")
-text(s, 56, 300, 1000, 160,
-     ["判断の基準が、", "「売れるか」から「[[利益が残るか]]」に変わった。"], size=46, bold=True,
-     spacing=1.4)
-text(s, 56, 520, 1000, 120,
-     ["AP/AFは広告費を約3割削り、利益を1.5倍に。", "ハナイチは広告を減らしながら、注文数を2.3倍に。"],
-     size=25, spacing=1.6)
-notes(s, """
-第8期の一番大きな変化は、数字の見方が変わったこと。
-売上を追うだけでなく、最後に利益が残るかで判断するようになった。
-""")
-
-# =====================================================================
 # 11. 第8期にやったこと（一覧 → 1トピック1枚・写真）
 # =====================================================================
 TOPICS = [
     "花アプリ公開",
-    "三和との委託発送開始",
+    "三和園芸さんとの委託発送開始",
     "観葉イネイブラー始動",
     "花イネイブラー始動",
-    "AND FLOWER独立",
+    "アンドフラワーのブランド分割",
     "植物ケアアプリ公開",
     "マルシェ開催",
     "全社AI活用・MCP整備",
