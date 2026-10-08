@@ -454,13 +454,9 @@ TOPIC_SUB = {
     3: "KANADEMONOなど外部ブランドとの連携拡大",
     4: "Mr. CHEESECAKE、UCC様",
 }
-s = content_slide("第8期にやったこと", "2025年10月〜2026年9月")
-for i, t in enumerate(TOPICS):
-    col, row = divmod(i, 6)
-    x, y = 56 + col * 520, 176 + row * 96
-    text(s, x, y, 56, 56, str(i + 1), size=34, color=LIGHT, bold=True, en=True)
-    text(s, x + 64, y + 6, 440, 48, t, size=28, bold=True)
-    hline(s, x, y + 76, 480)
+s = content_slide()
+text(s, 56, 323, 1016, 200, "8期もいろいろありました（しみじみ", size=56, bold=True, align=PP_ALIGN.CENTER,
+     anchor=MSO_ANCHOR.MIDDLE)
 notes(s, "第8期にやったことを、写真と一緒に1つずつ振り返ります。")
 
 PHOTO_DIR = os.path.join(os.path.dirname(os.path.abspath(__file__)), "photos")
@@ -537,6 +533,16 @@ for i, t in enumerate(TOPICS):
         text(s, area_x, area_y, area_w, area_h, "写真（届き次第差し替え）", size=25, color=SECONDARY,
              align=PP_ALIGN.CENTER, anchor=MSO_ANCHOR.MIDDLE)
     notes(s, f"{n}. {t}" + (f"（{TOPIC_SUB[n]}）" if n in TOPIC_SUB else "") + "：（口頭で）")
+    if t.startswith("ハナイチ"):
+        # 新しい仲間（入社月のみ）
+        s = content_slide("新しい出会い（入社）もありました")
+        joins = ["2025年10月", "2025年11月", "2025年12月", "2026年7月"]
+        d, gap = 200, (1016 - 200 * 4) / 3
+        for k, m in enumerate(joins):
+            x = 56 + k * (d + gap)
+            place_contain(s, os.path.join(PHOTO_DIR, "members", f"{k + 1}.png"), x, 300, d, d)
+            text(s, x - 20, 524, d + 40, 36, m, size=25, bold=True, align=PP_ALIGN.CENTER)
+        notes(s, "第8期は新しい仲間も増えました。（舘脇さん・頼政さん・川嶋さん・塚本さんを口頭で紹介）")
     if t.startswith("ギフティ"):
         # 出資の結果（累計調達額と時価総額）
         s = content_slide("資金調達の到達点")
