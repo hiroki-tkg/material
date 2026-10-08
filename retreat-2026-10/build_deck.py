@@ -563,6 +563,14 @@ for i, t in enumerate(TOPICS):
         notes(s, "ギフティからの出資で、累計資金調達額は7.4億円に到達。会社の時価総額は21億円になった。")
 
 # =====================================================================
+# 11-2. みなさん、お疲れ様でした（キーメッセージ・Moss 全面）
+# =====================================================================
+s = dark_slide()
+text(s, 80, 300, 968, 200, "みなさん、大変お疲れ様でした〜👏", size=60, color=WHITE, bold=True,
+     align=PP_ALIGN.CENTER, anchor=MSO_ANCHOR.MIDDLE)
+notes(s, "第8期の振り返りはここまで。みなさん、大変お疲れ様でした！")
+
+# =====================================================================
 # 12. 章扉 02
 # =====================================================================
 s = divider("02", "FY9 DIRECTION", "第9期に向けて", "数字の目標と、なぜやるのか")
@@ -570,34 +578,35 @@ s = divider("02", "FY9 DIRECTION", "第9期に向けて", "数字の目標と、
 # =====================================================================
 # 13. 第9期の数字（P-10 実績 vs 計画）
 # =====================================================================
-s = content_slide("第9期の数字", "第8期 実績 → 第9期 計画　※税抜")
+s = content_slide("第9期の計画", "第8期 実績 → 第9期 計画（売上）　※税抜")
 plans = [
-    ("AP/AF 売上", 7.4, 12.0, "億円", "+63%"),
-    ("AP/AF 広告費込み限界利益", 2.2, 3.5, "億円", "+59%"),
+    ("AND PLANTS / AND FLOWER", 7.4, 12.4, "+68%"),
+    ("イネイブラー", 0.1, 1.9, "19倍"),
+    ("ハナイチ", 0.55, 1.7, "3.1倍"),
 ]
-for i, (lab, cur, plan, unit, g) in enumerate(plans):
-    x = 56 + i * 520
-    text(s, x, 172, 480, 36, lab, size=25, bold=True)
-    text(s, x, 210, 320, 24, f"単位：{unit}", size=16, color=SECONDARY)
+for i, (lab, cur, plan, g) in enumerate(plans):
+    x = 56 + i * 344
+    text(s, x, 172, 330, 36, lab, size=22, bold=True)
+    text(s, x, 206, 320, 24, "単位：億円", size=16, color=SECONDARY)
     base_y, max_h = 560, 260
     for j, (val, col, cap) in enumerate([(cur, BG_GRAY, "第8期 実績"), (plan, MOSS, "第9期 計画")]):
-        h = max_h * val / plan
-        bx = x + 64 + j * 176
-        rect(s, bx, base_y - h, 120, h, col)
-        text(s, bx - 8, base_y - h - 36, 136, 30, f"{val}億", size=22, bold=True,
+        h = max(max_h * val / plan, 3)
+        bx = x + 40 + j * 136
+        rect(s, bx, base_y - h, 96, h, col)
+        text(s, bx - 20, base_y - h - 36, 136, 30, f"{val:g}億", size=22, bold=True,
              align=PP_ALIGN.CENTER)
-        text(s, bx - 18, base_y + 10, 156, 28, cap, size=16, color=SECONDARY,
+        text(s, bx - 30, base_y + 10, 156, 28, cap, size=16, color=SECONDARY,
              align=PP_ALIGN.CENTER)
-    hline(s, x + 32, base_y, 400)
-    text(s, x, 610, 320, 70, g, size=48, color=LIGHT, bold=True, en=True)
+    hline(s, x + 16, base_y, 300)
+    text(s, x, 610, 320, 70, g, size=48, color=LIGHT, bold=True, en=(g.startswith("+")))
 text(s, 56, 700, 1000, 40, "事業計画を各チームの数字に下ろし、[[毎月計画との差を見て]]動く", size=28,
      bold=True)
 text(s, 56, H_PX - 76, 960, 24,
-     "※ AP/AFは小松資料の第9期計画。ハナイチ・イネイブラー／3PLの数値目標は事業計画で別途設定", size=14,
+     "※ ハナイチの第8期実績は比須田資料（5,527万円）", size=14,
      color=SECONDARY)
 notes(s, """
 第9期は前年比ではなく「計画に対してどうか」で見る。
-AP/AFは売上12億、広告費込み限界利益3.5億が計画。
+売上の計画は、AP/AFが12.4億、イネイブラーが0.1億→1.9億、ハナイチが1.7億。
 """)
 
 # =====================================================================
