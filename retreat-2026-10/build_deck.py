@@ -687,7 +687,7 @@ text(s, 56, 323, 1016, 200, "今、業界で感じている危機感", size=56, 
 notes(s, "ここからは、いま業界で感じている危機感の話。")
 
 s = content_slide()
-crisis = ["生産者の高齢化 & 減少", "高齢化によるニーズの変化", "若者の花離れ", "ビジネスシーンの贈答文化の変化"]
+crisis = ["生産者の減少", "高齢化によるニーズの変化", "若者の花離れ", "ビジネスシーンの贈答文化の変化"]
 for k, t in enumerate(crisis):
     col, row = k % 2, k // 2
     x, y = 80 + col * 504, 172 + row * 280
@@ -699,10 +699,9 @@ notes(s, """
 """)
 
 s = content_slide()
-text(s, 56, 280, 1016, 160,
+text(s, 56, 293, 1016, 260,
      ["このままだと、花や植物を楽しむ文化が", "[[小さくなってしまう]]かもしれない。"], size=46, bold=True,
-     spacing=1.4)
-text(s, 56, 500, 1000, 60, "そこを、Domuzが変えていきたい。", size=28, spacing=1.7)
+     spacing=1.4, anchor=MSO_ANCHOR.MIDDLE)
 notes(s, """
 一方で、生産者の減少や、花をつくる・売ることの難しさがある。
 このままだと、植物を育てたり、花を贈ったり、楽しんだりする文化が小さくなってしまうかもしれない。
@@ -712,7 +711,12 @@ notes(s, """
 # =====================================================================
 # 17. 裾野を広げる（2カラム）
 # =====================================================================
-s = content_slide("だから、楽しむ人の「裾野」を広げる")
+s = content_slide()
+text(s, 56, 323, 1016, 200, "花/植物を楽しむ人の「[[裾野]]」を広げる", size=56, bold=True, align=PP_ALIGN.CENTER,
+     anchor=MSO_ANCHOR.MIDDLE)
+notes(s, "だから、花や植物を楽しむ人の裾野を広げる。")
+
+s = content_slide()
 for i, (head, body) in enumerate([
     ("植物なら", ["買うとき・育てるときの", "面倒や不安を減らす。", "気軽に育てられる土壌をつくる。"]),
     ("花なら", ["ほかの贈り物とセットで届けて、", "普段は花を買わない人にも", "受け取ってもらう。"]),
@@ -724,7 +728,6 @@ hline(s, 56, 480, 1016)
 text(s, 56, 520, 1016, 200,
      ["「植物を育てるのっていいな」", "「花をもらうっていいな」", "「次は自分も[[贈ってみよう]]」"],
      size=34, bold=True, spacing=1.45)
-text(s, 56, 720, 1000, 36, "そんなきっかけを、いろんなシーンにつくっていく。", size=25, color=SECONDARY)
 notes(s, """
 植物なら、買うときや育てるときの面倒や不安を減らす。もっと気軽に育てる土壌を作る。
 花なら、ほかの贈り物とセットで届けることで、普段は花を買わない人にも受け取ってもらう。
@@ -742,7 +745,7 @@ for i, lab in enumerate(chain):
     x = cx + i * (cw + gap)
     rect(s, x, cy, cw, ch, None, line=MOSS)
     text(s, x, cy, cw, ch, lab, size=25, bold=True, align=PP_ALIGN.CENTER,
-         anchor=MSO_ANCHOR.MIDDLE)
+         anchor=MSO_ANCHOR.MIDDLE, spacing=1.0)
     arrow(s, x + cw + 8, cy + ch / 2 - 7, 12, 14)
 x = cx + 6 * (cw + gap)
 rect(s, x, cy - 12, 1072 - x, ch + 24, MOSS)
