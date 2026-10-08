@@ -99,6 +99,43 @@ print('8月 売上', SALES[10], '限界利益', MP[10], '広告', AD[10], '広�
 print('FY 売上', FY_SALES, '限界利益', FY_MP, '広告費込み', FY_MP-FY_AD, 'MoM', round(SALES[11]/SALES[10]*100-100,1), round(MP[11]/MP[10]*100-100,1), round(AD[11]/AD[10]*100-100,1), round(MPA[11]/MPA[10],2))
 f_int=lambda v: f'{v:g}'
 f_1=lambda v: f'{v:.1f}'
+
+# ---------- 事業別 四半期（売上・限界利益、百万円。四半期エコノミクス.xlsx。ハナイチは粗利） ----------
+QL=['Q1','Q2','Q3','Q4','Q1','Q2','Q3','Q4']   # 第7期（FY2025）→ 第8期（FY2026）
+Q_SALES={'AP':[110.04,145.46,171.03,128.23,118.20,141.25,172.04,131.73],
+         'AF':[33.09,36.46,56.31,35.68,41.09,37.06,66.48,27.80],
+         'HI':[2.92,5.73,10.77,10.96,7.44,9.86,13.85,15.67]}
+Q_MP   ={'AP':[51.45,66.18,79.41,58.88,54.88,65.35,81.45,60.20],
+         'AF':[14.78,16.24,28.43,16.05,18.19,16.52,37.26,13.30],
+         'HI':[0.97,1.61,3.16,3.46,1.95,3.42,5.09,4.62]}
+Q_COLOR={'AP':LIGHT,'AF':PINK,'HI':MOSS}; Q_TEXT={'AP':'var(--text-primary)','AF':'var(--text-on-fill)','HI':'var(--text-on-fill)'}
+Q_NAME={'AP':'AND PLANTS','AF':'AND FLOWER','HI':'ハナイチ'}
+def fy(d,i0): return sum(sum(d[k][i0:i0+4]) for k in d)
+print('FY25 売上',round(fy(Q_SALES,0),1),'FY26 売上',round(fy(Q_SALES,4),1),'FY25 限利',round(fy(Q_MP,0),1),'FY26 限利',round(fy(Q_MP,4),1))
+for k in Q_SALES: print(k, 'sales', round(sum(Q_SALES[k][:4]),1), round(sum(Q_SALES[k][4:]),1), 'mp', round(sum(Q_MP[k][:4]),1), round(sum(Q_MP[k][4:]),1))
+
+def quarterly_stack(data, w=480, h=400, unit='百万円'):
+    """8四半期×事業別の積み上げ棒。合計ラベルは棒の上、帯の中は20px以上のときだけ値を出す"""
+    segs=['AP','AF','HI']; n=len(QL)
+    totals=[sum(data[k][i] for k in segs) for i in range(n)]
+    mx=max(totals)*1.2; pb=72; pt=36; ch=h-pb-pt; gw=(w-16)/n; bw=gw*0.64
+    o=[_open(w,h),f'<line x1="0" y1="{h-pb}" x2="{w}" y2="{h-pb}" stroke="{LINE}" stroke-width="2"/>']
+    for i in range(n):
+        x=16+i*gw+(gw-bw)/2; y=h-pb
+        for k in segs:
+            v=data[k][i]; hh=ch*v/mx; y-=hh
+            o.append(f'<rect x="{x:.1f}" y="{y:.1f}" width="{bw:.1f}" height="{hh:.1f}" fill="{Q_COLOR[k]}"/>')
+            if hh>=20: o.append(f'<text x="{x+bw/2:.1f}" y="{y+hh/2+5:.1f}" text-anchor="middle" font-size="13" font-weight="700" fill="{Q_TEXT[k]}" style="{EN}">{v:.0f}</text>')
+        o.append(f'<text x="{x+bw/2:.1f}" y="{h-pb-ch*totals[i]/mx-8:.1f}" text-anchor="middle" font-size="16" font-weight="700" fill="{MOSS}" style="{EN}">{totals[i]:.0f}</text>')
+        o.append(f'<text x="{x+bw/2:.1f}" y="{h-pb+24}" text-anchor="middle" font-size="16" fill="{SUB}" style="{EN}">{QL[i]}</text>')
+    # 期のラベルと区切り
+    mid=16+4*gw
+    o.append(f'<line x1="{mid:.1f}" y1="{pt}" x2="{mid:.1f}" y2="{h-pb+40}" stroke="{LINE}" stroke-width="1" stroke-dasharray="4 4"/>')
+    o.append(f'<text x="{16+2*gw:.1f}" y="{h-pb+54}" text-anchor="middle" font-size="16" fill="{SUB}" style="{JA}">第7期（2024年10月〜）</text>')
+    o.append(f'<text x="{16+6*gw:.1f}" y="{h-pb+54}" text-anchor="middle" font-size="16" fill="{SUB}" style="{JA}">第8期（2025年10月〜）</text>')
+    o.append(f'<text x="0" y="20" font-size="15" fill="{SUB}" style="{JA}">単位: {unit}</text></svg>')
+    return ''.join(o)
+QLEGEND=''.join(f'<span style="display:inline-flex;align-items:center;gap:8px;margin-right:24px;font-size:18px;color:var(--text-secondary);"><i style="display:inline-block;width:18px;height:18px;border-radius:3px;background:{Q_COLOR[k]};"></i>{Q_NAME[k]}</span>' for k in ['AP','AF','HI'])
 pages=[]
 def P(html): pages.append(html)
 
@@ -174,24 +211,17 @@ P(f'''<section class="page">
   <div class="note">※ 年間値は決算整理（売上高 −4.0百万円等）を含む。限界利益＝売上総利益−荷造運賃−支払手数料</div>
 </section>''')
 
-# P-8 広告効率
+# 事業別 四半期 売上・限界利益
 P(f'''<section class="page">
-  <h1>広告宣伝費と広告効率</h1>
-  <div class="cap">前月との比較　※全体ROAS＝売上高÷広告宣伝費</div>
-  <div class="two" style="margin-top: 20px; align-items: flex-start;">
-    <div style="flex: 0 0 440px;">
-      <div class="lbl">9月の広告宣伝費</div>
-      <div class="big" style="font-size: 76px;">13.5<small>百万円</small></div>
-      <div class="yoy" style="margin-top: 12px;"><div class="yl">前月比</div><div class="yv">+13.6%</div><div class="yn">11.9 → 13.5百万円</div></div>
-      <div class="yoys" style="margin-top: 12px; gap: 24px;">
-        <div class="yoy" style="min-width: 0;"><div class="yl">全体ROAS</div><div class="yv" style="font-size: 44px;">487%</div><div class="yn">前月 494%</div></div>
-        <div class="yoy" style="min-width: 0;"><div class="yl">広告費込み限界利益</div><div class="yv pos" style="font-size: 44px;">1.9倍</div><div class="yn">7.7 → 14.4百万円</div></div>
-      </div>
-    </div>
-    <div style="flex: 1;">{compare_bars(['売上高','広告宣伝費','広告費込み限界利益'],prev=[58.7,11.9,7.7],cur=[65.7,13.5,14.4],labels=('2026年8月','2026年9月'),w=560,h=380)}</div>
+  <h1>事業別の四半期 売上・限界利益（第7期 → 第8期）</h1>
+  <div class="cap">AND PLANTS／AND FLOWER／ハナイチ　※税抜・マーケティングマスター集計</div>
+  <div style="margin-top: 4px;">{QLEGEND}</div>
+  <div class="two" style="margin-top: 8px; gap: 40px; align-items: flex-start;">
+    <div><div class="sub" style="font-size: 26px;">売上</div>{quarterly_stack(Q_SALES)}</div>
+    <div><div class="sub" style="font-size: 26px;">限界利益</div>{quarterly_stack(Q_MP)}</div>
   </div>
-  <div class="line" style="margin-top: 8px;">広告を1割強増やし、ROASをほぼ維持したまま広告費込み限界利益を倍増させた</div>
-  <div class="note">※ 媒体別の広告費（媒体レポート値）: Google 4.6／Meta 2.4／楽天RPP 1.2／Amazon 1.2／Yahoo! 0.3／その他 0.2百万円。試算表の広告宣伝費とは計上基準が異なる</div>
+  <div class="line" style="margin-top: 4px; font-size: 24px;">第8期は売上 7.83億円（前期比 +4.8%）、限界利益 3.62億円（+6.3%）。母の日の Q3 が AND FLOWER の山、ハナイチは Q4 に過去最高の 15.7百万円</div>
+  <div class="note">※ 第7期＝2024年10月〜2025年9月、第8期＝2025年10月〜2026年9月。Q1＝10〜12月。ハナイチは限界利益の代わりに粗利。モール売上は AND PLANTS に含む。試算表とは集計基準が異なる</div>
 </section>''')
 
 # P-3 章扉 02
