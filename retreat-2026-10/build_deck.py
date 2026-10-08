@@ -404,6 +404,8 @@ cols = [
     ("ハナイチ", "売上", 45.4, 54.0, "百万円", "+19%", "45.4百万 → 54.0百万"),
 ]
 x0, colw = 56, 320
+to_oku = lambda v, u: v if u == "億円" else v / 100  # 3列とも同じ目盛り（億円換算）
+top = max(to_oku(c[3], c[4]) for c in cols + [(0, 0, c[2], c[2], c[4]) for c in cols])
 col_x = [56, 392, 760]  # 2列目と3列目の間に縦線＋余白
 for i, (biz, metric, prev, cur, unit, yoy, cap) in enumerate(cols):
     x = col_x[i]
@@ -413,9 +415,8 @@ for i, (biz, metric, prev, cur, unit, yoy, cap) in enumerate(cols):
          en=True, spacing=1.0)
     # 小さな前年比較棒
     base_y, max_h = 620, 220
-    top = max(prev, cur)
     for j, (val, col, lab) in enumerate([(prev, BG_GRAY, "25年9月期"), (cur, MOSS, "26年9月期")]):
-        h = max_h * val / top
+        h = max(max_h * to_oku(val, unit) / top, 3)
         bx = x + 48 + j * 136
         rect(s, bx, base_y - h, 96, h, col)
         vtxt = f"{val}"
