@@ -99,6 +99,13 @@ def text(slide, x, y, w, h, lines, size=25, color=MOSS, bold=False, align=PP_ALI
     return tb
 
 
+def _drop_style(shape):
+    """テーマ由来の影（effectRef）を出さないよう、図形の p:style を外す。塗り・線は個別に指定済み。"""
+    st = shape._element.find(qn("p:style"))
+    if st is not None:
+        shape._element.remove(st)
+
+
 def rect(slide, x, y, w, h, fill, line=None, dash=False, shape=MSO_SHAPE.RECTANGLE):
     s = slide.shapes.add_shape(shape, px(x), px(y), px(w), px(h))
     if fill is None:
@@ -114,6 +121,7 @@ def rect(slide, x, y, w, h, fill, line=None, dash=False, shape=MSO_SHAPE.RECTANG
         if dash:
             s.line.dash_style = 4  # dash
     s.shadow.inherit = False
+    _drop_style(s)
     return s
 
 
@@ -126,6 +134,7 @@ def hline(slide, x, y, w, color=BORDER_LIGHT, weight=1.0):
     ln = slide.shapes.add_connector(1, px(x), px(y), px(x + w), px(y))
     ln.line.color.rgb = color
     ln.line.width = Emu(int(weight * 12700))
+    _drop_style(ln)
     return ln
 
 
@@ -304,22 +313,30 @@ notes(s, """
 # =====================================================================
 s = content_slide("サービス開始からの推移", "四半期の売上（事業別）　単位：百万円　※税抜")
 # 事業別 四半期エコノミクス（FY=10月〜9月、FY2021=第3期）。2021年4-6月から
+# 第8期の4四半期は、試算表の四半期売上高に合うよう事業別の比率で按分（9月に決算整理▲4.04百万円を含める）
 q_ap = [2.3, 9.0, 17.6, 22.8, 25.1, 28.2, 32.3, 41.5, 58.0, 62.4, 65.0, 90.6, 117.7, 119.6,
-        110.0, 145.5, 171.0, 128.2, 118.2, 141.3, 172.0, 131.7]
+        110.0, 145.5, 171.0, 128.2]
 q_af = [0.0, 0.0, 0.3, 2.2, 7.1, 2.8, 4.1, 6.1, 16.9, 8.2, 10.8, 20.1, 41.5, 27.1,
-        33.1, 36.5, 56.3, 35.7, 41.1, 37.1, 66.5, 27.8]
-q_ha = [0.0] * 11 + [0.6, 4.1, 7.3, 2.9, 5.7, 10.8, 11.0, 7.4, 9.9, 13.9, 15.7]
+        33.1, 36.5, 56.3, 35.7]
+q_ha = [0.0] * 11 + [0.6, 4.1, 7.3, 2.9, 5.7, 10.8, 11.0]
+fy8 = {"ap": [118.2, 141.3, 172.0, 131.7], "af": [41.1, 37.1, 66.5, 27.8], "ha": [7.4, 9.9, 13.9, 15.7]}
+tb_q = [178.737, 201.722, 271.903, 186.077 - 4.041]  # 試算表 売上高（百万円）
+for i, t in enumerate(tb_q):
+    k = t / (fy8["ap"][i] + fy8["af"][i] + fy8["ha"][i])
+    q_ap.append(fy8["ap"][i] * k)
+    q_af.append(fy8["af"][i] * k)
+    q_ha.append(fy8["ha"][i] * k)
 periods = [("第3期", 2), ("第4期", 4), ("第5期", 4), ("第6期", 4), ("第7期", 4), ("第8期", 4)]
 series = [(q_ap, LIGHT, "AND PLANTS"), (q_af, FLOWER, "AND FLOWER"), (q_ha, MOSS, "ハナイチ")]
 totals = [a + b + c for a, b, c in zip(q_ap, q_af, q_ha)]
-gx0, slot, bw = 72, 45, 31
+gx0, slot, bw = 72, 36, 24
 base_y, max_h = 610, 340
 scale = max_h / max(totals)
 # 凡例
-lx = 640
+lx = 72
 for vals, col, name in series:
-    rect(s, lx, 170, 16, 16, col)
-    text(s, lx + 24, 164, 160, 28, name, size=16, color=SECONDARY, en=(name != "ハナイチ"))
+    rect(s, lx, 160, 16, 16, col)
+    text(s, lx + 24, 154, 160, 28, name, size=16, color=SECONDARY, en=(name != "ハナイチ"))
     lx += 150
 for i in range(len(totals)):
     x = gx0 + i * slot
@@ -329,7 +346,7 @@ for i in range(len(totals)):
         if h > 0:
             rect(s, x, y - h, bw, h, col)
             y -= h
-    text(s, x - 8, y - 26, bw + 16, 22, f"{totals[i]:.0f}", size=15, bold=True,
+    text(s, x - 10, y - 26, bw + 20, 22, f"{totals[i]:.0f}", size=15, bold=True,
          align=PP_ALIGN.CENTER, en=True)
 hline(s, gx0 - 8, base_y, slot * len(totals) + 2)
 # 期のラベルと区切り
@@ -338,19 +355,19 @@ for name, n in periods:
     x = gx0 + i0 * slot - 7
     w = n * slot
     if i0 > 0:
-        hline(s, x, base_y + 8, 0.1)
         ln = s.shapes.add_connector(1, px(x), px(base_y + 4), px(x), px(base_y + 40))
         ln.line.color.rgb = BORDER_LIGHT
+        _drop_style(ln)
     text(s, x, base_y + 12, w, 28, name, size=18, color=SECONDARY, align=PP_ALIGN.CENTER)
     i0 += n
-text(s, 56, 680, 1016, 44, "リリースから5年で、[[四半期2.5億円]]の規模になった", size=28, bold=True)
+text(s, 56, 680, 1016, 44, "リリースから5年で、[[四半期2.7億円]]の規模になった", size=28, bold=True)
 text(s, 56, H_PX - 76, 960, 24,
-     "※ 事業別 四半期エコノミクスの集計（注文日ベース・税抜）。全社の試算表とは集計基準が異なる。第3期は2021年4月〜",
+     "※ 第3〜7期は事業別の集計（注文日ベース・税抜）。第8期は試算表の売上高を事業別の比率で按分（イネイブラー等を含む）",
      size=14, color=SECONDARY)
 notes(s, """
 2021年5月のリリースから、四半期ごとの売上の推移。
 AND PLANTSから始まり、AND FLOWER、ハナイチと事業が増えてきた。
-第8期の4-6月（母の日の四半期）は2.5億円。最初の四半期と比べると、ここまで来た。
+第8期の4-6月（母の日の四半期）は2.7億円。最初の四半期と比べると、ここまで来た。
 """)
 
 # =====================================================================
