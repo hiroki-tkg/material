@@ -401,7 +401,7 @@ s = content_slide("事業別の数字", "第7期 → 第8期（前年比）　�
 cols = [
     ("AND PLANTS / AND FLOWER", "売上", 7.2, 7.4, "億円", "+2%", "7.2億 → 7.4億"),
     ("AND PLANTS / AND FLOWER", "広告費込み限界利益", 1.5, 2.2, "億円", "+47%", "1.5億 → 2.2億"),
-    ("ハナイチ", "売上", 4540, 5527, "万円", "+22%", "4,540万 → 5,527万"),
+    ("ハナイチ", "売上", 45.4, 55.3, "百万円", "+22%", "45.4百万 → 55.3百万"),
 ]
 x0, colw = 56, 344
 for i, (biz, metric, prev, cur, unit, yoy, cap) in enumerate(cols):
@@ -416,14 +416,14 @@ for i, (biz, metric, prev, cur, unit, yoy, cap) in enumerate(cols):
         h = max_h * val / top
         bx = x + 48 + j * 136
         rect(s, bx, base_y - h, 96, h, col)
-        vtxt = f"{val:,}" if unit == "万円" else f"{val}"
+        vtxt = f"{val}"
         text(s, bx - 20, base_y - h - 36, 136, 30, vtxt, size=22, bold=True,
              align=PP_ALIGN.CENTER, en=True)
         text(s, bx - 20, base_y + 10, 136, 28, lab, size=18, color=SECONDARY,
              align=PP_ALIGN.CENTER)
     hline(s, x + 24, base_y, colw - 48, BORDER_LIGHT)
     text(s, x, 332, colw, 24, f"単位：{unit}", size=16, color=SECONDARY)
-text(s, 56, 690, 1000, 44, "広告を絞っても売上は落とさず、[[利益が大きく残る形]]に変わった", size=28,
+text(s, 56, 690, 1000, 44, "広告を絞っても売上は落とさず、[[広告費込み限界利益が大きく残る形]]に変わった", size=28,
      bold=True)
 text(s, 56, H_PX - 76, 960, 24,
      "※ AP/AFは自社EC＋モール、税抜（小松資料）。ハナイチは税抜・植木鉢＋生花ほか（比須田資料）",
@@ -452,7 +452,6 @@ TOPICS = [
     "ハナイチの各種施策進行",
 ]
 TOPIC_SUB = {
-    3: "KANADEMONOなど外部ブランドとの連携拡大",
     4: "Mr. CHEESECAKE、UCC様",
 }
 s = content_slide()
@@ -582,7 +581,7 @@ notes(s, "第8期の振り返りはここまで。みなさん、大変お疲れ
 # =====================================================================
 # 12. 章扉 02
 # =====================================================================
-s = divider("02", "FY9 DIRECTION", "第9期に向けて", "数字の目標と、なぜやるのか")
+s = divider("02", "FY9 DIRECTION", "第9期に向けて", "")
 
 # =====================================================================
 # 13. 第9期の数字（P-10 実績 vs 計画）
@@ -609,10 +608,8 @@ for i, (lab, cur, plan, g) in enumerate(plans):
              align=PP_ALIGN.CENTER)
     hline(s, x + 16, base_y, 300)
     text(s, x, 610, 320, 70, g, size=48, color=LIGHT, bold=True, en=(g.startswith("+")))
-text(s, 56, 700, 1000, 40, "事業計画を各チームの数字に下ろし、[[毎月計画との差を見て]]動く", size=28,
-     bold=True)
 text(s, 56, H_PX - 76, 960, 24,
-     "※ ハナイチの第8期実績は比須田資料（5,527万円）", size=14,
+     "※ ハナイチの第8期実績は比須田資料（55.3百万円）", size=14,
      color=SECONDARY)
 notes(s, """
 第9期は前年比ではなく「計画に対してどうか」で見る。
