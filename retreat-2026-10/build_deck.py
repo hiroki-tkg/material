@@ -117,6 +117,11 @@ def rect(slide, x, y, w, h, fill, line=None, dash=False, shape=MSO_SHAPE.RECTANG
     return s
 
 
+def arrow(slide, x, y, w, h):
+    """右向きの三角（文字の▶は絵文字で描画されることがあるため図形で描く）。"""
+    return rect(slide, x, y, w, h, LIGHT, shape=MSO_SHAPE.ISOSCELES_TRIANGLE).__setattr__("rotation", 90.0)
+
+
 def hline(slide, x, y, w, color=BORDER_LIGHT, weight=1.0):
     ln = slide.shapes.add_connector(1, px(x), px(y), px(x + w), px(y))
     ln.line.color.rgb = color
@@ -472,8 +477,7 @@ for i, lab in enumerate(chain):
     rect(s, x, cy, cw, ch, None, line=MOSS)
     text(s, x, cy, cw, ch, lab, size=25, bold=True, align=PP_ALIGN.CENTER,
          anchor=MSO_ANCHOR.MIDDLE)
-    text(s, x + cw, cy, gap, ch, "▶", size=16, color=LIGHT, align=PP_ALIGN.CENTER,
-         anchor=MSO_ANCHOR.MIDDLE, en=False)
+    arrow(s, x + cw + 8, cy + ch / 2 - 7, 12, 14)
 x = cx + 6 * (cw + gap)
 rect(s, x, cy - 12, 1072 - x, ch + 24, MOSS)
 text(s, x, cy - 12, 1072 - x, ch + 24, ["買って", "楽しむ人"], size=22, color=WHITE, bold=True,
@@ -512,8 +516,7 @@ for i, f in enumerate(flow):
     col = LIGHT if i == len(flow) - 1 else MOSS
     text(s, x, 610, fw, 44, f, size=25, bold=True, color=col, align=PP_ALIGN.CENTER)
     if i < len(flow) - 1:
-        text(s, x + fw - 4, 610, 30, 44, "▶", size=18, color=LIGHT, align=PP_ALIGN.CENTER,
-             en=False)
+        arrow(s, x + fw + 4, 622, 12, 16)
 text(s, 56, 680, 1016, 40, "それぞれの事業で入口を広げ、利益を出して、また次の入口をつくる。", size=22,
      color=SECONDARY, align=PP_ALIGN.CENTER)
 notes(s, """
