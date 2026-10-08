@@ -102,7 +102,7 @@ f_1=lambda v: f'{v:.1f}'
 
 # ---------- 事業別 四半期（売上・限界利益、百万円。四半期エコノミクス.xlsx。ハナイチは粗利） ----------
 QL=['Q1','Q2','Q3','Q4']*4   # 第5期（FY2023）→ 第8期（FY2026）
-Q_FY=['第5期（2022年10月〜）','第6期（2023年10月〜）','第7期（2024年10月〜）','第8期（2025年10月〜）']
+Q_FY=['第5期','第6期','第7期','第8期']
 Q_SALES={'AP':[32.30,41.49,58.02,62.38, 64.97,90.57,117.65,119.60, 110.04,145.46,171.03,128.23, 118.20,141.25,172.04,131.73],
          'AF':[4.11,6.15,16.88,8.17, 10.77,20.14,41.48,27.06, 33.09,36.46,56.31,35.68, 41.09,37.06,66.48,27.80],
          'HI':[0,0,0,0, 0,0.63,4.07,7.34, 2.92,5.73,10.77,10.96, 7.44,9.86,13.85,15.67]}
@@ -119,15 +119,15 @@ def quarterly_stack(data, w=1000, h=270, unit='百万円'):
     """16四半期×事業別の積み上げ棒（4期分）。合計ラベルは棒の上、帯の中は18px以上のときだけ値を出す"""
     segs=['AP','AF','HI']; n=len(QL)
     totals=[sum(data[k][i] for k in segs) for i in range(n)]
-    mx=max(totals)*1.22; pb=64; pt=30; ch=h-pb-pt; gw=(w-16)/n; bw=gw*0.66
+    mx=max(totals)*1.22; pb=64; pt=30; ch=h-pb-pt; gw=(w-16)/n; bw=gw*0.7
     o=[_open(w,h),f'<line x1="0" y1="{h-pb}" x2="{w}" y2="{h-pb}" stroke="{LINE}" stroke-width="2"/>']
     for i in range(n):
         x=16+i*gw+(gw-bw)/2; y=h-pb
         for k in segs:
             v=data[k][i]; hh=ch*v/mx; y-=hh
             if hh>0: o.append(f'<rect x="{x:.1f}" y="{y:.1f}" width="{bw:.1f}" height="{hh:.1f}" fill="{Q_COLOR[k]}"/>')
-            if hh>=18: o.append(f'<text x="{x+bw/2:.1f}" y="{y+hh/2+4.5:.1f}" text-anchor="middle" font-size="12" font-weight="700" fill="{Q_TEXT[k]}" style="{EN}">{v:.0f}</text>')
-        o.append(f'<text x="{x+bw/2:.1f}" y="{h-pb-ch*totals[i]/mx-7:.1f}" text-anchor="middle" font-size="15" font-weight="700" fill="{MOSS}" style="{EN}">{totals[i]:.0f}</text>')
+            if hh>=16: o.append(f'<text x="{x+bw/2:.1f}" y="{y+hh/2+4:.1f}" text-anchor="middle" font-size="11" font-weight="700" fill="{Q_TEXT[k]}" style="{EN}">{v:.0f}</text>')
+        o.append(f'<text x="{x+bw/2:.1f}" y="{h-pb-ch*totals[i]/mx-7:.1f}" text-anchor="middle" font-size="13" font-weight="700" fill="{MOSS}" style="{EN}">{totals[i]:.0f}</text>')
         o.append(f'<text x="{x+bw/2:.1f}" y="{h-pb+22}" text-anchor="middle" font-size="14" fill="{SUB}" style="{EN}">{QL[i]}</text>')
     for f in range(4):
         if f: xx=16+4*f*gw; o.append(f'<line x1="{xx:.1f}" y1="{pt}" x2="{xx:.1f}" y2="{h-pb+36}" stroke="{LINE}" stroke-width="1" stroke-dasharray="4 4"/>')
@@ -190,11 +190,11 @@ P(f'''<section class="page">
 
 # 事業別 四半期 売上・限界利益（4期分）
 P(f'''<section class="page">
-  <h1>事業別の四半期 売上・限界利益（第5期 → 第8期）</h1>
-  <div style="margin-top: 8px;">{QLEGEND}</div>
-  <div style="margin-top: 8px;"><div class="sub" style="font-size: 24px;">売上</div>{quarterly_stack(Q_SALES)}</div>
-  <div style="margin-top: 8px;"><div class="sub" style="font-size: 24px;">限界利益</div>{quarterly_stack(Q_MP)}</div>
-  <div class="note">※ 税抜。第5期＝2022年10月〜2023年9月、Q1＝10〜12月。ハナイチは限界利益の代わりに粗利。モール売上は AND PLANTS に含む。マーケティングマスター集計のため試算表とは集計基準が異なる</div>
+  <h1>事業別の四半期 売上・限界利益（直近4期）</h1>
+  <div style="margin-top: 8px; text-align: center;">{QLEGEND}</div>
+  <div style="margin-top: 8px; width: 600px; margin-left: auto; margin-right: auto;"><div class="sub" style="font-size: 24px;">売上</div>{quarterly_stack(Q_SALES,w=600)}</div>
+  <div style="margin-top: 8px; width: 600px; margin-left: auto; margin-right: auto;"><div class="sub" style="font-size: 24px;">限界利益</div>{quarterly_stack(Q_MP,w=600)}</div>
+  <div class="note">※ 税抜。第5期＝2022年10月〜2023年9月、第8期＝2025年10月〜2026年9月。Q1＝10〜12月。ハナイチは限界利益の代わりに粗利。モール売上は AND PLANTS に含む。マーケティングマスター集計のため試算表とは集計基準が異なる</div>
 </section>''')
 
 # P-8 広告効率
