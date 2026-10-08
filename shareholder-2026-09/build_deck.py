@@ -28,6 +28,29 @@ head += '''<style>
   .status.go { background: var(--brand-secondary); color: var(--text-primary); }
   .status.wait { background: var(--bg-dull-green); }
   .vcenter { height: calc(100% - 64px); }
+  .tag { display: inline-block; font-size: 15px; font-weight: 700; padding: 2px 10px; border-radius: 4px; white-space: nowrap; margin-left: auto; }
+  .tag.done { background: var(--brand-secondary); color: var(--text-primary); }
+  .tag.poc { background: var(--brand-primary); color: var(--text-on-fill); }
+  .tag.talk { background: var(--bg-light); color: var(--text-secondary); border: 1px solid var(--border-light); }
+  .legend { display: flex; gap: 24px; justify-content: flex-end; font-size: 15px; color: var(--text-secondary); font-weight: 400; align-items: center; }
+  .legend .tag { margin-left: 0; margin-right: 6px; }
+  .org { text-align: center; margin-top: 12px; }
+  .org .root { display: inline-block; background: var(--bg-moss); color: var(--text-on-fill); font-family: var(--font-en); font-size: 20px; font-weight: 700; padding: 10px 40px; border-radius: 8px; letter-spacing: 0.08em; }
+  .org .stem { width: 2px; height: 20px; background: var(--border-light); margin: 0 auto; }
+  .org .bar { height: 2px; background: var(--border-light); margin: 0 112px 0 160px; }
+  .cos { display: flex; gap: 24px; margin-top: 24px; }
+  .cos > div { flex: 1; min-width: 0; border: 2px solid var(--border-light); border-radius: 8px; padding: 20px 20px 16px; position: relative; }
+  .cos > div::before { content: ""; position: absolute; top: -26px; left: 50%; width: 2px; height: 24px; background: var(--border-light); }
+  .cos .drop { width: 2px; height: 20px; background: var(--border-light); margin: 0 auto; }
+  .cos .logo { height: 64px; display: flex; align-items: center; justify-content: center; margin-bottom: 12px; border-bottom: 2px solid var(--brand-primary); padding-bottom: 14px; }
+  .cos .logo img { max-height: 56px; max-width: 220px; object-fit: contain; }
+  .cos ul, .cainz ul { list-style: none; }
+  .cos li, .cainz li { display: flex; align-items: flex-start; gap: 10px; font-size: 18px; line-height: 1.5; padding: 7px 0; border-bottom: 1px solid var(--bg-light); }
+  .cos li::before, .cainz li::before { content: ""; flex: 0 0 8px; width: 8px; height: 8px; border-radius: 50%; background: var(--brand-primary); margin-top: 9px; }
+  .cos li span.x, .cainz li span.x { flex: 1; }
+  .cainz li { font-size: 25px; padding: 14px 0; border-bottom: 1px solid var(--border-light); }
+  .cainz li .d { display: block; font-size: 16px; color: var(--text-secondary); font-weight: 400; margin-top: 2px; }
+  .cainz li .tag { font-size: 17px; padding: 4px 14px; }
   .pillars.tighter .p { padding: 12px 0; }
   .pillars.tighter .p .t { font-size: 27px; }
   .pillars.tighter .p .s { font-size: 20px; }
@@ -85,16 +108,6 @@ P('''<section class="page cover">
   <h1>2026年9月<br>株主報告資料</h1>
   <div class="rule"></div>
   <div class="meta">株式会社ギフティ様　株主定例月次MTG<br>株式会社Domuz　代表取締役　髙木 弘貴</div>
-</section>''')
-
-# P-2 一本の筋
-P('''<section class="page">
-  <h1>今月お伝えしたいこと</h1>
-  <div class="vcenter">
-    <div class="stmt">9月は売上高 65.7百万円・限界利益 27.9百万円と<br><span class="g">8月から大きく回復</span>し、<br>第8期は売上高 <span class="g">8.34億円</span>で着地。</div>
-    <div class="stmt mt2">第9期は、ギフティ様との協業を軸に<br><span class="g">B2B</span>（イネイブラー・コンシェルジュ・3PL）を<br>本格始動する年にします。</div>
-  </div>
-  <div class="note">※ 試算表ベース・暫定数字・税抜。限界利益＝売上総利益−荷造運賃−支払手数料</div>
 </section>''')
 
 # P-3 章扉 01
@@ -316,9 +329,66 @@ P('''<section class="page">
   </div>
 </section>''')
 
-# P-3 章扉 05 ギフティ様との協業
+# P-3 章扉 05 ベイシアグループ連携
 P('''<section class="page sec">
   <div class="num">05</div>
+  <div class="en-t">Beisia Group</div>
+  <div class="ja-t">ベイシアグループ連携<br><span style="font-size: 28px; font-weight: 400; opacity: 0.85;">カインズ・ハンズ・ベイシア</span></div>
+</section>''')
+
+# ベイシアグループ連携 全体図
+P('''<section class="page">
+  <h1>ベイシアグループ連携</h1>
+  <div class="legend"><span class="tag done">実施済み</span>すでに稼働している取り組み<span class="tag poc">PoC実施予定</span>実証実験の実施を予定<span class="tag talk">協議中</span>連携に向けて協議・検討中</div>
+  <div class="org"><div class="root">Domuz</div><div class="stem"></div><div class="bar"></div></div>
+  <div class="cos">
+    <div>
+      <div class="logo"><img src="assets/logo_cainz.png" alt="CAINZ"></div>
+      <ul>
+        <li><span class="x">植木鉢（Ecopots）の卸</span><span class="tag poc">PoC実施予定</span></li>
+        <li><span class="x">観葉植物産地の調達連携／物流共同化</span><span class="tag poc">PoC実施予定</span></li>
+        <li><span class="x">観葉植物ECイネイブラー</span><span class="tag talk">協議中</span></li>
+        <li><span class="x">植物パーソナル診断機能／ケアアプリの提供</span><span class="tag talk">協議中</span></li>
+      </ul>
+    </div>
+    <div>
+      <div class="logo"><img src="assets/logo_hands.png" alt="HANDS"></div>
+      <ul>
+        <li><span class="x">生花／ギフトイネイブラー機能の提供</span><span class="tag talk">協議中</span></li>
+      </ul>
+    </div>
+    <div>
+      <div class="logo"><img src="assets/logo_beisia.png" alt="Beisia"></div>
+      <ul>
+        <li><span class="x">スーパーでの花販売関連共同施策</span><span class="tag talk">協議中</span></li>
+        <li><span class="x">オンライン（アプリ含む）での生花／植物イネイブラー提供</span><span class="tag done">実施済み</span></li>
+      </ul>
+    </div>
+  </div>
+  <div class="small" style="margin-top: 12px; font-size: 20px; line-height: 1.55;">カインズ・ハンズ・ベイシアをはじめとしたベイシアグループ様との連携が進行中です。既にベイシア様とは母の日でベイシアアプリ販売 → スーパーへ配架施策は実施済み。<br>グループ内で特にカインズ様は非常に温度感が高く、生産者からの共同仕入れ、ECのイネイブラー（EC共同物流網）の構築等も視野にご連携を実行予定です。ハンズ様は、観葉イネイブラーよりも、生花イネイブラーが非常に刺さっており、ギフトニーズを取りにいく施策を実施予定。</div>
+</section>''')
+
+# カインズ様
+P('''<section class="page">
+  <h1>カインズ様とのご連携が進んでいます</h1>
+  <div class="cap">植木鉢卸に関しては10月中に具体的な調整を実施予定</div>
+  <div class="two" style="margin-top: 16px; align-items: flex-start; gap: 48px;">
+    <div style="flex: 0 0 300px; padding-top: 24px;"><img src="assets/logo_cainz.png" alt="CAINZ" style="width: 260px; object-fit: contain;"></div>
+    <div class="cainz" style="flex: 1;">
+      <ul>
+        <li><span class="x">植木鉢（Ecopots）の卸<span class="d">10/29 に具体の調整予定</span></span><span class="tag poc">PoC実施予定</span></li>
+        <li><span class="x">観葉植物ECイネイブラー</span><span class="tag poc">PoC実施予定</span></li>
+        <li><span class="x">観葉植物産地の調達連携／物流共同化</span><span class="tag poc">PoC実施予定</span></li>
+        <li><span class="x">植物パーソナル診断機能／ケアアプリの提供</span><span class="tag talk">協議中</span></li>
+      </ul>
+    </div>
+  </div>
+  <div class="small" style="margin-top: 32px; font-size: 23px; line-height: 1.7;">来年実施予定の花博開催後の観葉植物／ガーデニング需要を、オンラインでも獲得するべくオンラインストアの強化をしたいが、自社で運営＆伸ばすのは、なかなか時間もかかり難しいため、<b>イネイブラー施策をDomuzで受託するべく調整をしています。</b></div>
+</section>''')
+
+# P-3 章扉 06 ギフティ様との協業
+P('''<section class="page sec">
+  <div class="num">06</div>
   <div class="en-t">With giftee</div>
   <div class="ja-t">ギフティ様との協業</div>
 </section>''')
@@ -355,11 +425,11 @@ P('''<section class="page">
 # その他
 P('''<section class="page">
   <h1>その他</h1>
-  <div class="pillars tight mt">
-    <div class="p"><div class="i">1</div><div><div class="t">10/1 から第9期がスタート。10/9 に 1Day 合宿</div><div class="s">第8期の振り返りと第9期の方針を全社で共有。第9期から試算表を部門別に設定</div></div></div>
-    <div class="p"><div class="i">2</div><div><div class="t">組織：9月に営業2名が加入、11月にイネイブラー＆3PL担当が入社</div><div class="s">AI活用（社内データのMCP化・業務アプリの共通基盤）を全社で推進中</div></div></div>
-    <div class="p"><div class="i">3</div><div><div class="t">ファイナンス</div><div class="s">中小企業省力化投資補助金の相談、みずほ銀行様へ資料提出、エンジェル投資家との面談を実施。資本関連は別途ご相談</div></div></div>
-    <div class="p"><div class="i">4</div><div><div class="t">横浜国際園芸博覧会（2027年3月）</div><div class="s">当社は参加しないが、開催後の花卉需要の底上げを想定</div></div></div>
+  <div class="pillars mt">
+    <div class="p"><div class="i">1</div><div><div class="t">みなし臨時株主総会の同意書（定款変更）をお送りしたので、ご確認をお願いしたいです</div></div></div>
+    <div class="p"><div class="i">2</div><div><div class="t">Giptさんの連絡</div></div></div>
+    <div class="p"><div class="i">3</div><div><div class="t">9月決算で現状決算処理で諸々動いております</div></div></div>
+    <div class="p"><div class="i">4</div><div><div class="t">2026年10月以降の会計方針に関して</div></div></div>
   </div>
 </section>''')
 
