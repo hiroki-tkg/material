@@ -3,6 +3,7 @@
 Google スライドへは Drive の pptx 変換で取り込む。
 サイズは 4:3・1128×846px 基準。px 指定は EMU に換算する（Google Slides 24pt ≒ 38px）。
 """
+import os
 import re
 import sys
 
@@ -427,46 +428,70 @@ notes(s, """
 """)
 
 # =====================================================================
-# 11. 第8期にやったこと（P-7 タイムライン）
+# 11. 第8期にやったこと（一覧 → 1トピック1枚・写真）
 # =====================================================================
-s = content_slide("第8期にやったこと", "2025年10月〜2026年9月")
-events = [
-    ("1月", ["初売り", "セール"]),
-    ("1月", ["広告方針", "の転換"]),
-    ("5月", ["母の日", "月商1億"]),
-    ("5月", ["ブランド", "分割"]),
-    ("7月", ["植物アプリ", "リリース"]),
-    ("8月", ["法人", "コンシェルジュ"]),
-    ("9月", ["中目黒", "イベント"]),
-    ("9月", ["イネイブラー", "卸の再発注"]),
+TOPICS = [
+    "花アプリ公開",
+    "三和との委託発送開始",
+    "観葉イネイブラー始動",
+    "花イネイブラー始動",
+    "AND FLOWER独立",
+    "植物ケアアプリ公開",
+    "マルシェ開催",
+    "全社AI活用・MCP整備",
+    "みずほ銀行の融資",
+    "新城の解散",
+    "ハナイチの各種施策進行",
 ]
-lx, lw = 72, 984
-ly = 236
-hline(s, lx, ly, lw, BORDER_LIGHT, 2)
-step = lw / (len(events) - 1)
-for i, (m, lab) in enumerate(events):
-    cx = lx + i * step
-    col = LIGHT if i == len(events) - 1 else MOSS
-    rect(s, cx - 9, ly - 9, 18, 18, col, shape=MSO_SHAPE.OVAL)
-    text(s, cx - 60, ly + 28, 120, 34, m, size=25, bold=True, align=PP_ALIGN.CENTER)
-    text(s, cx - 64, ly + 72, 128, 70, lab, size=17, align=PP_ALIGN.CENTER, spacing=1.3)
-hline(s, 56, 440, 1016)
-text(s, 56, 480, 1000, 200,
-     ["ハナイチの生花は、限界利益が赤字から黒字へ。",
-      "中目黒のイベントには約1万人が来場、1,300件を販売。",
-      "イネイブラーは母の日の卸先から、昨年+50%の発注希望。"],
-     size=25, spacing=1.6)
-notes(s, """
-1年を振り返ると、こんなことがありました。（各事業の詳細はこのあと各発表で）
-- 初売り：イベントで勝つ型を覚えた
-- 広告方針の転換：ROAS基準を全施策に
-- 母の日：創業以来はじめての月商1億
-- ブランド分割：花を AND FLOWER として独立
-- 植物アプリ・花アプリ
-- 法人向けコンシェルジュ（グリーンレンタル等）
-- 9/19 中目黒リアルイベント：生産者との関係づくり
-- イネイブラー：卸モデルの追加発注、10月に生花イネイブラー2件スタート
-""")
+TOPIC_SUB = {
+    3: "KANADEMONOなど外部ブランドとの連携拡大",
+    4: "Mr. CHEESECAKE、UCC様",
+}
+s = content_slide("第8期にやったこと", "2025年10月〜2026年9月")
+for i, t in enumerate(TOPICS):
+    col, row = divmod(i, 6)
+    x, y = 56 + col * 520, 176 + row * 96
+    text(s, x, y, 56, 56, str(i + 1), size=34, color=LIGHT, bold=True, en=True)
+    text(s, x + 64, y + 6, 440, 48, t, size=28, bold=True)
+    hline(s, x, y + 76, 480)
+notes(s, "第8期にやったことを、写真と一緒に1つずつ振り返ります。")
+
+PHOTO_DIR = os.path.join(os.path.dirname(os.path.abspath(__file__)), "photos")
+
+
+def photos_for(n):
+    """photos/ 配下の「NN_」で始まる画像（NN=トピック番号）を名前順に返す。"""
+    if not os.path.isdir(PHOTO_DIR):
+        return []
+    pre = f"{n:02d}_"
+    return sorted(os.path.join(PHOTO_DIR, f) for f in os.listdir(PHOTO_DIR)
+                  if f.startswith(pre) and f.lower().endswith((".jpg", ".jpeg", ".png")))
+
+
+def place_contain(slide, path, x, y, w, h):
+    from PIL import Image
+    with Image.open(path) as im:
+        iw, ih = im.size
+    k = min(w / iw, h / ih)
+    pw, ph = iw * k, ih * k
+    slide.shapes.add_picture(path, px(x + (w - pw) / 2), px(y + (h - ph) / 2), px(pw), px(ph))
+
+
+for i, t in enumerate(TOPICS):
+    n = i + 1
+    s = content_slide(t, TOPIC_SUB.get(n))
+    area_x, area_y, area_w, area_h = 56, 160, 1016, 620
+    files = photos_for(n)
+    if files:
+        gap = 16
+        cw = (area_w - gap * (len(files) - 1)) / len(files)
+        for j, f in enumerate(files):
+            place_contain(s, f, area_x + j * (cw + gap), area_y, cw, area_h)
+    else:
+        rect(s, area_x, area_y, area_w, area_h, None, line=BORDER_LIGHT, dash=True)
+        text(s, area_x, area_y, area_w, area_h, "写真（届き次第差し替え）", size=25, color=SECONDARY,
+             align=PP_ALIGN.CENTER, anchor=MSO_ANCHOR.MIDDLE)
+    notes(s, f"{n}. {t}" + (f"（{TOPIC_SUB[n]}）" if n in TOPIC_SUB else "") + "：（口頭で）")
 
 # =====================================================================
 # 12. 章扉 02
@@ -517,13 +542,13 @@ notes(s, "ここからは数字の話ではなく、なぜ自分たちがこれ�
 # =====================================================================
 s = content_slide("出発点は、ミッション")
 text(s, 56, 236, 900, 30, "- OUR MISSION -", size=20, color=SECONDARY, en=True, letter=4)
-text(s, 56, 288, 1016, 150, ["ITとデザインで、", "[[緑のある暮らし]]をもっと身近に。"], size=52,
+text(s, 56, 288, 1016, 150, ["ITとデザインで、", "[[みどりのある暮らし]]をもっと身近に。"], size=52,
      bold=True, spacing=1.35)
 text(s, 56, 520, 1000, 140,
      ["根っこにあるのは、「花や植物っていいよね」という気持ち。",
       "育てる楽しさ、もらったときのうれしさを、もっと多くの人に。"], size=25, spacing=1.7)
 notes(s, """
-Domuzのミッションは「ITとデザインで緑のある暮らしをもっと身近に」。
+Domuzのミッションは「ITとデザインでみどりのある暮らしをもっと身近に」。
 根っこにあるのは、花や植物っていいよね、という気持ち。
 植物を育てる楽しさや、花をもらったときのうれしさを、もっと多くの人に届けたい。
 """)
