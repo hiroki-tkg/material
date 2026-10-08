@@ -101,39 +101,38 @@ f_int=lambda v: f'{v:g}'
 f_1=lambda v: f'{v:.1f}'
 
 # ---------- 事業別 四半期（売上・限界利益、百万円。四半期エコノミクス.xlsx。ハナイチは粗利） ----------
-QL=['Q1','Q2','Q3','Q4','Q1','Q2','Q3','Q4']   # 第7期（FY2025）→ 第8期（FY2026）
-Q_SALES={'AP':[110.04,145.46,171.03,128.23,118.20,141.25,172.04,131.73],
-         'AF':[33.09,36.46,56.31,35.68,41.09,37.06,66.48,27.80],
-         'HI':[2.92,5.73,10.77,10.96,7.44,9.86,13.85,15.67]}
-Q_MP   ={'AP':[51.45,66.18,79.41,58.88,54.88,65.35,81.45,60.20],
-         'AF':[14.78,16.24,28.43,16.05,18.19,16.52,37.26,13.30],
-         'HI':[0.97,1.61,3.16,3.46,1.95,3.42,5.09,4.62]}
+QL=['Q1','Q2','Q3','Q4']*4   # 第5期（FY2023）→ 第8期（FY2026）
+Q_FY=['第5期（2022年10月〜）','第6期（2023年10月〜）','第7期（2024年10月〜）','第8期（2025年10月〜）']
+Q_SALES={'AP':[32.30,41.49,58.02,62.38, 64.97,90.57,117.65,119.60, 110.04,145.46,171.03,128.23, 118.20,141.25,172.04,131.73],
+         'AF':[4.11,6.15,16.88,8.17, 10.77,20.14,41.48,27.06, 33.09,36.46,56.31,35.68, 41.09,37.06,66.48,27.80],
+         'HI':[0,0,0,0, 0,0.63,4.07,7.34, 2.92,5.73,10.77,10.96, 7.44,9.86,13.85,15.67]}
+Q_MP   ={'AP':[15.30,19.47,27.98,28.40, 29.08,40.95,54.00,54.48, 51.45,66.18,79.41,58.88, 54.88,65.35,81.45,60.20],
+         'AF':[2.07,3.05,7.25,3.91, 5.28,8.95,20.80,11.68, 14.78,16.24,28.43,16.05, 18.19,16.52,37.26,13.30],
+         'HI':[0,0,0,0, 0,0.26,1.63,2.88, 0.97,1.61,3.16,3.46, 1.95,3.42,5.09,4.62]}
 Q_COLOR={'AP':LIGHT,'AF':PINK,'HI':MOSS}; Q_TEXT={'AP':'var(--text-primary)','AF':'var(--text-on-fill)','HI':'var(--text-on-fill)'}
 Q_NAME={'AP':'AND PLANTS','AF':'AND FLOWER','HI':'ハナイチ'}
 def fy(d,i0): return sum(sum(d[k][i0:i0+4]) for k in d)
 print('FY25 売上',round(fy(Q_SALES,0),1),'FY26 売上',round(fy(Q_SALES,4),1),'FY25 限利',round(fy(Q_MP,0),1),'FY26 限利',round(fy(Q_MP,4),1))
 for k in Q_SALES: print(k, 'sales', round(sum(Q_SALES[k][:4]),1), round(sum(Q_SALES[k][4:]),1), 'mp', round(sum(Q_MP[k][:4]),1), round(sum(Q_MP[k][4:]),1))
 
-def quarterly_stack(data, w=480, h=400, unit='百万円'):
-    """8四半期×事業別の積み上げ棒。合計ラベルは棒の上、帯の中は20px以上のときだけ値を出す"""
+def quarterly_stack(data, w=1000, h=270, unit='百万円'):
+    """16四半期×事業別の積み上げ棒（4期分）。合計ラベルは棒の上、帯の中は18px以上のときだけ値を出す"""
     segs=['AP','AF','HI']; n=len(QL)
     totals=[sum(data[k][i] for k in segs) for i in range(n)]
-    mx=max(totals)*1.2; pb=72; pt=36; ch=h-pb-pt; gw=(w-16)/n; bw=gw*0.64
+    mx=max(totals)*1.22; pb=64; pt=30; ch=h-pb-pt; gw=(w-16)/n; bw=gw*0.66
     o=[_open(w,h),f'<line x1="0" y1="{h-pb}" x2="{w}" y2="{h-pb}" stroke="{LINE}" stroke-width="2"/>']
     for i in range(n):
         x=16+i*gw+(gw-bw)/2; y=h-pb
         for k in segs:
             v=data[k][i]; hh=ch*v/mx; y-=hh
-            o.append(f'<rect x="{x:.1f}" y="{y:.1f}" width="{bw:.1f}" height="{hh:.1f}" fill="{Q_COLOR[k]}"/>')
-            if hh>=20: o.append(f'<text x="{x+bw/2:.1f}" y="{y+hh/2+5:.1f}" text-anchor="middle" font-size="13" font-weight="700" fill="{Q_TEXT[k]}" style="{EN}">{v:.0f}</text>')
-        o.append(f'<text x="{x+bw/2:.1f}" y="{h-pb-ch*totals[i]/mx-8:.1f}" text-anchor="middle" font-size="16" font-weight="700" fill="{MOSS}" style="{EN}">{totals[i]:.0f}</text>')
-        o.append(f'<text x="{x+bw/2:.1f}" y="{h-pb+24}" text-anchor="middle" font-size="16" fill="{SUB}" style="{EN}">{QL[i]}</text>')
-    # 期のラベルと区切り
-    mid=16+4*gw
-    o.append(f'<line x1="{mid:.1f}" y1="{pt}" x2="{mid:.1f}" y2="{h-pb+40}" stroke="{LINE}" stroke-width="1" stroke-dasharray="4 4"/>')
-    o.append(f'<text x="{16+2*gw:.1f}" y="{h-pb+54}" text-anchor="middle" font-size="16" fill="{SUB}" style="{JA}">第7期（2024年10月〜）</text>')
-    o.append(f'<text x="{16+6*gw:.1f}" y="{h-pb+54}" text-anchor="middle" font-size="16" fill="{SUB}" style="{JA}">第8期（2025年10月〜）</text>')
-    o.append(f'<text x="0" y="20" font-size="15" fill="{SUB}" style="{JA}">単位: {unit}</text></svg>')
+            if hh>0: o.append(f'<rect x="{x:.1f}" y="{y:.1f}" width="{bw:.1f}" height="{hh:.1f}" fill="{Q_COLOR[k]}"/>')
+            if hh>=18: o.append(f'<text x="{x+bw/2:.1f}" y="{y+hh/2+4.5:.1f}" text-anchor="middle" font-size="12" font-weight="700" fill="{Q_TEXT[k]}" style="{EN}">{v:.0f}</text>')
+        o.append(f'<text x="{x+bw/2:.1f}" y="{h-pb-ch*totals[i]/mx-7:.1f}" text-anchor="middle" font-size="15" font-weight="700" fill="{MOSS}" style="{EN}">{totals[i]:.0f}</text>')
+        o.append(f'<text x="{x+bw/2:.1f}" y="{h-pb+22}" text-anchor="middle" font-size="14" fill="{SUB}" style="{EN}">{QL[i]}</text>')
+    for f in range(4):
+        if f: xx=16+4*f*gw; o.append(f'<line x1="{xx:.1f}" y1="{pt}" x2="{xx:.1f}" y2="{h-pb+36}" stroke="{LINE}" stroke-width="1" stroke-dasharray="4 4"/>')
+        o.append(f'<text x="{16+(4*f+2)*gw:.1f}" y="{h-pb+50}" text-anchor="middle" font-size="15" fill="{SUB}" style="{JA}">{Q_FY[f]}</text>')
+    o.append(f'<text x="{w}" y="18" text-anchor="end" font-size="14" fill="{SUB}" style="{JA}">単位: {unit}</text></svg>')
     return ''.join(o)
 QLEGEND=''.join(f'<span style="display:inline-flex;align-items:center;gap:8px;margin-right:24px;font-size:18px;color:var(--text-secondary);"><i style="display:inline-block;width:18px;height:18px;border-radius:3px;background:{Q_COLOR[k]};"></i>{Q_NAME[k]}</span>' for k in ['AP','AF','HI'])
 pages=[]
@@ -156,7 +155,7 @@ P('''<section class="page sec">
 
 # KPI 3つ
 P('''<section class="page">
-  <h1>9月の主要KPI</h1>
+  <h1>9月の事業進捗</h1>
   <div class="cap">試算表ベース　※税抜・暫定数字</div>
   <div class="kpi3">
     <div>
@@ -180,28 +179,6 @@ P('''<section class="page">
   <div class="note">※ 限界利益＝売上総利益−荷造運賃−支払手数料。全体ROAS＝売上高÷広告宣伝費。広告費込み限界利益＝限界利益−広告宣伝費。試算表（10/8 時点）のため確定値と差異が出ます</div>
 </section>''')
 
-STACK=stacked_mm({'2026年8月':{'Shopify':35.9,'モール':12.2,'その他':10.6},'2026年9月':{'Shopify':39.9,'モール':13.9,'その他':12.0}},['2026年8月','2026年9月'],totals=[58.7,65.7])
-# P-4 売上の内訳（チャネル別・前月比）
-P(f'''<section class="page">
-  <h1>売上高の内訳（チャネル別・前月比）</h1>
-  <div class="cap">試算表の売上高　※税抜・単位: 百万円</div>
-  <div class="two" style="margin-top: 12px; align-items: flex-start; gap: 32px;">
-    <div style="flex: 0 0 480px;">
-      <div class="lbl">2026年9月 合計</div>
-      <div class="big" style="font-size: 76px;">65.7<small>百万円</small></div>
-      <div class="yoy" style="margin-top: 4px;"><div class="yv pos" style="font-size: 48px;">+11.9%</div><div class="yn">前月 58.7百万円 → 65.7百万円</div></div>
-      <div style="margin-top: 20px;">
-        <div class="segrow"><i style="background:var(--brand-secondary);"></i><span class="nm">Shopify</span><span class="yv2 pos">+11%</span><span class="fr">35.9 → 39.9</span></div>
-        <div class="segrow"><i style="background:var(--brand-primary);"></i><span class="nm">モール</span><span class="yv2 pos">+14%</span><span class="fr">12.2 → 13.9</span></div>
-        <div class="segrow"><i style="background:var(--bg-dull-green);"></i><span class="nm">その他</span><span class="yv2 pos">+13%</span><span class="fr">10.6 → 12.0</span></div>
-      </div>
-    </div>
-    <div style="flex: 1;">{STACK}</div>
-  </div>
-  <div class="line" style="margin-top: 0;">自社EC・モール・法人／卸のすべてのチャネルが前月から1割以上伸びた</div>
-  <div class="note">※ モール＝Amazon Japan＋楽天市場。その他＝LINE・キナリノ・補助科目なし（法人・卸・ハナイチ等）</div>
-</section>''')
-
 # P-5 月次推移（第8期・単系列）
 P(f'''<section class="page">
   <h1>第8期の月次売上高</h1>
@@ -211,17 +188,33 @@ P(f'''<section class="page">
   <div class="note">※ 年間値は決算整理（売上高 −4.0百万円等）を含む。限界利益＝売上総利益−荷造運賃−支払手数料</div>
 </section>''')
 
-# 事業別 四半期 売上・限界利益
+# 事業別 四半期 売上・限界利益（4期分）
 P(f'''<section class="page">
-  <h1>事業別の四半期 売上・限界利益（第7期 → 第8期）</h1>
-  <div class="cap">AND PLANTS／AND FLOWER／ハナイチ　※税抜・マーケティングマスター集計</div>
-  <div style="margin-top: 4px;">{QLEGEND}</div>
-  <div class="two" style="margin-top: 8px; gap: 40px; align-items: flex-start;">
-    <div><div class="sub" style="font-size: 26px;">売上</div>{quarterly_stack(Q_SALES)}</div>
-    <div><div class="sub" style="font-size: 26px;">限界利益</div>{quarterly_stack(Q_MP)}</div>
+  <h1>事業別の四半期 売上・限界利益（第5期 → 第8期）</h1>
+  <div style="margin-top: 8px;">{QLEGEND}</div>
+  <div style="margin-top: 8px;"><div class="sub" style="font-size: 24px;">売上</div>{quarterly_stack(Q_SALES)}</div>
+  <div style="margin-top: 8px;"><div class="sub" style="font-size: 24px;">限界利益</div>{quarterly_stack(Q_MP)}</div>
+  <div class="note">※ 税抜。第5期＝2022年10月〜2023年9月、Q1＝10〜12月。ハナイチは限界利益の代わりに粗利。モール売上は AND PLANTS に含む。マーケティングマスター集計のため試算表とは集計基準が異なる</div>
+</section>''')
+
+# P-8 広告効率
+P(f'''<section class="page">
+  <h1>広告宣伝費と広告効率</h1>
+  <div class="cap">前月との比較　※全体ROAS＝売上高÷広告宣伝費</div>
+  <div class="two" style="margin-top: 20px; align-items: flex-start;">
+    <div style="flex: 0 0 440px;">
+      <div class="lbl">9月の広告宣伝費</div>
+      <div class="big" style="font-size: 76px;">13.5<small>百万円</small></div>
+      <div class="yoy" style="margin-top: 12px;"><div class="yl">前月比</div><div class="yv">+13.6%</div><div class="yn">11.9 → 13.5百万円</div></div>
+      <div class="yoys" style="margin-top: 12px; gap: 24px;">
+        <div class="yoy" style="min-width: 0;"><div class="yl">全体ROAS</div><div class="yv" style="font-size: 44px;">487%</div><div class="yn">前月 494%</div></div>
+        <div class="yoy" style="min-width: 0;"><div class="yl">広告費込み限界利益</div><div class="yv pos" style="font-size: 44px;">1.9倍</div><div class="yn">7.7 → 14.4百万円</div></div>
+      </div>
+    </div>
+    <div style="flex: 1;">{compare_bars(['売上高','広告宣伝費','広告費込み限界利益'],prev=[58.7,11.9,7.7],cur=[65.7,13.5,14.4],labels=('2026年8月','2026年9月'),w=560,h=380)}</div>
   </div>
-  <div class="line" style="margin-top: 4px; font-size: 24px;">第8期は売上 7.83億円（前期比 +4.8%）、限界利益 3.62億円（+6.3%）。母の日の Q3 が AND FLOWER の山、ハナイチは Q4 に過去最高の 15.7百万円</div>
-  <div class="note">※ 第7期＝2024年10月〜2025年9月、第8期＝2025年10月〜2026年9月。Q1＝10〜12月。ハナイチは限界利益の代わりに粗利。モール売上は AND PLANTS に含む。試算表とは集計基準が異なる</div>
+  <div class="line" style="margin-top: 8px;">広告を1割強増やし、ROASをほぼ維持したまま広告費込み限界利益を倍増させた</div>
+  <div class="note">※ 媒体別の広告費（媒体レポート値）: Google 4.6／Meta 2.4／楽天RPP 1.2／Amazon 1.2／Yahoo! 0.3／その他 0.2百万円。試算表の広告宣伝費とは計上基準が異なる</div>
 </section>''')
 
 # P-3 章扉 02
@@ -238,7 +231,6 @@ P('''<section class="page">
   <div class="pillars tight mt">
     <div class="p"><div class="i">1</div><div><div class="t">生産者との関係づくりが最大の目的</div><div class="s">出店者のリスクをゼロに近づけた設計。指宿の生産者も来場。中長期の仕入れ力向上につなげる</div></div></div>
     <div class="p"><div class="i">2</div><div><div class="t">雨天でも来場は多く、出店者の満足度も高い</div><div class="s">投資家・取引先にもご来場いただき、事業を知っていただく場に。ワークショップは14名が参加</div></div></div>
-    <div class="p"><div class="i">3</div><div><div class="t">値札約750点分を集計中。10/2 の振り返りを経て継続開催へ</div><div class="s">運営負荷・レジ運用・出店者の収益など、次回に活かす課題を整理中</div></div></div>
   </div>
   <div class="note">※ 売上・来場者数の確定値は集計完了後にご共有します</div>
 </section>''')
@@ -250,37 +242,22 @@ P(f'''<section class="page">
   <div class="two" style="margin-top: 24px; gap: 32px;">
     <div><div class="sub">観葉植物アプリの注文</div><div class="big pos" style="font-size: 72px;">48<small>件</small></div>{single_bars(['7月','8月','9月'],[9,31,48],w=290,h=220,fmt=f_int,unit='件',label_size=22)}</div>
     <div><div class="sub">生花アプリの注文</div><div class="big pos" style="font-size: 72px;">91<small>件</small></div>{single_bars(['7月','8月','9月'],[53,72,91],w=290,h=220,fmt=f_int,unit='件',label_size=22)}</div>
-    <div><div class="sub">アプリ累計ユーザー</div><div class="big" style="font-size: 72px;">2,464<small>人</small></div><div class="body" style="font-size: 25px; margin-top: 12px;">9月の新規 421人<br>MAU 1,241人<br>翌月継続率 49.5%</div></div>
+    <div><div class="sub" style="font-size: 27px;">観葉アプリ 累計ユーザー</div><div class="big" style="font-size: 72px;">2,464<small>人</small></div><div class="body" style="font-size: 25px; margin-top: 12px;">9月の新規 421人<br>MAU 1,241人<br>翌月継続率 49.5%</div></div>
   </div>
-  <div class="line" style="margin-top: 16px;">観葉アプリは7月のEC連携開始から3ヶ月で月48件に。10/6に秋限定のアプリ商品6SKUを追加</div>
+  <div class="line" style="margin-top: 16px;">観葉アプリは7月のEC連携開始から3ヶ月で月48件に</div>
   <div class="note">※ 観葉アプリの注文はアプリチャネル注文、生花アプリは Appify＋花アプリチャネル注文（受注管理画面集計）。ユーザー数は社内スタッフ除く</div>
 </section>''')
 
-# 法人コンシェルジュ
+# グリーンレンタル
 P('''<section class="page">
-  <h1>フラワー・グリーンコンシェルジュ（法人向け）</h1>
-  <div class="cap">8月に本格開始した法人向けサービス。9月は営業の型づくりの月</div>
-  <div class="two" style="margin-top: 16px; align-items: flex-start; gap: 40px;">
-    <div style="flex: 0 0 400px;">
-      <div class="lbl">営業代行の架電（9/16時点）</div>
-      <div class="big" style="font-size: 72px;">291<small>件</small></div>
-      <div class="yoys" style="margin-top: 8px; gap: 24px;">
-        <div class="yoy" style="min-width: 0;"><div class="yl">担当者接触率</div><div class="yv pos" style="font-size: 44px;">25.6%</div></div>
-        <div class="yoy" style="min-width: 0;"><div class="yl">アポ獲得率（目標7%）</div><div class="yv neg" style="font-size: 44px;">2.9%</div></div>
-      </div>
-      <div class="small" style="margin-top: 16px;">社内コール30件 → 資料送付4件・登録1件<br>ミヨシ油脂様は商談当日に登録完了</div>
-    </div>
-    <div style="flex: 1;">
-      <ul class="li">
-        <li><b>開発Ph4を9/18にリリース。</b>専用コレクションで商品ラインナップを増強、胡蝶蘭・スタンド花を拡充中</li>
-        <li><b>アポ率が課題。</b>訴求スクリプトを見直し 9/28 から架電を再開</li>
-        <li><b>10月から既存取引法人へのローラー。</b>名刺 3,000件＋法人リスト 12,000件を整備、過去取引7,000社から登録案内</li>
-        <li>フォーム営業を仕組み化（インターン1名で80件/日）。年内10万社へのアプローチを計画</li>
-        <li>note記事・ニュースリリースを準備中</li>
-      </ul>
-    </div>
+  <h1>グリーンレンタル：オフィス向けの受注が動き始めた</h1>
+  <div class="cap">9月の重点テーマ「契約数増」。案件数が増えるほど利益率の高い事業に</div>
+  <div class="pillars tight" style="margin-top: 16px;">
+    <div class="p"><div class="i">1</div><div><div class="t">8月末〜9月に新規2件を受注。コアラマットレス様（オフィス）が10月初めに決定</div><div class="s">9月に現地調査・提案を実施し受注。12/1 納品予定。外資系はオフィス環境への要望が多く、既存業者からの切り替えが起きやすい</div></div></div>
+    <div class="p"><div class="i">2</div><div><div class="t">ギフティ様オフィスの現地調査を実施。ほか2案件が確度高く進行中</div><div class="s">オフィスグリーンが中心。ショールーム装飾は単価を上げやすく、本部側との接点づくりが課題</div></div></div>
+    <div class="p"><div class="i">3</div><div><div class="t">導入事例をLPに掲載、設置事例の撮影も開始</div><div class="s">koujitsu様、アンカージャパン様（福利厚生）を掲載。KANADEMONO YOYOGI PARK様は10/14のメンテナンス訪問時に撮影予定</div></div></div>
+    <div class="p"><div class="i">4</div><div><div class="t">請求をフラワー・グリーンコンシェルジュ経由に統一</div><div class="s">レンタル契約先は全社コンシェルジュに登録し、祝い花・植物の追加購入とまとめて請求。法人向けフェイクグリーンも検討中</div></div></div>
   </div>
-  <div class="note">※ 法人チャネルの注文数は 9月 286件（8月 286件）。コンシェルジュ経由の売上は10月から計上ルールを整理して報告します</div>
 </section>''')
 
 # AP/AF その他の動き
@@ -289,8 +266,7 @@ P('''<section class="page">
   <div class="pillars tight mt">
     <div class="p"><div class="i">1</div><div><div class="t">敬老の日：生花 Autumn シリーズを発売</div><div class="s">狙いどおりの結果には届かず。初動を見てレシピ変更・撮り直しを検討中</div></div></div>
     <div class="p"><div class="i">2</div><div><div class="t">秋セールを 9/25 から開始</div><div class="s">最終日 10/4 に伸び、税込 500万円を突破。10月は楽天お買い物マラソンへ</div></div></div>
-    <div class="p"><div class="i">3</div><div><div class="t">グリーンレンタル：コアラマットレス様のオフィス受注が決定</div><div class="s">ギフティ様オフィスの現地調査も実施。リビングハウス様は店舗・ECで受注が動き始めた</div></div></div>
-    <div class="p"><div class="i">4</div><div><div class="t">中国・昆明の花き展示会を視察（9/18〜21）</div><div class="s">品質は高く単価は安い（バラ小売1本40円）。昆明からの直輸入ルートを本格検討。大谷商会様とも意見交換</div></div></div>
+    <div class="p"><div class="i">3</div><div><div class="t">中国・昆明の花き展示会を視察（9/18〜21）</div><div class="s">品質は高く単価は安い（バラ小売1本40円）。昆明からの直輸入ルートを本格検討。大谷商会様とも意見交換</div></div></div>
   </div>
 </section>''')
 
