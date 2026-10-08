@@ -260,7 +260,7 @@ notes(s, """
 purpose_notes = {
     "1": "目線を上げる：（口頭）普段の業務から一歩引いて、会社として何を目指しているかを見る日にしたい。",
     "2": "チーム感を高める：（口頭）普段話さない人とも話して、「この人こんなこと考えてたんだ」を持ち帰ってほしい。",
-    "3": "今後の方針のシェア：（口頭）第9期にどこへ向かうのか、なぜそれをやるのかを全員で揃えたい。",
+    "3": "今後の方針のシェア：（口頭）27年9月期にどこへ向かうのか、なぜそれをやるのかを全員で揃えたい。",
 }
 for n, label in items:
     s = content_slide()
@@ -276,22 +276,22 @@ notes(s, "改めて、今日の目的はこの3つです。")
 # 6. 第8期 お疲れ様でした（キーメッセージ・Moss 全面）
 # =====================================================================
 s = dark_slide()
-text(s, 80, 300, 968, 200, "第8期、大変お疲れ様でした！", size=64, color=WHITE, bold=True,
+text(s, 80, 300, 968, 200, "26年9月期、大変お疲れ様でした！", size=64, color=WHITE, bold=True,
      align=PP_ALIGN.CENTER, anchor=MSO_ANCHOR.MIDDLE)
 notes(s, """
-まずは第8期、本当にお疲れ様でした。
+まずは26年9月期、本当にお疲れ様でした。
 （ここは自由に：大変だったこと、ありがとうを伝えたい場面など）
 """)
 
 # =====================================================================
 # 7. 章扉 01
 # =====================================================================
-s = divider("01", "FY8 REVIEW", "第8期の振り返り", "数字と、起きたこと")
+s = divider("01", "FY2026 REVIEW", "26年9月期の振り返り", "数字と、起きたこと")
 
 # =====================================================================
 # 8. 全社の数字（P-6 単系列＋強調：左に主要数字、右に月次売上）
 # =====================================================================
-s = content_slide("全社の数字", "第8期（2025年10月〜2026年9月）　※税抜")
+s = content_slide("全社の数字", "26年9月期（2025年10月〜2026年9月）　※税抜")
 kpis = [
     ("売上高", "8.34", "億円", MOSS),
     ("売上総利益", "5.02", "億円", MOSS),
@@ -327,7 +327,7 @@ text(s, 56, H_PX - 76, 960, 24,
      "※ 試算表（2026/10/8時点）の暫定値・決算整理前。9月は棚卸未反映。売上高は決算整理▲404万円を含む",
      size=14, color=SECONDARY)
 notes(s, """
-全社の第8期は、売上高8.34億円、売上総利益5.02億円（試算表ベースの暫定値）。
+全社の26年9月期は、売上高8.34億円、売上総利益5.02億円（試算表ベースの暫定値）。
 5月は母の日で月商1.1億円。創業以来はじめて月商1億を超えた。
 """)
 
@@ -349,8 +349,8 @@ for i, t in enumerate(tb_q):
     q_ap.append(fy8["ap"][i] * k)
     q_af.append(fy8["af"][i] * k)
     q_ha.append(fy8["ha"][i] * k)
-periods = [("第3期", 2), ("第4期", 4), ("第5期", 4), ("第6期", 4), ("第7期", 4), ("第8期", 4)]
-series = [(q_ap, LIGHT, "AND PLANTS"), (q_af, FLOWER, "AND FLOWER"), (q_ha, MOSS, "ハナイチ")]
+periods = [("21年9月期", 2), ("22年9月期", 4), ("23年9月期", 4), ("24年9月期", 4), ("25年9月期", 4), ("26年9月期", 4)]
+series = [(q_ap, LIGHT, "アンドプランツ"), (q_af, FLOWER, "アンドフラワー"), (q_ha, MOSS, "ハナイチ")]
 totals = [a + b + c for a, b, c in zip(q_ap, q_af, q_ha)]
 slot, bw = 36, 24
 gx0 = (W_PX - (slot * 21 + bw)) // 2  # グラフを横中央に
@@ -382,37 +382,38 @@ for name, n in periods:
         ln = s.shapes.add_connector(1, px(x), px(base_y + 4), px(x), px(base_y + 40))
         ln.line.color.rgb = BORDER_LIGHT
         _drop_style(ln)
-    text(s, x, base_y + 12, w, 28, name, size=18, color=SECONDARY, align=PP_ALIGN.CENTER)
+    text(s, x - 12, base_y + 14, w + 24, 26, name, size=15, color=SECONDARY, align=PP_ALIGN.CENTER)
     i0 += n
 text(s, 56, 680, 1016, 44, "リリースから5年で、[[四半期2.7億円]]の規模になった", size=28, bold=True)
 text(s, 56, H_PX - 76, 960, 24,
-     "※ 第3〜7期は事業別の集計（注文日ベース・税抜）。第8期は試算表の売上高を事業別の比率で按分（イネイブラー等を含む）",
+     "※ 21〜25年9月期は事業別の集計（注文日ベース・税抜）。26年9月期は試算表の売上高を事業別の比率で按分（イネイブラー等を含む）",
      size=14, color=SECONDARY)
 notes(s, """
 2021年5月のリリースから、四半期ごとの売上の推移。
-AND PLANTSから始まり、AND FLOWER、ハナイチと事業が増えてきた。
-第8期の4-6月（母の日の四半期）は2.7億円。最初の四半期と比べると、ここまで来た。
+アンドプランツから始まり、アンドフラワー、ハナイチと事業が増えてきた。
+26年9月期の4-6月（母の日の四半期）は2.7億円。最初の四半期と比べると、ここまで来た。
 """)
 
 # =====================================================================
 # 9. 事業別の数字（P-9 3項目の成長）
 # =====================================================================
-s = content_slide("事業別の数字", "第7期 → 第8期（前年比）　※税抜")
+s = content_slide("事業別の数字", "25年9月期 → 26年9月期（前年比）　※税抜")
 cols = [
-    ("AND PLANTS / AND FLOWER", "売上", 7.2, 7.4, "億円", "+2%", "7.2億 → 7.4億"),
-    ("AND PLANTS / AND FLOWER", "広告費込み限界利益", 1.5, 2.2, "億円", "+47%", "1.5億 → 2.2億"),
-    ("ハナイチ", "売上", 45.4, 55.3, "百万円", "+22%", "45.4百万 → 55.3百万"),
+    ("アンドプランツ/アンドフラワー", "売上", 7.2, 7.4, "億円", "+2%", "7.2億 → 7.4億"),
+    ("アンドプランツ/アンドフラワー", "広告費込み限界利益", 1.5, 2.2, "億円", "+47%", "1.5億 → 2.2億"),
+    ("ハナイチ", "売上", 45.4, 45.0, "百万円", "-1%", "45.4百万 → 45.0百万"),
 ]
 x0, colw = 56, 344
 for i, (biz, metric, prev, cur, unit, yoy, cap) in enumerate(cols):
     x = x0 + i * (colw + 16)
     text(s, x, 172, colw, 28, biz, size=18, color=SECONDARY, en=False)
     text(s, x, 204, colw, 40, metric, size=28, bold=True)
-    text(s, x, 250, colw, 72, yoy, size=56, color=LIGHT, bold=True, en=True, spacing=1.0)
+    text(s, x, 250, colw, 72, yoy, size=56, color=STRONG if yoy.startswith("-") else LIGHT, bold=True,
+         en=True, spacing=1.0)
     # 小さな前年比較棒
     base_y, max_h = 620, 220
     top = max(prev, cur)
-    for j, (val, col, lab) in enumerate([(prev, BG_GRAY, "第7期"), (cur, MOSS, "第8期")]):
+    for j, (val, col, lab) in enumerate([(prev, BG_GRAY, "25年9月期"), (cur, MOSS, "26年9月期")]):
         h = max_h * val / top
         bx = x + 48 + j * 136
         rect(s, bx, base_y - h, 96, h, col)
@@ -423,14 +424,18 @@ for i, (biz, metric, prev, cur, unit, yoy, cap) in enumerate(cols):
              align=PP_ALIGN.CENTER)
     hline(s, x + 24, base_y, colw - 48, BORDER_LIGHT)
     text(s, x, 332, colw, 24, f"単位：{unit}", size=16, color=SECONDARY)
+vl = s.shapes.add_connector(1, px(56 + 2 * (colw + 16) - 8), px(168), px(56 + 2 * (colw + 16) - 8), px(650))
+vl.line.color.rgb = BORDER_LIGHT
+vl.line.width = Emu(12700)
+_drop_style(vl)
 text(s, 56, 690, 1000, 44, "広告を絞っても売上は落とさず、[[広告費込み限界利益が大きく残る形]]に変わった", size=28,
      bold=True)
 text(s, 56, H_PX - 76, 960, 24,
-     "※ AP/AFは自社EC＋モール、税抜（小松資料）。ハナイチは税抜・植木鉢＋生花ほか（比須田資料）",
+     "※ アンドプランツ/アンドフラワーは自社EC＋モール、税抜（小松資料）。ハナイチの26年9月期は45.0百万円・25年9月期は比須田資料",
      size=14, color=SECONDARY)
 notes(s, """
-AP/AF：売上は+2%とほぼ横ばいだけど、広告費込み限界利益は+47%。広告費を3割減らして利益を1.5倍にした。
-ハナイチ：売上+22%、注文数は2.3倍。生花は1本売れば利益が残る形になった。
+アンドプランツ/アンドフラワー：売上は+2%とほぼ横ばいだけど、広告費込み限界利益は+47%。広告費を3割減らして利益を1.5倍にした。
+ハナイチ：売上は横ばい、注文数は2.3倍。生花は1本売れば利益が残る形になった。
 詳細はこのあと各事業の発表で。
 """)
 
@@ -441,23 +446,22 @@ TOPICS = [
     "花アプリ公開",
     "三和園芸さんとの委託発送開始",
     "観葉イネイブラー始動",
-    "花イネイブラー始動",
+    "花イネイブラー本格始動",
     "アンドフラワーのブランド分割",
     "植物ケアアプリ公開",
     "マルシェ開催",
     "全社AI活用・MCP整備",
     "みずほ銀行の融資",
-    "ギフティから3億円の出資",
+    "ギフティ社から追加で3億円の出資",
     "新城の解散",
     "ハナイチの各種施策進行",
 ]
 TOPIC_SUB = {
-    4: "Mr. CHEESECAKE、UCC様",
 }
 s = content_slide()
-text(s, 56, 323, 1016, 200, "8期もいろいろありました（しみじみ", size=56, bold=True, align=PP_ALIGN.CENTER,
+text(s, 56, 323, 1016, 200, "8期もいろいろありましたね（しみじみ", size=56, bold=True, align=PP_ALIGN.CENTER,
      anchor=MSO_ANCHOR.MIDDLE)
-notes(s, "第8期にやったことを、写真と一緒に1つずつ振り返ります。")
+notes(s, "26年9月期にやったことを、写真と一緒に1つずつ振り返ります。")
 
 PHOTO_DIR = os.path.join(os.path.dirname(os.path.abspath(__file__)), "photos")
 
@@ -469,6 +473,35 @@ def photos_for(n):
     pre = f"{n:02d}_"
     return sorted(os.path.join(PHOTO_DIR, f) for f in os.listdir(PHOTO_DIR)
                   if f.startswith(pre) and f.lower().endswith((".jpg", ".jpeg", ".png")))
+
+
+def _sizes(files):
+    from PIL import Image
+    out = []
+    for f in files:
+        with Image.open(f) as im:
+            out.append(im.size)
+    return out
+
+
+def _fit(iw, ih, w, h):
+    return min(w / iw, h / ih) ** 2 * iw * ih
+
+
+def feature_area(files, w, h, gap):
+    sizes = _sizes(files)
+    lw = w * 0.62
+    rh = (h - gap * (len(files) - 2)) / (len(files) - 1)
+    return _fit(*sizes[0], lw, h) + sum(_fit(iw, ih, w - lw - gap, rh) for iw, ih in sizes[1:])
+
+
+def grid_area(files, w, h, gap):
+    sizes = _sizes(files)
+    cols = best_cols(files, w, h, gap)
+    rows = (len(files) + cols - 1) // cols
+    cw = (w - gap * (cols - 1)) / cols
+    ch = (h - gap * (rows - 1)) / rows
+    return sum(_fit(iw, ih, cw, ch) for iw, ih in sizes)
 
 
 def best_cols(files, w, h, gap):
@@ -519,7 +552,15 @@ for i, t in enumerate(TOPICS):
     s = content_slide(t, TOPIC_SUB.get(n))
     area_x, area_y, area_w, area_h = 56, 160, 1016, 620
     files = photos_for(n)
-    if files:
+    if files and len(files) >= 3 and feature_area(files, area_w, area_h, 16) > grid_area(files, area_w, area_h, 16):
+        # 1枚目を左に大きく、残りを右に縦積み
+        gap = 16
+        lw = area_w * 0.62
+        place_contain(s, files[0], area_x, area_y, lw, area_h)
+        rh = (area_h - gap * (len(files) - 2)) / (len(files) - 1)
+        for j, f in enumerate(files[1:]):
+            place_contain(s, f, area_x + lw + gap, area_y + j * (rh + gap), area_w - lw - gap, rh)
+    elif files:
         gap = 16
         cols = best_cols(files, area_w, area_h, gap)
         rows = (len(files) + cols - 1) // cols
@@ -543,7 +584,7 @@ for i, t in enumerate(TOPICS):
             # 写真は入社が新しい順に届いたので逆順で当てる
             place_contain(s, os.path.join(PHOTO_DIR, "members", f"{4 - k}.png"), x, 300, d, d)
             text(s, x - 20, 524, d + 40, 36, m, size=25, bold=True, align=PP_ALIGN.CENTER)
-        notes(s, "第8期は新しい仲間も増えました。（舘脇さん・頼政さん・川嶋さん・塚本さんを口頭で紹介）")
+        notes(s, "26年9月期は新しい仲間も増えました。（舘脇さん・頼政さん・川嶋さん・塚本さんを口頭で紹介）")
     if t.startswith("ギフティ"):
         # 出資の結果（累計調達額と時価総額）
         s = content_slide("資金調達の到達点")
@@ -576,29 +617,29 @@ for i, t in enumerate(TOPICS):
 s = content_slide()
 text(s, 56, 300, 1016, 200, "みなさん、大変お疲れ様でした〜👏", size=60, bold=True,
      align=PP_ALIGN.CENTER, anchor=MSO_ANCHOR.MIDDLE)
-notes(s, "第8期の振り返りはここまで。みなさん、大変お疲れ様でした！")
+notes(s, "26年9月期の振り返りはここまで。みなさん、大変お疲れ様でした！")
 
 # =====================================================================
 # 12. 章扉 02
 # =====================================================================
-s = divider("02", "FY9 DIRECTION", "第9期に向けて", "")
+s = divider("02", "FY2027 DIRECTION", "27年9月期に向けて", "")
 
 # =====================================================================
 # 13. 第9期の数字（P-10 実績 vs 計画）
 # =====================================================================
-s = content_slide("第9期の計画", "第8期 実績 → 第9期 計画（売上）　※税抜")
+s = content_slide("27年9月期の計画", "26年9月期 実績 → 27年9月期 計画（売上）　※税抜")
 plans = [
-    ("AND PLANTS / AND FLOWER", 7.4, 12.4, "+68%"),
+    ("アンドプランツ/アンドフラワー", 7.4, 12.4, "+68%"),
     ("イネイブラー", 0.1, 1.9, "19倍"),
-    ("ハナイチ", 0.55, 2.7, "4.9倍"),
+    ("ハナイチ", 0.45, 2.7, "6.0倍"),
 ]
 top = max(p[2] for p in plans)
 for i, (lab, cur, plan, g) in enumerate(plans):
     x = 56 + i * 344
-    text(s, x, 172, 330, 36, lab, size=22, bold=True)
+    text(s, x, 172, 336, 36, lab, size=20, bold=True)
     text(s, x, 206, 320, 24, "単位：億円", size=16, color=SECONDARY)
     base_y, max_h = 560, 260
-    for j, (val, col, cap) in enumerate([(cur, BG_GRAY, "第8期 実績"), (plan, MOSS, "第9期 計画")]):
+    for j, (val, col, cap) in enumerate([(cur, BG_GRAY, "26年9月期 実績"), (plan, MOSS, "27年9月期 計画")]):
         h = max(max_h * val / top, 3)  # 3事業とも同じ目盛り（規模の差が見えるように）
         bx = x + 40 + j * 136
         rect(s, bx, base_y - h, 96, h, col)
@@ -609,29 +650,26 @@ for i, (lab, cur, plan, g) in enumerate(plans):
     hline(s, x + 16, base_y, 300)
     text(s, x, 610, 320, 70, g, size=48, color=LIGHT, bold=True, en=(g.startswith("+")))
 text(s, 56, H_PX - 76, 960, 24,
-     "※ ハナイチの第8期実績は比須田資料（55.3百万円）", size=14,
+     "※ ハナイチの26年9月期実績は45.0百万円", size=14,
      color=SECONDARY)
 notes(s, """
-第9期は前年比ではなく「計画に対してどうか」で見る。
-売上の計画は、AP/AFが12.4億、イネイブラーが0.1億→1.9億、ハナイチが2.7億。
+27年9月期は前年比ではなく「計画に対してどうか」で見る。
+売上の計画は、アンドプランツ/アンドフラワーが12.4億、イネイブラーが0.1億→1.9億、ハナイチが2.7億。
 """)
 
 # =====================================================================
 # 14. 章扉 03
 # =====================================================================
-s = divider("03", "WHY WE DO THIS", "なぜ、僕らがこれをやるのか", "ミッションと、各事業のつながり")
+s = divider("03", "WHY WE DO THIS", "なぜ、僕らがこれをやるのか", "")
 notes(s, "ここからは数字の話ではなく、なぜ自分たちがこれをやるのか、の話をします。")
 
 # =====================================================================
 # 15. 出発点：ミッション（P-2）
 # =====================================================================
-s = content_slide("出発点は、ミッション")
-text(s, 56, 236, 900, 30, "- OUR MISSION -", size=20, color=SECONDARY, en=True, letter=4)
-text(s, 56, 288, 1016, 150, ["ITとデザインで、", "[[みどりのある暮らし]]をもっと身近に。"], size=52,
+s = content_slide()
+text(s, 56, 300, 900, 30, "- OUR MISSION -", size=20, color=SECONDARY, en=True, letter=4)
+text(s, 56, 352, 1016, 150, ["ITとデザインで、", "[[みどりのある暮らし]]をもっと身近に。"], size=52,
      bold=True, spacing=1.35)
-text(s, 56, 520, 1000, 140,
-     ["根っこにあるのは、「花や植物っていいよね」という気持ち。",
-      "育てる楽しさ、もらったときのうれしさを、もっと多くの人に。"], size=25, spacing=1.7)
 notes(s, """
 Domuzのミッションは「ITとデザインでみどりのある暮らしをもっと身近に」。
 根っこにあるのは、花や植物っていいよね、という気持ち。
@@ -709,7 +747,7 @@ notes(s, """
 # =====================================================================
 s = content_slide("どの事業も、同じところにつながっている")
 rows = [
-    ("1", "AND PLANTS / AND FLOWER", "自分たちで花や植物を販売し、楽しむ人を増やす"),
+    ("1", "アンドプランツ/アンドフラワー", "自分たちで花や植物を販売し、楽しむ人を増やす"),
     ("2", "イネイブラー", "いろんな事業者の商品と花をセットで届け、買う・贈る機会を増やす"),
     ("3", "ハナイチ", "花を売る人・教室や撮影で使う人が、もっと仕入れやすくする"),
 ]
@@ -746,7 +784,7 @@ text(s, 56, 196, 1016, 160,
      ["他社の贈り物と花をセットにして、", "きれいに、確実に届けられること。",
       "それ自体が、[[Domuzにしかない強み]]。"], size=36, bold=True, spacing=1.45)
 hline(s, 56, 400, 1016)
-text(s, 56, 424, 600, 32, "第9期に動き出すもの", size=22, color=SECONDARY)
+text(s, 56, 424, 600, 32, "27年9月期に動き出すもの", size=22, color=SECONDARY)
 news = [
     ("10月", "生花イネイブラー 2件スタート予定（PAPABUBBLE／フレッシュロースター）"),
     ("10月", "HAKUBA CRAFT：クラフトビールを冷蔵保管し、生花とセットで発送"),
@@ -794,7 +832,7 @@ text(s, 56, 250, 1016, 240,
 text(s, 56, 470, 1000, 120,
      ["事業は違っても、向かっている先は同じ。", "一人ひとりの仕事が、誰かの「花っていいな」の入口になっている。"],
      size=25, spacing=1.7)
-text(s, 56, 640, 1016, 60, "第9期も、みんなで[[楽しみながら]]やり切ろう。", size=40, bold=True)
+text(s, 56, 640, 1016, 60, "27年9月期も、みんなで[[楽しみながら]]やり切ろう。", size=40, bold=True)
 notes(s, """
 一番伝えたいのは、「花や植物を楽しむ人と機会を増やすことが、産業全体の未来にも、Domuzの成長にもつながる」ということ。
 今日は一日、よろしくお願いします！
