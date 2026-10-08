@@ -329,11 +329,12 @@ for i, t in enumerate(tb_q):
 periods = [("第3期", 2), ("第4期", 4), ("第5期", 4), ("第6期", 4), ("第7期", 4), ("第8期", 4)]
 series = [(q_ap, LIGHT, "AND PLANTS"), (q_af, FLOWER, "AND FLOWER"), (q_ha, MOSS, "ハナイチ")]
 totals = [a + b + c for a, b, c in zip(q_ap, q_af, q_ha)]
-gx0, slot, bw = 72, 36, 24
+slot, bw = 36, 24
+gx0 = (W_PX - (slot * 21 + bw)) // 2  # グラフを横中央に
 base_y, max_h = 610, 340
 scale = max_h / max(totals)
 # 凡例
-lx = 72
+lx = gx0
 for vals, col, name in series:
     rect(s, lx, 160, 16, 16, col)
     text(s, lx + 24, 154, 160, 28, name, size=16, color=SECONDARY, en=(name != "ハナイチ"))
