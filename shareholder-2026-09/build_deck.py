@@ -84,7 +84,8 @@ def stacked_mm(data, labels, totals=None, w=520, h=440):
 # 全体ROAS = 売上高 ÷ 広告宣伝費
 MONTHS=['10月','11月','12月','1月','2月','3月','4月','5月','6月','7月','8月','9月']
 SALES=[59197005,59760976,59779303,79337562,54849614,67535713,98372443,111498180,62032508,61635649,58720586,65720929]
-GP   =[34518279,36312551,36781343,50680508,39623270,36529439,58913945,55111962,42422761,39554867,33890923,41394428]
+# 9月は試算表に棚卸が未反映（期首・期末 0）のため、期首 142,364,396（8月末）・期末 135,863,553（9月末実地棚卸）で売上原価を再計算した売上総利益 34,893,585 を使う
+GP   =[34518279,36312551,36781343,50680508,39623270,36529439,58913945,55111962,42422761,39554867,33890923,34893585]
 SHIP =[7705772,6975908,7030374,10481854,6129251,8205163,7846281,15838706,7418200,6549013,7549602,7022898]
 FEE  =[5321009,6878187,5207029,5151221,4388363,4906158,7191742,7120007,7398905,7638654,6760499,6490152]
 AD   =[13583903,13798530,7115072,11301555,10650384,9871615,15374493,18830186,11515103,12398258,11878543,13494678]
@@ -200,8 +201,8 @@ P('''<section class="page">
     </div>
     <div>
       <div class="lbl">限界利益</div>
-      <div class="big" style="font-size: 76px;">27.9<small>百万円</small></div>
-      <div class="yoys"><div class="yoy"><div class="yl">前月比</div><div class="yv pos">+42%</div><div class="yn">8月 19.6 → 27.9</div></div></div>
+      <div class="big" style="font-size: 76px;">21.4<small>百万円</small></div>
+      <div class="yoys"><div class="yoy"><div class="yl">前月比</div><div class="yv pos">+9%</div><div class="yn">8月 19.6 → 21.4</div></div></div>
     </div>
     <div>
       <div class="lbl">全体ROAS</div>
@@ -210,8 +211,8 @@ P('''<section class="page">
     </div>
   </div>
   <div class="hr" style="margin-top: 40px;"></div>
-  <div class="line" style="margin-top: 0;">売上高・限界利益ともに8月から回復。限界利益率は 33% → <span class="arrow">42%</span> に改善し、広告費込み限界利益は 14.4百万円（8月 7.7）</div>
-  <div class="note">※ 限界利益＝売上総利益−荷造運賃−支払手数料。全体ROAS＝売上高÷広告宣伝費。広告費込み限界利益＝限界利益−広告宣伝費。試算表（10/8 時点）のため確定値と差異が出ます</div>
+  <div class="line" style="margin-top: 0;">売上高は8月から <span class="arrow">+12%</span>、限界利益も 21.4百万円（+9%）と回復。限界利益率 32.5%、広告費込み限界利益は 7.9百万円（8月 7.7）</div>
+  <div class="note">※ 限界利益＝売上総利益−荷造運賃−支払手数料。全体ROAS＝売上高÷広告宣伝費。広告費込み限界利益＝限界利益−広告宣伝費。9月末の実地棚卸（135.9百万円、8月末比 −6.5百万円）を売上原価に反映した暫定値。確定値と差異が出ます</div>
 </section>''')
 
 # 事業別 月次 売上・限界利益（第3期〜第8期）
@@ -233,13 +234,13 @@ P(f'''<section class="page">
       <div class="yoy" style="margin-top: 12px;"><div class="yl">前月比</div><div class="yv">+13.6%</div><div class="yn">11.9 → 13.5百万円</div></div>
       <div class="yoys" style="margin-top: 12px; gap: 24px;">
         <div class="yoy" style="min-width: 0;"><div class="yl">全体ROAS</div><div class="yv" style="font-size: 44px;">487%</div><div class="yn">前月 494%</div></div>
-        <div class="yoy" style="min-width: 0;"><div class="yl">広告費込み限界利益</div><div class="yv pos" style="font-size: 44px;">1.9倍</div><div class="yn">7.7 → 14.4百万円</div></div>
+        <div class="yoy" style="min-width: 0;"><div class="yl">広告費込み限界利益</div><div class="yv" style="font-size: 44px;">+2%</div><div class="yn">7.7 → 7.9百万円</div></div>
       </div>
     </div>
-    <div style="flex: 1;">{compare_bars(['売上高','広告宣伝費','広告費込み限界利益'],prev=[58.7,11.9,7.7],cur=[65.7,13.5,14.4],labels=('2026年8月','2026年9月'),w=560,h=380)}</div>
+    <div style="flex: 1;">{compare_bars(['売上高','広告宣伝費','広告費込み限界利益'],prev=[58.7,11.9,7.7],cur=[65.7,13.5,7.9],labels=('2026年8月','2026年9月'),w=560,h=380)}</div>
   </div>
-  <div class="line" style="margin-top: 8px;">広告を1割強増やし、ROASをほぼ維持したまま広告費込み限界利益を倍増させた</div>
-  <div class="note">※ 媒体別の広告費（媒体レポート値）: Google 4.6／Meta 2.4／楽天RPP 1.2／Amazon 1.2／Yahoo! 0.3／その他 0.2百万円。試算表の広告宣伝費とは計上基準が異なる</div>
+  <div class="line" style="margin-top: 8px;">広告を1割強増やしてもROASはほぼ維持。広告費込み限界利益は 7.9百万円で前月並み</div>
+  <div class="note">※ 媒体別の広告費（媒体レポート値）: Google 4.6／Meta 2.4／楽天RPP 1.2／Amazon 1.2／Yahoo! 0.3／その他 0.2百万円。試算表の広告宣伝費とは計上基準が異なる。広告費込み限界利益は9月末棚卸を反映した暫定値</div>
 </section>''')
 
 # P-3 章扉 02
