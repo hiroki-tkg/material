@@ -142,8 +142,12 @@ MB=json.load(open(HERE+'/monthly_by_business.json',encoding='utf-8'))
 M_SALES={'AP':MB['AP_S'],'AF':MB['AF_S'],'HI':MB['HI_S']}
 M_MP   ={'AP':MB['AP_M'],'AF':MB['AF_M'],'HI':MB['HI_M']}
 M_MONTHS=MB['months']
+_i0=M_MONTHS.index('2022-10')
+M_MONTHS=M_MONTHS[_i0:]
+M_SALES={k:v[_i0:] for k,v in M_SALES.items()}
+M_MP={k:v[_i0:] for k,v in M_MP.items()}
 def fy_of(m): y=int(m[:4]); mo=int(m[5:]); return (y+1 if mo>=10 else y)-2018   # 2018-10 創業 → 第1期
-def monthly_stack(data, w=1000, h=262, unit='百万円'):
+def monthly_stack(data, w=700, h=262, unit='百万円'):
     """65ヶ月×事業別の積み上げ棒。期ごとに区切り線と期合計ラベル、ラベルは最高月だけ"""
     segs=['AP','AF','HI']; n=len(M_MONTHS)
     totals=[sum(data[k][i] for k in segs) for i in range(n)]
@@ -210,22 +214,13 @@ P('''<section class="page">
   <div class="note">※ 限界利益＝売上総利益−荷造運賃−支払手数料。全体ROAS＝売上高÷広告宣伝費。広告費込み限界利益＝限界利益−広告宣伝費。試算表（10/8 時点）のため確定値と差異が出ます</div>
 </section>''')
 
-# P-5 月次推移（第8期・単系列）
-P(f'''<section class="page">
-  <h1>第8期の月次売上高</h1>
-  <div class="cap">2025年10月〜2026年9月　試算表ベース　※税抜</div>
-  <div style="margin-top: 12px;">{single_bars(MONTHS,S8,w=1000,h=440,highlight=7,fmt=f_1,label_size=18)}</div>
-  <div class="line" style="margin-top: 4px;">第8期は売上高 8.34億円、限界利益 3.28億円、広告費込み限界利益 1.73億円で着地。5月が過去最高の月商 1.11億円</div>
-  <div class="note">※ 年間値は決算整理（売上高 −4.0百万円等）を含む。限界利益＝売上総利益−荷造運賃−支払手数料</div>
-</section>''')
-
 # 事業別 月次 売上・限界利益（第3期〜第8期）
 P(f'''<section class="page">
-  <h1>事業別の月次 売上・限界利益（第3期 → 第8期）</h1>
+  <h1>事業別の月次 売上・限界利益（第5期 → 第8期）</h1>
   <div style="margin-top: 4px; text-align: center;">{QLEGEND}</div>
-  <div style="margin-top: 0;"><div class="sub" style="font-size: 22px;">売上</div>{monthly_stack(M_SALES)}</div>
-  <div style="margin-top: 0;"><div class="sub" style="font-size: 22px;">限界利益</div>{monthly_stack(M_MP)}</div>
-  <div class="note">※ 税抜。2021年5月（AND PLANTS 開始）〜2026年9月。第3期＝2020年10月〜2021年9月、第8期＝2025年10月〜2026年9月。ハナイチは限界利益の代わりに粗利。モール売上は AND PLANTS に含む。マーケティングマスター集計のため試算表とは集計基準が異なる</div>
+  <div style="margin-top: 0; width: 700px; margin-left: auto; margin-right: auto;"><div class="sub" style="font-size: 22px;">売上</div>{monthly_stack(M_SALES)}</div>
+  <div style="margin-top: 0; width: 700px; margin-left: auto; margin-right: auto;"><div class="sub" style="font-size: 22px;">限界利益</div>{monthly_stack(M_MP)}</div>
+  <div class="note">※ 税抜。2022年10月〜2026年9月。第5期＝2022年10月〜2023年9月、第8期＝2025年10月〜2026年9月。ハナイチは限界利益の代わりに粗利。モール売上は AND PLANTS に含む。マーケティングマスター集計のため試算表とは集計基準が異なる</div>
 </section>''')
 
 # P-8 広告効率
