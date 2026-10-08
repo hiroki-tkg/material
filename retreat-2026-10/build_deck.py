@@ -300,6 +300,60 @@ notes(s, """
 """)
 
 # =====================================================================
+# 8-2. サービス開始からの推移（四半期・事業別の積み上げ）
+# =====================================================================
+s = content_slide("サービス開始からの推移", "四半期の売上（事業別）　単位：百万円　※税抜")
+# 事業別 四半期エコノミクス（FY=10月〜9月、FY2021=第3期）。2021年4-6月から
+q_ap = [2.3, 9.0, 17.6, 22.8, 25.1, 28.2, 32.3, 41.5, 58.0, 62.4, 65.0, 90.6, 117.7, 119.6,
+        110.0, 145.5, 171.0, 128.2, 118.2, 141.3, 172.0, 131.7]
+q_af = [0.0, 0.0, 0.3, 2.2, 7.1, 2.8, 4.1, 6.1, 16.9, 8.2, 10.8, 20.1, 41.5, 27.1,
+        33.1, 36.5, 56.3, 35.7, 41.1, 37.1, 66.5, 27.8]
+q_ha = [0.0] * 11 + [0.6, 4.1, 7.3, 2.9, 5.7, 10.8, 11.0, 7.4, 9.9, 13.9, 15.7]
+periods = [("第3期", 2), ("第4期", 4), ("第5期", 4), ("第6期", 4), ("第7期", 4), ("第8期", 4)]
+series = [(q_ap, LIGHT, "AND PLANTS"), (q_af, FLOWER, "AND FLOWER"), (q_ha, MOSS, "ハナイチ")]
+totals = [a + b + c for a, b, c in zip(q_ap, q_af, q_ha)]
+gx0, slot, bw = 72, 45, 31
+base_y, max_h = 610, 340
+scale = max_h / max(totals)
+# 凡例
+lx = 640
+for vals, col, name in series:
+    rect(s, lx, 170, 16, 16, col)
+    text(s, lx + 24, 164, 160, 28, name, size=16, color=SECONDARY, en=(name != "ハナイチ"))
+    lx += 150
+for i in range(len(totals)):
+    x = gx0 + i * slot
+    y = base_y
+    for vals, col, _ in series:
+        h = vals[i] * scale
+        if h > 0:
+            rect(s, x, y - h, bw, h, col)
+            y -= h
+    text(s, x - 8, y - 26, bw + 16, 22, f"{totals[i]:.0f}", size=15, bold=True,
+         align=PP_ALIGN.CENTER, en=True)
+hline(s, gx0 - 8, base_y, slot * len(totals) + 2)
+# 期のラベルと区切り
+i0 = 0
+for name, n in periods:
+    x = gx0 + i0 * slot - 7
+    w = n * slot
+    if i0 > 0:
+        hline(s, x, base_y + 8, 0.1)
+        ln = s.shapes.add_connector(1, px(x), px(base_y + 4), px(x), px(base_y + 40))
+        ln.line.color.rgb = BORDER_LIGHT
+    text(s, x, base_y + 12, w, 28, name, size=18, color=SECONDARY, align=PP_ALIGN.CENTER)
+    i0 += n
+text(s, 56, 680, 1016, 44, "リリースから5年で、[[四半期2.5億円]]の規模になった", size=28, bold=True)
+text(s, 56, H_PX - 76, 960, 24,
+     "※ 事業別 四半期エコノミクスの集計（注文日ベース・税抜）。全社の試算表とは集計基準が異なる。第3期は2021年4月〜",
+     size=14, color=SECONDARY)
+notes(s, """
+2021年5月のリリースから、四半期ごとの売上の推移。
+AND PLANTSから始まり、AND FLOWER、ハナイチと事業が増えてきた。
+第8期の4-6月（母の日の四半期）は2.5億円。最初の四半期と比べると、ここまで来た。
+""")
+
+# =====================================================================
 # 9. 事業別の数字（P-9 3項目の成長）
 # =====================================================================
 s = content_slide("事業別の数字", "第7期 → 第8期（前年比）　※税抜")
