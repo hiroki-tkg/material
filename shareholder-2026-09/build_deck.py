@@ -463,20 +463,6 @@ P('''<section class="page">
   </div>
 </section>''')
 
-# P-14 10月の見通し
-P('''<section class="page">
-  <h1>10月の見通し</h1>
-  <div class="vcenter">
-    <div class="stmt">10月は、B2Bの案件が<span class="g">形になる</span>月。</div>
-    <ul class="li" style="margin-top: 32px;">
-      <li><b>10/13</b> PAPABUBBLE様 リリース／<b>10/15</b> フレッシュロースター珈琲問屋様 納品</li>
-      <li><b>10/19</b> ギフティ様 次回お打ち合わせ（箱・商品化）／<b>10/29</b> カインズ様 訪問</li>
-      <li>秋セール（10/4 時点で税込 500万円超）、楽天お買い物マラソン、楽天生花の本格始動</li>
-    </ul>
-    <div class="stmt mt2">引き続き、よろしくお願いいたします。</div>
-  </div>
-</section>''')
-
 # ページ番号
 out=[]
 for i,p in enumerate(pages,1):
