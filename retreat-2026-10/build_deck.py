@@ -540,7 +540,8 @@ for i, t in enumerate(TOPICS):
         d, gap = 200, (1016 - 200 * 4) / 3
         for k, m in enumerate(joins):
             x = 56 + k * (d + gap)
-            place_contain(s, os.path.join(PHOTO_DIR, "members", f"{k + 1}.png"), x, 300, d, d)
+            # 写真は入社が新しい順に届いたので逆順で当てる
+            place_contain(s, os.path.join(PHOTO_DIR, "members", f"{4 - k}.png"), x, 300, d, d)
             text(s, x - 20, 524, d + 40, 36, m, size=25, bold=True, align=PP_ALIGN.CENTER)
         notes(s, "第8期は新しい仲間も増えました。（舘脇さん・頼政さん・川嶋さん・塚本さんを口頭で紹介）")
     if t.startswith("ギフティ"):
