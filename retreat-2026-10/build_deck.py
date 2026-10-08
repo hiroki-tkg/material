@@ -720,10 +720,12 @@ for i, (head, body) in enumerate([
     ("花なら", ["ほかの贈り物とセットで届けて、", "普段は花を買わない人にも", "受け取ってもらう。"]),
 ]):
     x = 56 + i * 520
-    text(s, x, 196, 480, 50, head, size=34, bold=True, color=LIGHT)
-    text(s, x, 260, 480, 180, body, size=27, spacing=1.6)
-hline(s, 56, 480, 1016)
-text(s, 56, 520, 1016, 200,
+    icon = os.path.join(PHOTO_DIR, "icons", "plant.png" if head.startswith("植物") else "flower.png")
+    place_contain(s, icon, x, 150, 100, 100)
+    text(s, x, 262, 480, 50, head, size=34, bold=True, color=LIGHT)
+    text(s, x, 318, 480, 150, body, size=27, spacing=1.5)
+hline(s, 56, 508, 1016)
+text(s, 56, 548, 1016, 200,
      ["「植物を育てるのっていいな」", "「花をもらうっていいな」", "「次は自分も[[贈ってみよう]]」"],
      size=34, bold=True, spacing=1.45)
 notes(s, """
