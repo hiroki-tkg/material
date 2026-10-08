@@ -207,20 +207,21 @@ page_no += 1
 s = prs.slides.add_slide(BLANK)
 # 背景の透かし: 極太の "Domuz" を3段、薄いグレーで全面に
 WATERMARK = RGBColor(0xEC, 0xEE, 0xEE)  # --watermark
+BLACK = RGBColor(0x00, 0x00, 0x00)  # 表紙タイトルのみ黒（依頼者指定）
 for row in range(3):
     tb = text(s, -20, -40 + row * 282, W_PX + 40, 300, "Domuz", size=330, color=WATERMARK, bold=True,
               en=True, align=PP_ALIGN.CENTER, anchor=MSO_ANCHOR.MIDDLE, spacing=0.8)
     for r in tb.text_frame.paragraphs[0].runs:
         set_face(r, "Google Sans")
-tb = text(s, 0, 236, W_PX, 200, "Domuz", size=170, bold=True, en=True, align=PP_ALIGN.CENTER,
+tb = text(s, 0, 236, W_PX, 200, "Domuz", size=170, color=BLACK, bold=True, en=True, align=PP_ALIGN.CENTER,
           anchor=MSO_ANCHOR.MIDDLE, spacing=1.0)
 set_face(tb.text_frame.paragraphs[0].runs[0], "Google Sans")
-tb = text(s, 0, 430, W_PX, 160, "1day", size=120, bold=True, en=True, align=PP_ALIGN.CENTER,
+tb = text(s, 0, 430, W_PX, 160, "1day", size=120, color=BLACK, bold=True, en=True, align=PP_ALIGN.CENTER,
           anchor=MSO_ANCHOR.MIDDLE, spacing=1.0)
 set_face(tb.text_frame.paragraphs[0].runs[0], "Google Sans")
 r = tb.text_frame.paragraphs[0].add_run()
 r.text = "合宿"
-_set_font(r, 120, MOSS, True, en=False)
+_set_font(r, 120, BLACK, True, en=False)
 tb = text(s, 0, 640, W_PX, 40, "2026.10.09", size=28, color=SECONDARY, en=True, align=PP_ALIGN.CENTER,
           letter=4)
 set_face(tb.text_frame.paragraphs[0].runs[0], "Google Sans")
