@@ -216,11 +216,10 @@ P('''<section class="page">
 
 # 事業別 月次 売上・限界利益（第3期〜第8期）
 P(f'''<section class="page">
-  <h1>事業別の月次 売上・限界利益（第5期 → 第8期）</h1>
+  <h1>事業別の月次売上（第5期 → 第8期）</h1>
   <div style="margin-top: 4px; text-align: center;">{QLEGEND}</div>
-  <div style="margin-top: 0; width: 700px; margin-left: auto; margin-right: auto;"><div class="sub" style="font-size: 22px;">売上</div>{monthly_stack(M_SALES)}</div>
-  <div style="margin-top: 0; width: 700px; margin-left: auto; margin-right: auto;"><div class="sub" style="font-size: 22px;">限界利益</div>{monthly_stack(M_MP)}</div>
-  <div class="note">※ 税抜。2022年10月〜2026年9月。第5期＝2022年10月〜2023年9月、第8期＝2025年10月〜2026年9月。ハナイチは限界利益の代わりに粗利。モール売上は AND PLANTS に含む。マーケティングマスター集計のため試算表とは集計基準が異なる</div>
+  <div style="margin-top: 24px; width: 760px; margin-left: auto; margin-right: auto;">{monthly_stack(M_SALES,w=760,h=420)}</div>
+    <div class="note">※ 税抜。2022年10月〜2026年9月。第5期＝2022年10月〜2023年9月、第8期＝2025年10月〜2026年9月。モール売上は AND PLANTS に含む。マーケティングマスター集計のため試算表とは集計基準が異なる</div>
 </section>''')
 
 # P-8 広告効率
