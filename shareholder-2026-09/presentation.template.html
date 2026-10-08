@@ -1,0 +1,354 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<title>{{YYYYMMDD}}_{{発表テーマ}}</title>
+<!--
+  Domuz デザインシステム v2 — 発表スライド雛形（社内発表・合宿・締め会・経営MTG）
+  ・提案資料には使わない（提案資料は proposal.template.html）
+  ・4:3 1128×846px。プロジェクター投影前提。1 <section class="page"> = 1スライド = 1メッセージ
+  ・文字: タイトル38px／大数字76〜85px／比較値44〜56px／主張文46px／本文25〜31px。15px未満は注記のみ
+  ・グラフは presentation_charts.py でSVG生成して貼る。色はCSS変数のみ
+  ・PDF: Chrome --headless=new --print-to-pdf（domuz_design_system.md §8-2）
+-->
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;600;700&family=Zen+Kaku+Gothic+New:wght@400;500;700&display=swap" rel="stylesheet">
+<style>
+  /* ========== 0. トークン（Figma準拠＋発表スライド拡張。変更禁止） ========== */
+  :root {
+    --brand-primary: #004347;
+    --brand-secondary: #00D79C;
+    --brand-tertiary: #FFFF79;
+    --brand-flower: #EF667D; /* AND FLOWER（締め会デッキ準拠） */
+    --text-primary: #004347;
+    --text-secondary: #626262;
+    --text-strong: #E16464;
+    --text-alert: #CC0033;
+    --text-on-fill: #FFFFFF;
+    --text-muted: #999999;
+    --bg-white: #FFFFFF;
+    --bg-light: #F3F4F4;
+    --bg-gray: #CBD0D3;
+    --bg-dull-green: #7A9B9B;
+    --bg-moss: #004347;
+    --border-light: #C9CFCF;
+    --font-en: "Outfit", "Century Gothic Pro", "Futura", sans-serif;
+    --font-ja: "Zen Kaku Gothic New", "Hiragino Sans", "Hiragino Kaku Gothic ProN", sans-serif;
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  @page { size: 1128px 846px; margin: 0; }
+  html, body { font-family: var(--font-ja); color: var(--text-primary); background: var(--bg-gray); font-weight: 500; }
+  @media print { html, body { background: var(--bg-white); } }
+  .en { font-family: var(--font-en); }
+  .page { width: 1128px; height: 846px; position: relative; overflow: hidden; background: var(--bg-white); padding: 24px 56px 40px 64px; margin: 0 auto 24px; page-break-after: always; break-after: page; }
+  @media print { .page { margin: 0; } .page:last-child { page-break-after: auto; } }
+  .page::before { content: ""; position: absolute; left: 0; top: 0; bottom: 0; width: 8px; background: var(--brand-secondary); }
+  .page.cover::before, .page.sec::before { content: none; }
+  .pn { position: absolute; right: 40px; bottom: 20px; font-family: var(--font-en); font-size: 14px; color: var(--text-muted); }
+
+  /* タイトル（24pt≒38px） */
+  h1 { font-size: 38px; font-weight: 700; line-height: 1.3; letter-spacing: 0.02em; margin-bottom: 8px; }
+  .cap { font-size: 22px; color: var(--text-secondary); font-weight: 400; line-height: 1.6; }
+  .hr { height: 1px; background: var(--border-light); margin: 32px 0; }
+
+  /* 数字（54pt≒85px／36pt≒56px／15pt≒24px） */
+  .lbl { font-size: 25px; color: var(--text-secondary); font-weight: 400; margin-bottom: 4px; }
+  .big { font-family: var(--font-en); font-size: 85px; font-weight: 700; line-height: 1.15; letter-spacing: -0.01em; }
+  .big small { font-family: var(--font-ja); font-size: 34px; font-weight: 700; margin-left: 6px; }
+  .big.pos { color: var(--brand-secondary); }
+  .big.neg { color: var(--text-strong); }
+  .yoys { display: flex; gap: 40px; margin-top: 20px; }
+  .yoy { min-width: 280px; }
+  .yoy .yl { font-size: 23px; color: var(--text-secondary); font-weight: 400; }
+  .yoy .yv { font-family: var(--font-en); font-size: 56px; font-weight: 700; line-height: 1.2; }
+  .yoy .yv.pos { color: var(--brand-secondary); }
+  .yoy .yv.neg { color: var(--text-strong); }
+  .yoy .yn { font-size: 23px; color: var(--text-secondary); font-weight: 400; }
+  .line { font-size: 26px; font-weight: 700; margin-top: 24px; }
+
+  /* 主張文（30pt≒47px）・本文（20pt≒31px／16pt≒25px） */
+  .stmt { font-size: 46px; font-weight: 700; line-height: 1.55; letter-spacing: 0.02em; }
+  .stmt.g { color: var(--brand-secondary); }
+  .stmt .g { color: var(--brand-secondary); }
+  .stmt .r { color: var(--text-strong); }
+  .sub { font-size: 31px; font-weight: 700; line-height: 1.5; }
+  .body { font-size: 31px; font-weight: 400; line-height: 1.7; }
+  .body b { font-weight: 700; }
+  .small { font-size: 25px; font-weight: 400; line-height: 1.7; color: var(--text-primary); }
+  .note { position: absolute; left: 64px; right: 56px; bottom: 44px; font-size: 16px; color: var(--text-secondary); font-weight: 400; line-height: 1.6; }
+  .arrow { color: var(--brand-secondary); font-family: var(--font-en); }
+  .two { display: flex; gap: 48px; }
+  .two > div { flex: 1; min-width: 0; }
+  .vcenter { display: flex; flex-direction: column; justify-content: center; height: 100%; padding-bottom: 40px; }
+  .mt { margin-top: 32px; } .mt2 { margin-top: 56px; }
+
+  /* 表紙・章 */
+  .cover { padding: 0 96px; display: flex; flex-direction: column; justify-content: center; }
+  .cover .eyebrow { font-family: var(--font-en); font-size: 20px; letter-spacing: 0.3em; color: var(--text-secondary); margin-bottom: 32px; }
+  .cover h1 { font-size: 54px; line-height: 1.45; margin-bottom: 28px; }
+  .cover .rule { width: 96px; height: 8px; background: var(--brand-secondary); margin: 8px 0 40px; }
+  .cover .meta { font-size: 24px; color: var(--text-secondary); font-weight: 400; line-height: 1.9; }
+  .sec { background: var(--bg-moss); color: var(--text-on-fill); display: flex; flex-direction: column; justify-content: center; padding: 0 96px; }
+  .sec .num { font-family: var(--font-en); font-size: 120px; font-weight: 700; line-height: 1; color: transparent; -webkit-text-stroke: 2px rgba(255,255,255,0.7); margin-bottom: 24px; }
+  .sec .en-t { font-family: var(--font-en); font-size: 28px; letter-spacing: 0.35em; text-transform: uppercase; opacity: 0.85; margin-bottom: 20px; }
+  .sec .ja-t { font-size: 46px; font-weight: 700; line-height: 1.5; }
+
+  /* タイムライン */
+  .tl { display: flex; margin-top: 48px; }
+  .tl > div { flex: 1; position: relative; padding-top: 40px; margin-right: 12px; }
+  .tl > div:last-child { margin-right: 0; }
+  .tl > div::before { content: ""; position: absolute; top: 8px; left: 0; width: 20px; height: 20px; border-radius: 50%; background: var(--brand-primary); }
+  .tl > div::after { content: ""; position: absolute; top: 17px; left: 28px; right: -6px; height: 3px; background: var(--border-light); }
+  .tl > div:last-child::after { content: none; }
+  .tl > div.goal::before { background: var(--brand-secondary); }
+  .tl .d { font-family: var(--font-en); font-size: 28px; font-weight: 700; margin-bottom: 8px; }
+  .tl .l { font-size: 22px; font-weight: 700; line-height: 1.5; }
+
+  /* 5つの足 */
+  .five { display: flex; gap: 24px; margin-top: 40px; }
+  .five div { flex: 1; min-width: 0; }
+  .five .n { font-family: var(--font-en); font-size: 64px; font-weight: 700; line-height: 1.1; color: var(--brand-secondary); }
+  .five .n small { font-family: var(--font-ja); font-size: 26px; margin-left: 2px; }
+  .five .t { font-size: 23px; font-weight: 700; margin: 6px 0 8px; line-height: 1.4; min-height: 64px; }
+  .five .f { font-size: 19px; color: var(--text-secondary); font-weight: 400; margin-top: 6px; line-height: 1.5; }
+
+  /* 事業地図 */
+  .map-new { display: flex; gap: 20px; }
+  .map-new div { flex: 1; border: 2px solid var(--border-light); border-radius: 8px; padding: 22px 12px; text-align: center; font-size: 25px; font-weight: 700; }
+  .map-arw { text-align: center; font-family: var(--font-en); font-size: 40px; color: var(--brand-secondary); line-height: 1; padding: 20px 0; }
+  .map-base { background: var(--bg-moss); color: var(--text-on-fill); border-radius: 8px; padding: 36px 40px; text-align: center; }
+  .map-base .n { font-size: 40px; font-weight: 700; letter-spacing: 0.04em; }
+  .map-base .s { font-size: 22px; opacity: 0.9; margin-top: 8px; font-weight: 400; }
+
+  /* 表（3指標） */
+  table { width: 100%; border-collapse: collapse; margin-top: 24px; }
+  th, td { padding: 22px 20px; font-size: 28px; border-bottom: 1px solid var(--border-light); text-align: left; }
+  th { font-size: 22px; color: var(--text-secondary); font-weight: 400; }
+  td.n { font-family: var(--font-en); font-size: 48px; font-weight: 700; text-align: right; }
+  td.n small { font-family: var(--font-ja); font-size: 24px; margin-left: 4px; }
+  td.n.pos { color: var(--brand-secondary); }
+  td.n.r { color: var(--text-strong); }
+
+  /* 3本柱・フロー */
+  .pillars .p { display: flex; align-items: baseline; gap: 24px; padding: 22px 0; border-bottom: 1px solid var(--border-light); }
+  .pillars .p .i { font-family: var(--font-en); font-size: 48px; font-weight: 700; color: var(--brand-secondary); width: 56px; line-height: 1; }
+  .pillars .p .t { font-size: 34px; font-weight: 700; line-height: 1.4; }
+  .pillars .p .s { font-size: 22px; color: var(--text-secondary); font-weight: 400; margin-top: 6px; line-height: 1.5; }
+  .flow { display: flex; align-items: center; gap: 20px; margin-top: 48px; }
+  .flow .st { flex: 1; text-align: center; }
+  .flow .st .k { font-family: var(--font-en); font-size: 18px; letter-spacing: 0.2em; color: var(--text-secondary); margin-bottom: 10px; }
+  .flow .st .t { font-size: 34px; font-weight: 700; }
+  .flow .st .s { font-size: 21px; color: var(--text-secondary); font-weight: 400; margin-top: 10px; line-height: 1.6; }
+  .flow .a { font-family: var(--font-en); font-size: 36px; color: var(--brand-secondary); }
+
+  /* 余地バー */
+  .rb { position: relative; height: 72px; background: var(--bg-light); border-radius: 8px; overflow: hidden; margin-top: 16px; }
+  .rb .f { position: absolute; left: 0; top: 0; bottom: 0; background: var(--brand-primary); }
+  .rb .f.r { background: var(--text-strong); }
+  .rb .cl { position: absolute; left: 20px; top: 50%; transform: translateY(-50%); color: var(--text-on-fill); font-size: 24px; font-weight: 700; white-space: nowrap; }
+  .rb .cr { position: absolute; right: 20px; top: 50%; transform: translateY(-50%); font-size: 24px; font-weight: 700; white-space: nowrap; }
+
+  .dots { display: grid; grid-template-columns: repeat(20, 1fr); gap: 6px; width: 520px; margin: 0 auto; }
+  .dots i { display: block; aspect-ratio: 1; border-radius: 50%; background: var(--bg-gray); }
+  .dots i.r { background: var(--text-strong); }
+  .people { display: flex; gap: 14px; margin-top: 32px; }
+  .people i { flex: 1; height: 120px; border-radius: 10px; background: var(--bg-light); }
+  .people i.on { background: var(--brand-primary); }
+  .dist .row { display: flex; align-items: center; gap: 16px; margin-bottom: 14px; }
+  .dist .row .k { width: 64px; font-family: var(--font-en); font-size: 24px; font-weight: 700; }
+  .dist .row .b { height: 34px; background: var(--brand-primary); border-radius: 4px; }
+  .dist .row .b.top { background: var(--brand-secondary); }
+  .dist .row .v { font-family: var(--font-en); font-size: 22px; font-weight: 700; margin-left: 4px; white-space: nowrap; }
+  /* レビュー */
+  .rv-h { display: flex; align-items: center; gap: 16px; margin-bottom: 20px; }
+  .rv-h .tag { background: var(--brand-primary); color: var(--text-on-fill); font-size: 18px; font-weight: 700; padding: 6px 16px; border-radius: 4px; }
+  .rv-h .tag.alt { background: var(--bg-dull-green); }
+  .rv-h .t { font-size: 34px; font-weight: 700; }
+  .rv-h .p { font-size: 18px; color: var(--text-secondary); margin-left: auto; font-weight: 400; }
+  .rv { font-size: 30px; font-weight: 400; line-height: 1.85; }
+  .rv b { font-weight: 700; }
+  .stars { display: flex; gap: 32px; margin-top: 40px; }
+  .stars div { flex: 1; }
+  .stars .n { font-family: var(--font-en); font-size: 72px; font-weight: 700; line-height: 1.1; }
+  .stars .n small { font-family: var(--font-ja); font-size: 28px; margin-left: 4px; }
+  .stars .n.pos { color: var(--brand-secondary); }
+  .stars .l { font-size: 22px; color: var(--text-secondary); font-weight: 400; margin-top: 8px; }
+  .key { margin-top: 24px; font-size: 25px; color: var(--text-secondary); font-weight: 400; }
+
+  /* セグメント行（左カラムのAP/AF/モール別YoY） */
+  .segrow { display: flex; align-items: baseline; gap: 16px; padding: 10px 0; border-bottom: 1px solid var(--border-light); }
+  .segrow i { display: inline-block; width: 18px; height: 18px; border-radius: 3px; }
+  .segrow .nm { font-size: 22px; font-weight: 700; width: 160px; white-space: nowrap; }
+  .segrow .yv2 { font-family: var(--font-en); font-size: 34px; font-weight: 700; width: 110px; white-space: nowrap; }
+  .segrow .yv2.pos { color: var(--brand-secondary); }
+  .segrow .fr { font-size: 17px; color: var(--text-secondary); white-space: nowrap; }
+</style>
+</head>
+<body>
+
+<!-- ===== P-1 表紙 ===== -->
+<section class="page cover">
+  <div class="eyebrow">{{EVENT NAME IN CAPS}} {{YYYY.MM.DD}}</div>
+  <h1>{{ブランド／部署}}<br>{{発表タイトル}}</h1>
+  <div class="rule"></div>
+  <div class="meta">株式会社Domuz　{{氏名}}</div>
+</section>
+
+<!-- ===== P-2 主張文（一本の筋・キーメッセージ）: 1枚1メッセージ。冒頭と最後に同じ筋を置いてもよい ===== -->
+<section class="page">
+  <h1>{{今日、持ち帰ってほしい1行}}</h1>
+  <div class="vcenter">
+    <div class="stmt">{{前期は、〇〇から<span class="g">〇〇</span>へ<br>考え方を変えた年。}}</div>
+    <div class="stmt mt2">{{今期は、それを保ったまま<br>〇〇し、<span class="g">〇〇</span>する年。}}</div>
+  </div>
+  <div class="pn">2</div>
+</section>
+
+<!-- ===== P-3 章扉 ===== -->
+<section class="page sec">
+  <div class="num">01</div>
+  <div class="en-t">{{Chapter Title}}</div>
+  <div class="ja-t">{{章タイトル}}<br><span style="font-size: 28px; font-weight: 400; opacity: 0.85;">{{見方・軸（例: 前年比で見る）}}</span></div>
+</section>
+
+<!-- ===== P-4 KPI＋セグメント積み上げ（年次）: 左=合計とYoY、右=AP/AF/モール積み上げ ===== -->
+<section class="page">
+  <h1>{{指標名（例: 広告費込み限界利益）}}</h1>
+  <div class="cap">{{補足（例: 最優先KPI　※税抜）}}</div>
+  <div class="two" style="margin-top: 12px; align-items: flex-start; gap: 32px;">
+    <div style="flex: 0 0 440px;">
+      <div class="lbl">{{当期 合計}}</div>
+      <div class="big" style="font-size: 76px;">¥2.2<small>億</small></div>
+      <div class="yoy" style="margin-top: 4px;"><div class="yv pos" style="font-size: 48px;">+47%</div><div class="yn">{{前期 1.5億円 → 2.2億円}}</div></div>
+      <div style="margin-top: 20px;">
+        <div class="segrow"><i style="background:var(--brand-secondary);"></i><span class="nm">AND PLANTS</span><span class="yv2 pos">+11%</span><span class="fr">1.40億 → 1.54億</span></div>
+        <div class="segrow"><i style="background:var(--brand-flower);"></i><span class="nm">AND FLOWER</span><span class="yv2 pos">6.9倍</span><span class="fr">0.06億 → 0.39億</span></div>
+        <div class="segrow"><i style="background:var(--brand-primary);"></i><span class="nm">モール</span><span class="yv2 pos">+86%</span><span class="fr">0.15億 → 0.28億</span></div>
+      </div>
+    </div>
+    <div style="flex: 1;"><svg viewBox="0 0 560 520" width="560" height="520" xmlns="http://www.w3.org/2000/svg"><line x1="0" y1="472" x2="560" y2="472" stroke="var(--border-light)" stroke-width="2"/><rect x="55.0" y="240.8" width="170" height="231.2" fill="var(--brand-secondary)"/><text x="140.0" y="364.4" text-anchor="middle" font-size="22" font-weight="700" fill="#004347" style="font-family:var(--font-en);">1.40</text><rect x="55.0" y="231.4" width="170" height="9.4" fill="var(--brand-flower)"/><text x="235.0" y="243.1" font-size="18" font-weight="700" fill="var(--brand-primary)" style="font-family:var(--font-en);">AF 0.06</text><rect x="55.0" y="206.1" width="170" height="25.3" fill="var(--brand-primary)"/><text x="235.0" y="225.7" font-size="18" font-weight="700" fill="var(--brand-primary)" style="font-family:var(--font-en);">モール 0.15</text><text x="140.0" y="210.0" text-anchor="middle" font-size="30" font-weight="700" fill="var(--brand-primary)" style="font-family:var(--font-en);">1.5億</text><text x="140.0" y="504" text-anchor="middle" font-size="22" fill="var(--text-secondary)" style="font-family:var(--font-ja);">前期</text><rect x="335.0" y="216.2" width="170" height="255.8" fill="var(--brand-secondary)"/><text x="420.0" y="352.1" text-anchor="middle" font-size="22" font-weight="700" fill="#004347" style="font-family:var(--font-en);">1.54</text><rect x="335.0" y="151.8" width="170" height="64.4" fill="var(--brand-flower)"/><text x="420.0" y="192.0" text-anchor="middle" font-size="22" font-weight="700" fill="#FFFFFF" style="font-family:var(--font-en);">0.39</text><rect x="335.0" y="104.6" width="170" height="47.2" fill="var(--brand-primary)"/><text x="420.0" y="136.2" text-anchor="middle" font-size="22" font-weight="700" fill="#FFFFFF" style="font-family:var(--font-en);">0.28</text><text x="420.0" y="93.9" text-anchor="middle" font-size="30" font-weight="700" fill="var(--brand-primary)" style="font-family:var(--font-en);">2.2億</text><text x="420.0" y="504" text-anchor="middle" font-size="22" fill="var(--text-secondary)" style="font-family:var(--font-ja);">当期</text><rect x="20" y="6" width="20" height="20" fill="var(--brand-secondary)"/><text x="48" y="23" font-size="19" fill="var(--text-secondary)" style="font-family:var(--font-ja);">AND PLANTS</text><rect x="210" y="6" width="20" height="20" fill="var(--brand-flower)"/><text x="238" y="23" font-size="19" fill="var(--text-secondary)" style="font-family:var(--font-ja);">AND FLOWER</text><rect x="400" y="6" width="20" height="20" fill="var(--brand-primary)"/><text x="428" y="23" font-size="19" fill="var(--text-secondary)" style="font-family:var(--font-ja);">モール</text><text x="560" y="516" text-anchor="end" font-size="16" fill="var(--text-secondary)" style="font-family:var(--font-ja);">単位: 億円</text></svg></div>
+  </div>
+  <div class="note">{{※ 集計範囲・税抜/送料込みの別・期間・推計の有無を必ず書く}}</div>
+  <div class="pn">4</div>
+</section>
+
+<!-- ===== P-5 月次の前年比較（合計値。セグメント別にしない） ===== -->
+<section class="page">
+  <h1>{{指標名（月次）}}</h1>
+  <div class="cap">{{前期と当期を月ごとに比較（〇〇合計、税抜・送料込み）}}</div>
+  <div style="margin-top: 12px;"><svg viewBox="0 0 1000 480" width="1000" height="480" xmlns="http://www.w3.org/2000/svg"><line x1="0" y1="436" x2="1000" y2="436" stroke="var(--border-light)" stroke-width="2"/><rect x="16.6" y="259.6" width="31.4" height="176.4" fill="var(--bg-gray)" rx="3"/><rect x="51.0" y="243.5" width="31.4" height="192.5" fill="var(--brand-primary)" rx="3"/><text x="66.6" y="236.5" text-anchor="middle" font-size="16" font-weight="700" fill="var(--brand-primary)" style="font-family:var(--font-en);">60.0</text><text x="49.5" y="466" text-anchor="middle" font-size="19" fill="var(--text-secondary)" style="font-family:var(--font-ja);">10月</text><rect x="99.1" y="282.0" width="31.4" height="154.0" fill="var(--bg-gray)" rx="3"/><rect x="133.4" y="249.9" width="31.4" height="186.1" fill="var(--brand-primary)" rx="3"/><text x="149.1" y="242.9" text-anchor="middle" font-size="16" font-weight="700" fill="var(--brand-primary)" style="font-family:var(--font-en);">58.0</text><text x="131.9" y="466" text-anchor="middle" font-size="19" fill="var(--text-secondary)" style="font-family:var(--font-ja);">11月</text><rect x="181.6" y="262.8" width="31.4" height="173.2" fill="var(--bg-gray)" rx="3"/><rect x="215.9" y="266.0" width="31.4" height="170.0" fill="var(--brand-primary)" rx="3"/><text x="231.6" y="259.0" text-anchor="middle" font-size="16" font-weight="700" fill="var(--brand-primary)" style="font-family:var(--font-en);">53.0</text><text x="214.4" y="466" text-anchor="middle" font-size="19" fill="var(--text-secondary)" style="font-family:var(--font-ja);">12月</text><rect x="264.1" y="198.6" width="31.4" height="237.4" fill="var(--bg-gray)" rx="3"/><rect x="298.5" y="176.1" width="31.4" height="259.9" fill="var(--brand-primary)" rx="3"/><text x="314.1" y="169.1" text-anchor="middle" font-size="16" font-weight="700" fill="var(--brand-primary)" style="font-family:var(--font-en);">81.0</text><text x="297.0" y="466" text-anchor="middle" font-size="19" fill="var(--text-secondary)" style="font-family:var(--font-ja);">1月</text><rect x="346.6" y="256.3" width="31.4" height="179.7" fill="var(--bg-gray)" rx="3"/><rect x="381.0" y="278.8" width="31.4" height="157.2" fill="var(--brand-primary)" rx="3"/><text x="396.6" y="271.8" text-anchor="middle" font-size="16" font-weight="700" fill="var(--brand-primary)" style="font-family:var(--font-en);">49.0</text><text x="379.5" y="466" text-anchor="middle" font-size="19" fill="var(--text-secondary)" style="font-family:var(--font-ja);">2月</text><rect x="429.1" y="224.3" width="31.4" height="211.7" fill="var(--bg-gray)" rx="3"/><rect x="463.5" y="233.9" width="31.4" height="202.1" fill="var(--brand-primary)" rx="3"/><text x="479.1" y="226.9" text-anchor="middle" font-size="16" font-weight="700" fill="var(--brand-primary)" style="font-family:var(--font-en);">63.0</text><text x="462.0" y="466" text-anchor="middle" font-size="19" fill="var(--text-secondary)" style="font-family:var(--font-ja);">3月</text><rect x="511.6" y="147.3" width="31.4" height="288.7" fill="var(--bg-gray)" rx="3"/><rect x="546.0" y="134.4" width="31.4" height="301.6" fill="var(--brand-primary)" rx="3"/><text x="561.6" y="127.4" text-anchor="middle" font-size="16" font-weight="700" fill="var(--brand-primary)" style="font-family:var(--font-en);">94.0</text><text x="544.5" y="466" text-anchor="middle" font-size="19" fill="var(--text-secondary)" style="font-family:var(--font-ja);">4月</text><rect x="594.1" y="137.6" width="31.4" height="298.4" fill="var(--bg-gray)" rx="3"/><rect x="628.5" y="105.6" width="31.4" height="330.4" fill="var(--brand-primary)" rx="3"/><text x="644.1" y="98.6" text-anchor="middle" font-size="16" font-weight="700" fill="var(--brand-primary)" style="font-family:var(--font-en);">103.0</text><text x="627.0" y="466" text-anchor="middle" font-size="19" fill="var(--text-secondary)" style="font-family:var(--font-ja);">5月</text><rect x="676.6" y="240.3" width="31.4" height="195.7" fill="var(--bg-gray)" rx="3"/><rect x="711.0" y="243.5" width="31.4" height="192.5" fill="var(--brand-primary)" rx="3"/><text x="726.6" y="236.5" text-anchor="middle" font-size="16" font-weight="700" fill="var(--brand-primary)" style="font-family:var(--font-en);">60.0</text><text x="709.5" y="466" text-anchor="middle" font-size="19" fill="var(--text-secondary)" style="font-family:var(--font-ja);">6月</text><rect x="759.1" y="233.9" width="31.4" height="202.1" fill="var(--bg-gray)" rx="3"/><rect x="793.5" y="240.3" width="31.4" height="195.7" fill="var(--brand-primary)" rx="3"/><text x="809.1" y="233.3" text-anchor="middle" font-size="16" font-weight="700" fill="var(--brand-primary)" style="font-family:var(--font-en);">61.0</text><text x="792.0" y="466" text-anchor="middle" font-size="19" fill="var(--text-secondary)" style="font-family:var(--font-ja);">7月</text><rect x="841.6" y="266.0" width="31.4" height="170.0" fill="var(--bg-gray)" rx="3"/><rect x="876.0" y="266.0" width="31.4" height="170.0" fill="var(--brand-primary)" rx="3"/><text x="891.6" y="259.0" text-anchor="middle" font-size="16" font-weight="700" fill="var(--brand-primary)" style="font-family:var(--font-en);">53.0</text><text x="874.5" y="466" text-anchor="middle" font-size="19" fill="var(--text-secondary)" style="font-family:var(--font-ja);">8月</text><rect x="924.1" y="243.5" width="31.4" height="192.5" fill="var(--bg-gray)" rx="3"/><rect x="958.5" y="253.1" width="31.4" height="182.9" fill="var(--brand-primary)" rx="3"/><text x="974.1" y="246.1" text-anchor="middle" font-size="16" font-weight="700" fill="var(--brand-primary)" style="font-family:var(--font-en);">57.0</text><text x="957.0" y="466" text-anchor="middle" font-size="19" fill="var(--text-secondary)" style="font-family:var(--font-ja);">9月</text><rect x="0" y="4" width="20" height="20" fill="var(--bg-gray)" rx="3"/><text x="28" y="21" font-size="18" fill="var(--text-secondary)" style="font-family:var(--font-ja);">前期</text><rect x="110" y="4" width="20" height="20" fill="var(--brand-primary)" rx="3"/><text x="138" y="21" font-size="18" fill="var(--text-secondary)" style="font-family:var(--font-ja);">当期</text><text x="1000" y="21" text-anchor="end" font-size="16" fill="var(--text-secondary)" style="font-family:var(--font-ja);">単位: 百万円</text></svg></div>
+  <div class="line" style="margin-top: 4px;">{{グラフから言えることを1文で。書く前に12ヶ月分を検算する}}</div>
+  <div class="note">{{※ 注記}}</div>
+  <div class="pn">5</div>
+</section>
+
+<!-- ===== P-6 単系列＋強調（最高月・記録） ===== -->
+<section class="page">
+  <h1>{{記録の見出し（例: 5月、創業以来初の月商1億円）}}</h1>
+  <div class="cap">{{何のグラフか}}</div>
+  <div style="margin-top: 16px;"><svg viewBox="0 0 1000 420" width="1000" height="420" xmlns="http://www.w3.org/2000/svg"><line x1="20" y1="376" x2="1000" y2="376" stroke="var(--border-light)" stroke-width="2"/><text x="20" y="22" font-size="16" fill="var(--text-secondary)" style="font-family:var(--font-ja);">単位: 百万円</text><rect x="35.5" y="212.9" width="50.6" height="163.1" fill="var(--brand-primary)" rx="3"/><text x="60.8" y="204.9" text-anchor="middle" font-size="18" font-weight="700" fill="var(--brand-primary)" style="font-family:var(--font-en);">0.60億</text><text x="60.8" y="406" text-anchor="middle" font-size="20" fill="var(--text-secondary)" style="font-family:var(--font-ja);">10月</text><rect x="117.2" y="218.3" width="50.6" height="157.7" fill="var(--brand-primary)" rx="3"/><text x="142.5" y="210.3" text-anchor="middle" font-size="18" font-weight="700" fill="var(--brand-primary)" style="font-family:var(--font-en);">0.58億</text><text x="142.5" y="406" text-anchor="middle" font-size="20" fill="var(--text-secondary)" style="font-family:var(--font-ja);">11月</text><rect x="198.9" y="231.9" width="50.6" height="144.1" fill="var(--brand-primary)" rx="3"/><text x="224.2" y="223.9" text-anchor="middle" font-size="18" font-weight="700" fill="var(--brand-primary)" style="font-family:var(--font-en);">0.53億</text><text x="224.2" y="406" text-anchor="middle" font-size="20" fill="var(--text-secondary)" style="font-family:var(--font-ja);">12月</text><rect x="280.5" y="155.8" width="50.6" height="220.2" fill="var(--brand-primary)" rx="3"/><text x="305.8" y="147.8" text-anchor="middle" font-size="18" font-weight="700" fill="var(--brand-primary)" style="font-family:var(--font-en);">0.81億</text><text x="305.8" y="406" text-anchor="middle" font-size="20" fill="var(--text-secondary)" style="font-family:var(--font-ja);">1月</text><rect x="362.2" y="242.8" width="50.6" height="133.2" fill="var(--brand-primary)" rx="3"/><text x="387.5" y="234.8" text-anchor="middle" font-size="18" font-weight="700" fill="var(--brand-primary)" style="font-family:var(--font-en);">0.49億</text><text x="387.5" y="406" text-anchor="middle" font-size="20" fill="var(--text-secondary)" style="font-family:var(--font-ja);">2月</text><rect x="443.9" y="204.7" width="50.6" height="171.3" fill="var(--brand-primary)" rx="3"/><text x="469.2" y="196.7" text-anchor="middle" font-size="18" font-weight="700" fill="var(--brand-primary)" style="font-family:var(--font-en);">0.63億</text><text x="469.2" y="406" text-anchor="middle" font-size="20" fill="var(--text-secondary)" style="font-family:var(--font-ja);">3月</text><rect x="525.5" y="120.5" width="50.6" height="255.5" fill="var(--brand-primary)" rx="3"/><text x="550.8" y="112.5" text-anchor="middle" font-size="18" font-weight="700" fill="var(--brand-primary)" style="font-family:var(--font-en);">0.94億</text><text x="550.8" y="406" text-anchor="middle" font-size="20" fill="var(--text-secondary)" style="font-family:var(--font-ja);">4月</text><rect x="607.2" y="96.0" width="50.6" height="280.0" fill="var(--brand-secondary)" rx="3"/><text x="632.5" y="88.0" text-anchor="middle" font-size="18" font-weight="700" fill="var(--brand-primary)" style="font-family:var(--font-en);">1.03億</text><text x="632.5" y="406" text-anchor="middle" font-size="20" fill="var(--text-secondary)" style="font-family:var(--font-ja);">5月</text><rect x="688.9" y="212.9" width="50.6" height="163.1" fill="var(--brand-primary)" rx="3"/><text x="714.2" y="204.9" text-anchor="middle" font-size="18" font-weight="700" fill="var(--brand-primary)" style="font-family:var(--font-en);">0.60億</text><text x="714.2" y="406" text-anchor="middle" font-size="20" fill="var(--text-secondary)" style="font-family:var(--font-ja);">6月</text><rect x="770.5" y="210.2" width="50.6" height="165.8" fill="var(--brand-primary)" rx="3"/><text x="795.8" y="202.2" text-anchor="middle" font-size="18" font-weight="700" fill="var(--brand-primary)" style="font-family:var(--font-en);">0.61億</text><text x="795.8" y="406" text-anchor="middle" font-size="20" fill="var(--text-secondary)" style="font-family:var(--font-ja);">7月</text><rect x="852.2" y="231.9" width="50.6" height="144.1" fill="var(--brand-primary)" rx="3"/><text x="877.5" y="223.9" text-anchor="middle" font-size="18" font-weight="700" fill="var(--brand-primary)" style="font-family:var(--font-en);">0.53億</text><text x="877.5" y="406" text-anchor="middle" font-size="20" fill="var(--text-secondary)" style="font-family:var(--font-ja);">8月</text><rect x="933.9" y="221.0" width="50.6" height="155.0" fill="var(--brand-primary)" rx="3"/><text x="959.2" y="213.0" text-anchor="middle" font-size="18" font-weight="700" fill="var(--brand-primary)" style="font-family:var(--font-en);">0.57億</text><text x="959.2" y="406" text-anchor="middle" font-size="20" fill="var(--text-secondary)" style="font-family:var(--font-ja);">9月</text></svg></div>
+  <div class="line" style="margin-top: 8px;">{{意味づけを1文で}}</div>
+  <div class="pn">6</div>
+</section>
+
+<!-- ===== P-7 タイムライン（時系列の羅列1枚。この後に1トピック1枚で続ける） ===== -->
+<section class="page">
+  <h1>{{期間}}にやったこと</h1>
+  <div class="tl">
+    <div><div class="d">1月</div><div class="l">{{トピック}}</div></div>
+    <div><div class="d">3月</div><div class="l">{{トピック}}</div></div>
+    <div><div class="d">5月</div><div class="l">{{トピック}}</div></div>
+    <div><div class="d">7月</div><div class="l">{{トピック}}</div></div>
+    <div class="goal"><div class="d">9月</div><div class="l">{{トピック}}</div></div>
+  </div>
+  <div class="hr" style="margin-top: 56px;"></div>
+  <div class="body">{{1年をひとことで}}</div>
+  <div class="pn">7</div>
+</section>
+
+<!-- ===== P-8 トピック1枚（大数字＋前年比較棒） ===== -->
+<section class="page">
+  <h1>{{トピック名（例: 母の日2026）}}</h1>
+  <div class="cap">{{このトピックの意味づけ}}</div>
+  <div class="two" style="margin-top: 20px; align-items: flex-start;">
+    <div style="flex: 0 0 420px;">
+      <div class="lbl">{{指標}}</div>
+      <div class="big" style="font-size: 76px;">¥6,894<small>万</small></div>
+      <div class="yoy" style="margin-top: 12px;"><div class="yl">YoY（前年比）</div><div class="yv pos">+59%</div><div class="yn">{{前年 → 当年}}</div></div>
+      <div class="yoys" style="margin-top: 12px; gap: 24px;">
+        <div class="yoy" style="min-width: 0;"><div class="yl">限界利益</div><div class="yv pos" style="font-size: 44px;">+69%</div></div>
+        <div class="yoy" style="min-width: 0;"><div class="yl">広告費込み限界利益</div><div class="yv pos" style="font-size: 44px;">3.7倍</div></div>
+      </div>
+    </div>
+    <div style="flex: 1;"><svg viewBox="0 0 560 380" width="560" height="380" xmlns="http://www.w3.org/2000/svg"><line x1="20" y1="336" x2="560" y2="336" stroke="var(--border-light)" stroke-width="2"/><text x="20" y="22" font-size="16" fill="var(--text-secondary)" style="font-family:var(--font-ja);">単位: 百万円</text><rect x="41.6" y="175.9" width="64.8" height="160.1" fill="var(--bg-gray)" rx="3"/><text x="74.0" y="167.9" text-anchor="middle" font-size="18" font-weight="700" fill="var(--brand-primary)" style="font-family:var(--font-en);">43.4</text><rect x="110.4" y="81.8" width="64.8" height="254.2" fill="var(--brand-primary)" rx="3"/><text x="142.8" y="73.8" text-anchor="middle" font-size="18" font-weight="700" fill="var(--brand-primary)" style="font-family:var(--font-en);">68.9</text><text x="108.4" y="366" text-anchor="middle" font-size="20" fill="var(--text-secondary)" style="font-family:var(--font-ja);">売上</text><rect x="221.6" y="260.0" width="64.8" height="76.0" fill="var(--bg-gray)" rx="3"/><text x="254.0" y="252.0" text-anchor="middle" font-size="18" font-weight="700" fill="var(--brand-primary)" style="font-family:var(--font-en);">20.6</text><rect x="290.4" y="207.6" width="64.8" height="128.4" fill="var(--brand-primary)" rx="3"/><text x="322.8" y="199.6" text-anchor="middle" font-size="18" font-weight="700" fill="var(--brand-primary)" style="font-family:var(--font-en);">34.8</text><text x="288.4" y="366" text-anchor="middle" font-size="20" fill="var(--text-secondary)" style="font-family:var(--font-ja);">限界利益</text><rect x="401.6" y="314.2" width="64.8" height="21.8" fill="var(--bg-gray)" rx="3"/><text x="434.0" y="306.2" text-anchor="middle" font-size="18" font-weight="700" fill="var(--brand-primary)" style="font-family:var(--font-en);">5.9</text><rect x="470.4" y="255.2" width="64.8" height="80.8" fill="var(--brand-primary)" rx="3"/><text x="502.8" y="247.2" text-anchor="middle" font-size="18" font-weight="700" fill="var(--brand-primary)" style="font-family:var(--font-en);">21.9</text><text x="468.4" y="366" text-anchor="middle" font-size="20" fill="var(--text-secondary)" style="font-family:var(--font-ja);">広告費込み</text><rect x="260" y="4" width="22" height="22" fill="var(--bg-gray)" rx="3"/><text x="290" y="22" font-size="20" fill="var(--text-secondary)" style="font-family:var(--font-ja);">前年</text><rect x="400" y="4" width="22" height="22" fill="var(--brand-primary)" rx="3"/><text x="430" y="22" font-size="20" fill="var(--text-secondary)" style="font-family:var(--font-ja);">当年</text></svg></div>
+  </div>
+  <div class="line" style="margin-top: 8px;">{{1文で結論}}</div>
+  <div class="pn">8</div>
+</section>
+
+<!-- ===== P-9 3項目の成長（小さな前年比較を3つ並べる） ===== -->
+<section class="page">
+  <h1>{{見出し（例: 小さく始めたものが倍々で育った）}}</h1>
+  <div class="cap">{{前期 → 当期・税抜}}</div>
+  <div class="two" style="margin-top: 24px; gap: 32px;">
+    <div><div class="sub">{{項目A}}</div><div class="big pos" style="font-size: 72px;">4.8<small>倍</small></div><svg viewBox="0 0 290 220" width="290" height="220" xmlns="http://www.w3.org/2000/svg"><line x1="20" y1="176" x2="290" y2="176" stroke="var(--border-light)" stroke-width="2"/><text x="20" y="22" font-size="16" fill="var(--text-secondary)" style="font-family:var(--font-ja);">単位: 百万円</text><rect x="45.6" y="152.2" width="83.7" height="23.8" fill="var(--bg-gray)" rx="3"/><text x="87.5" y="144.2" text-anchor="middle" font-size="22" font-weight="700" fill="var(--brand-primary)" style="font-family:var(--font-en);">1.95</text><text x="87.5" y="206" text-anchor="middle" font-size="20" fill="var(--text-secondary)" style="font-family:var(--font-ja);">前期</text><rect x="180.7" y="62.7" width="83.7" height="113.3" fill="var(--brand-primary)" rx="3"/><text x="222.5" y="54.7" text-anchor="middle" font-size="22" font-weight="700" fill="var(--brand-primary)" style="font-family:var(--font-en);">9.3</text><text x="222.5" y="206" text-anchor="middle" font-size="20" fill="var(--text-secondary)" style="font-family:var(--font-ja);">当期</text></svg><div class="small" style="color: var(--text-secondary);">{{補足2行}}</div></div>
+    <div><div class="sub">{{項目B}}</div><div class="big pos" style="font-size: 72px;">7<small>倍</small></div><svg viewBox="0 0 290 220" width="290" height="220" xmlns="http://www.w3.org/2000/svg"><line x1="20" y1="176" x2="290" y2="176" stroke="var(--border-light)" stroke-width="2"/><text x="20" y="22" font-size="16" fill="var(--text-secondary)" style="font-family:var(--font-ja);">単位: 百万円</text><rect x="45.6" y="160.7" width="83.7" height="15.3" fill="var(--bg-gray)" rx="3"/><text x="87.5" y="152.7" text-anchor="middle" font-size="22" font-weight="700" fill="var(--brand-primary)" style="font-family:var(--font-en);">0.5</text><text x="87.5" y="206" text-anchor="middle" font-size="20" fill="var(--text-secondary)" style="font-family:var(--font-ja);">前期</text><rect x="180.7" y="62.7" width="83.7" height="113.3" fill="var(--brand-primary)" rx="3"/><text x="222.5" y="54.7" text-anchor="middle" font-size="22" font-weight="700" fill="var(--brand-primary)" style="font-family:var(--font-en);">3.7</text><text x="222.5" y="206" text-anchor="middle" font-size="20" fill="var(--text-secondary)" style="font-family:var(--font-ja);">当期</text></svg><div class="small" style="color: var(--text-secondary);">{{補足2行}}</div></div>
+    <div><div class="sub">{{項目C}}</div><div class="big pos" style="font-size: 72px;">14<small>倍</small></div><svg viewBox="0 0 290 220" width="290" height="220" xmlns="http://www.w3.org/2000/svg"><line x1="20" y1="176" x2="290" y2="176" stroke="var(--border-light)" stroke-width="2"/><text x="20" y="22" font-size="16" fill="var(--text-secondary)" style="font-family:var(--font-ja);">単位: 百万円</text><rect x="45.6" y="167.9" width="83.7" height="8.1" fill="var(--bg-gray)" rx="3"/><text x="87.5" y="159.9" text-anchor="middle" font-size="22" font-weight="700" fill="var(--brand-primary)" style="font-family:var(--font-en);">0.2</text><text x="87.5" y="206" text-anchor="middle" font-size="20" fill="var(--text-secondary)" style="font-family:var(--font-ja);">前期</text><rect x="180.7" y="62.7" width="83.7" height="113.3" fill="var(--brand-primary)" rx="3"/><text x="222.5" y="54.7" text-anchor="middle" font-size="22" font-weight="700" fill="var(--brand-primary)" style="font-family:var(--font-en);">2.8</text><text x="222.5" y="206" text-anchor="middle" font-size="20" fill="var(--text-secondary)" style="font-family:var(--font-ja);">当期</text></svg><div class="small" style="color: var(--text-secondary);">{{補足2行}}</div></div>
+  </div>
+  <div class="pn">9</div>
+</section>
+
+<!-- ===== P-10 実績 vs 計画（数字が未確定の指標は「算出中」枠） ===== -->
+<section class="page">
+  <h1>{{今期の数字}}</h1>
+  <div class="cap">{{計画に対して見る、と宣言する一文}}</div>
+  <div style="display: flex; gap: 24px; margin-top: 12px; align-items: flex-start;">
+    <div style="flex: 1;"><div class="sub">売上</div><svg viewBox="0 0 310 290" width="310" height="290" xmlns="http://www.w3.org/2000/svg"><line x1="20" y1="246" x2="310" y2="246" stroke="var(--border-light)" stroke-width="2"/><text x="20" y="22" font-size="16" fill="var(--text-secondary)" style="font-family:var(--font-ja);">単位: 百万円</text><rect x="47.5" y="133.4" width="89.9" height="112.6" fill="var(--bg-gray)" rx="3"/><text x="92.5" y="125.4" text-anchor="middle" font-size="22" font-weight="700" fill="var(--brand-primary)" style="font-family:var(--font-en);">7.9億</text><text x="92.5" y="276" text-anchor="middle" font-size="20" fill="var(--text-secondary)" style="font-family:var(--font-ja);">前期 実績</text><rect x="192.6" y="74.3" width="89.9" height="171.7" fill="var(--brand-primary)" rx="3"/><text x="237.5" y="66.3" text-anchor="middle" font-size="22" font-weight="700" fill="var(--brand-primary)" style="font-family:var(--font-en);">12.0億</text><text x="237.5" y="276" text-anchor="middle" font-size="20" fill="var(--text-secondary)" style="font-family:var(--font-ja);">今期 計画</text></svg><div class="yoy" style="margin-top:0;"><div class="yv pos" style="font-size:44px;">+52%</div></div></div>
+    <div style="flex: 1;"><div class="sub">広告費込み限界利益</div><svg viewBox="0 0 310 290" width="310" height="290" xmlns="http://www.w3.org/2000/svg"><line x1="20" y1="246" x2="310" y2="246" stroke="var(--border-light)" stroke-width="2"/><text x="20" y="22" font-size="16" fill="var(--text-secondary)" style="font-family:var(--font-ja);">単位: 百万円</text><rect x="47.5" y="138.2" width="89.9" height="107.8" fill="var(--bg-gray)" rx="3"/><text x="92.5" y="130.2" text-anchor="middle" font-size="22" font-weight="700" fill="var(--brand-primary)" style="font-family:var(--font-en);">2.2億</text><text x="92.5" y="276" text-anchor="middle" font-size="20" fill="var(--text-secondary)" style="font-family:var(--font-ja);">前期 実績</text><rect x="192.6" y="74.3" width="89.9" height="171.7" fill="var(--brand-primary)" rx="3"/><text x="237.5" y="66.3" text-anchor="middle" font-size="22" font-weight="700" fill="var(--brand-primary)" style="font-family:var(--font-en);">3.5億</text><text x="237.5" y="276" text-anchor="middle" font-size="20" fill="var(--text-secondary)" style="font-family:var(--font-ja);">今期 計画</text></svg><div class="yoy" style="margin-top:0;"><div class="yv pos" style="font-size:44px;">+59%</div></div></div>
+    <div style="flex: 1;"><div class="sub">{{未確定の指標}}</div><div style="height: 290px; border: 2px dashed var(--border-light); border-radius: 8px; display: flex; flex-direction: column; justify-content: center; align-items: center; margin-top: 8px;"><div class="en" style="font-size: 40px; font-weight: 700; color: var(--text-secondary);">算出中</div><div class="small" style="color: var(--text-secondary); margin-top: 8px; text-align: center;">{{定義を1行}}</div></div></div>
+  </div>
+  <div class="pn">10</div>
+</section>
+
+<!-- ===== P-11 番号付きリスト（方針・3本柱） ===== -->
+<section class="page">
+  <h1>{{今期の3本柱}}</h1>
+  <div class="pillars mt">
+    <div class="p"><div class="i">1</div><div><div class="t">{{柱1}}</div><div class="s">{{中身　｜　前期の実績}}</div></div></div>
+    <div class="p"><div class="i">2</div><div><div class="t">{{柱2}}</div><div class="s">{{中身　｜　前期の実績}}</div></div></div>
+    <div class="p"><div class="i">3</div><div><div class="t">{{柱3}}</div><div class="s">{{中身　｜　前期の実績}}</div></div></div>
+  </div>
+  <div class="body mt"><b>守り：</b>{{守りの施策}}</div>
+  <div class="pn">11</div>
+</section>
+
+<!-- ===== P-12 ドット図（規模感・余地を見せる） ===== -->
+<section class="page">
+  <h1>{{見出し（例: ただ、日本の中では）}}</h1>
+  <div class="two mt" style="align-items: center;">
+    <div style="flex: 0 0 480px;"><div class="lbl">{{計算式を書く}}</div><div class="big neg">0.25<small>%</small></div><div class="body mt">{{400世帯に1世帯。残りの399世帯が、まだある。}}</div></div>
+    <div style="flex: 1;"><div class="dots"><i class="r"></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i></div><div class="small" style="color: var(--text-secondary); margin-top: 12px; text-align: center;">{{凡例}}</div></div>
+  </div>
+  <div class="pn">12</div>
+</section>
+
+<!-- ===== P-13 引用（お客さんの声）: 1枚1本・原文のまま・要点だけ太字 ===== -->
+<section class="page">
+  <div class="rv-h"><span class="tag">花</span><span class="t">{{レビューのタイトル}}</span><span class="p">{{商品名・年月}}</span></div>
+  <div class="rv">{{レビュー本文（原文を改変しない。絵文字は削ってよい）。<b>心が動く一文だけ太字</b>。}}</div>
+  <div class="pn">13</div>
+</section>
+
+<!-- ===== P-14 ラストメッセージ ===== -->
+<section class="page">
+  <h1>最後に</h1>
+  <div class="vcenter">
+    <div class="stmt">{{前向きな一文（例: 僕らには、まだまだ<span class="g">無限の可能性</span>がある。）}}</div>
+    <div class="body mt">{{根拠を2行}}</div>
+    <div class="stmt mt2">{{呼びかけ（例: そこに向けて、今期<span class="g">やり切ろう</span>。）}}</div>
+  </div>
+  <div class="pn">14</div>
+</section>
+
+</body>
+</html>
