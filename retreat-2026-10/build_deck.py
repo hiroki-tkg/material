@@ -469,7 +469,17 @@ def photos_for(n):
 
 
 def place_contain(slide, path, x, y, w, h):
-    from PIL import Image
+    from PIL import Image, ImageOps
+    # 容量を抑えるため長辺1600pxに縮小したコピーを使う
+    cache = os.path.join(PHOTO_DIR, ".cache")
+    os.makedirs(cache, exist_ok=True)
+    small = os.path.join(cache, os.path.splitext(os.path.basename(path))[0] + ".jpg")
+    if not os.path.exists(small):
+        with Image.open(path) as im:
+            im = ImageOps.exif_transpose(im).convert("RGB")
+            im.thumbnail((1600, 1600))
+            im.save(small, quality=85)
+    path = small
     with Image.open(path) as im:
         iw, ih = im.size
     k = min(w / iw, h / ih)
@@ -484,9 +494,13 @@ for i, t in enumerate(TOPICS):
     files = photos_for(n)
     if files:
         gap = 16
-        cw = (area_w - gap * (len(files) - 1)) / len(files)
+        cols = len(files) if len(files) <= 3 else (len(files) + 1) // 2
+        rows = (len(files) + cols - 1) // cols
+        cw = (area_w - gap * (cols - 1)) / cols
+        ch = (area_h - gap * (rows - 1)) / rows
         for j, f in enumerate(files):
-            place_contain(s, f, area_x + j * (cw + gap), area_y, cw, area_h)
+            r, c = divmod(j, cols)
+            place_contain(s, f, area_x + c * (cw + gap), area_y + r * (ch + gap), cw, ch)
     else:
         rect(s, area_x, area_y, area_w, area_h, None, line=BORDER_LIGHT, dash=True)
         text(s, area_x, area_y, area_w, area_h, "写真（届き次第差し替え）", size=25, color=SECONDARY,
