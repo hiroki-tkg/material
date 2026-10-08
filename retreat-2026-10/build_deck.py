@@ -552,11 +552,8 @@ for i, t in enumerate(TOPICS):
             cw = 1016 / 4
             x0 = 56 + (1016 - cw * len(row)) / 2
             for ci, name in enumerate(row):
-                place_contain(s, os.path.join(logo_dir, name + ".png"), x0 + ci * cw + 24, 324 + ri * 92, cw - 48, 72)
-        text(s, 56, 524, 300, 28, "エンジェル投資家", size=18, color=SECONDARY)
-        for ci, name in enumerate(["a8net", "jmdc", "dnx"]):
-            place_contain(s, os.path.join(logo_dir, name + ".png"), 260 + ci * 210, 516, 170, 48)
-        text(s, 900, 524, 172, 28, "ほか5名", size=18, color=SECONDARY, align=PP_ALIGN.RIGHT)
+                place_contain(s, os.path.join(logo_dir, name + ".png"), x0 + ci * cw + 28, 334 + ri * 112, cw - 56, 64)
+        text(s, 56, 548, 1016, 28, "エンジェル投資家 ほか5名", size=18, color=SECONDARY, align=PP_ALIGN.RIGHT)
         hline(s, 56, 588, 1016)
         text(s, 56, 616, 1016, 140, ["累計資金調達額は[[7.4億円]]に到達、", "会社の時価総額は[[21億円]]に。"],
              size=38, bold=True, spacing=1.45)
@@ -565,8 +562,8 @@ for i, t in enumerate(TOPICS):
 # =====================================================================
 # 11-2. みなさん、お疲れ様でした（キーメッセージ・Moss 全面）
 # =====================================================================
-s = dark_slide()
-text(s, 80, 300, 968, 200, "みなさん、大変お疲れ様でした〜👏", size=60, color=WHITE, bold=True,
+s = content_slide()
+text(s, 56, 300, 1016, 200, "みなさん、大変お疲れ様でした〜👏", size=60, bold=True,
      align=PP_ALIGN.CENTER, anchor=MSO_ANCHOR.MIDDLE)
 notes(s, "第8期の振り返りはここまで。みなさん、大変お疲れ様でした！")
 
@@ -582,7 +579,7 @@ s = content_slide("第9期の計画", "第8期 実績 → 第9期 計画（売�
 plans = [
     ("AND PLANTS / AND FLOWER", 7.4, 12.4, "+68%"),
     ("イネイブラー", 0.1, 1.9, "19倍"),
-    ("ハナイチ", 0.55, 1.7, "3.1倍"),
+    ("ハナイチ", 0.55, 2.7, "4.9倍"),
 ]
 for i, (lab, cur, plan, g) in enumerate(plans):
     x = 56 + i * 344
@@ -606,7 +603,7 @@ text(s, 56, H_PX - 76, 960, 24,
      color=SECONDARY)
 notes(s, """
 第9期は前年比ではなく「計画に対してどうか」で見る。
-売上の計画は、AP/AFが12.4億、イネイブラーが0.1億→1.9億、ハナイチが1.7億。
+売上の計画は、AP/AFが12.4億、イネイブラーが0.1億→1.9億、ハナイチが2.7億。
 """)
 
 # =====================================================================
