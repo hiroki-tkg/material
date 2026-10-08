@@ -469,6 +469,24 @@ def photos_for(n):
                   if f.startswith(pre) and f.lower().endswith((".jpg", ".jpeg", ".png")))
 
 
+def best_cols(files, w, h, gap):
+    """写真が合計で最も大きく見える列数を選ぶ（横長2枚なら縦積み、など）。"""
+    from PIL import Image
+    sizes = []
+    for f in files:
+        with Image.open(f) as im:
+            sizes.append(im.size)
+    best, best_area = 1, -1
+    for cols in range(1, len(files) + 1):
+        rows = (len(files) + cols - 1) // cols
+        cw = (w - gap * (cols - 1)) / cols
+        ch = (h - gap * (rows - 1)) / rows
+        area = sum(min(cw / iw, ch / ih) ** 2 * iw * ih for iw, ih in sizes)
+        if area > best_area:
+            best, best_area = cols, area
+    return best
+
+
 def place_contain(slide, path, x, y, w, h):
     from PIL import Image, ImageOps
     # 容量を抑えるため長辺1600pxに縮小したコピーを使う
@@ -495,7 +513,7 @@ for i, t in enumerate(TOPICS):
     files = photos_for(n)
     if files:
         gap = 16
-        cols = len(files) if len(files) <= 3 else (len(files) + 1) // 2
+        cols = best_cols(files, area_w, area_h, gap)
         rows = (len(files) + cols - 1) // cols
         cw = (area_w - gap * (cols - 1)) / cols
         ch = (area_h - gap * (rows - 1)) / rows
