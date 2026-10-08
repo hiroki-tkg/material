@@ -444,19 +444,19 @@ notes(s, """
 # =====================================================================
 # 11. 第8期にやったこと（一覧 → 1トピック1枚・写真）
 # =====================================================================
-TOPICS = [
-    "花アプリ公開",
-    "三和園芸さんとの委託発送開始",
-    "観葉イネイブラー始動",
-    "花イネイブラー本格始動",
-    "アンドフラワーのブランド分割",
-    "植物ケアアプリ公開",
-    "マルシェ開催",
-    "全社AI活用・MCP整備",
-    "みずほ銀行の融資",
-    "ギフティ社から追加で3億円の出資",
-    "新城の解散",
-    "ハナイチの各種施策進行",
+TOPICS = [  # (写真の番号, タイトル)。みずほ・ギフティは入社スライドの直前に回す
+    (1, "花アプリ公開"),
+    (2, "三和園芸さんとの委託発送開始"),
+    (3, "観葉イネイブラー始動"),
+    (4, "花イネイブラー本格始動"),
+    (5, "アンドフラワーのブランド分割"),
+    (6, "植物ケアアプリ公開"),
+    (7, "マルシェ開催"),
+    (8, "全社AI活用・MCP整備"),
+    (11, "新城の解散"),
+    (12, "ハナイチの各種施策進行"),
+    (9, "みずほ銀行の融資"),
+    (10, "ギフティ社から追加で3億円の出資"),
 ]
 TOPIC_SUB = {
 }
@@ -549,8 +549,7 @@ def place_contain(slide, path, x, y, w, h):
     slide.shapes.add_picture(path, px(x + (w - pw) / 2), px(y + (h - ph) / 2), px(pw), px(ph))
 
 
-for i, t in enumerate(TOPICS):
-    n = i + 1
+for n, t in TOPICS:
     s = content_slide(t, TOPIC_SUB.get(n))
     area_x, area_y, area_w, area_h = 56, 160, 1016, 620
     files = photos_for(n)
@@ -576,20 +575,9 @@ for i, t in enumerate(TOPICS):
         text(s, area_x, area_y, area_w, area_h, "写真（届き次第差し替え）", size=25, color=SECONDARY,
              align=PP_ALIGN.CENTER, anchor=MSO_ANCHOR.MIDDLE)
     notes(s, f"{n}. {t}" + (f"（{TOPIC_SUB[n]}）" if n in TOPIC_SUB else "") + "：（口頭で）")
-    if t.startswith("ハナイチ"):
-        # 新しい仲間（入社月のみ）
-        s = content_slide("新しい出会い（入社）もありました")
-        joins = ["2025年10月", "2025年11月", "2025年12月", "2026年7月"]
-        d, gap = 200, (1016 - 200 * 4) / 3
-        for k, m in enumerate(joins):
-            x = 56 + k * (d + gap)
-            # 写真は入社が新しい順に届いたので逆順で当てる
-            place_contain(s, os.path.join(PHOTO_DIR, "members", f"{4 - k}.png"), x, 300, d, d)
-            text(s, x - 20, 524, d + 40, 36, m, size=25, bold=True, align=PP_ALIGN.CENTER)
-        notes(s, "26年9月期は新しい仲間も増えました。（舘脇さん・頼政さん・川嶋さん・塚本さんを口頭で紹介）")
     if t.startswith("ギフティ"):
         # 出資の結果（累計調達額と時価総額）
-        s = content_slide("資金調達の到達点")
+        s = content_slide("資金調達")
         for j, (lab, val, unit) in enumerate([("累計資金調達額", "7.4", "億円"), ("会社の時価総額", "21", "億円")]):
             x = 56 + j * 520
             text(s, x, 150, 480, 30, lab, size=22, color=SECONDARY)
@@ -612,6 +600,16 @@ for i, t in enumerate(TOPICS):
         text(s, 56, 616, 1016, 140, ["累計資金調達額は[[7.4億円]]に到達、", "会社の時価総額は[[21億円]]に。"],
              size=38, bold=True, spacing=1.45)
         notes(s, "ギフティからの出資で、累計資金調達額は7.4億円に到達。会社の時価総額は21億円になった。")
+        # 新しい仲間（入社月のみ）
+        s = content_slide("新しい出会い（入社）もありました")
+        joins = ["2025年10月", "2025年11月", "2025年12月", "2026年7月"]
+        d, gap = 200, (1016 - 200 * 4) / 3
+        for k, m in enumerate(joins):
+            x = 56 + k * (d + gap)
+            # 写真は入社が新しい順に届いたので逆順で当てる
+            place_contain(s, os.path.join(PHOTO_DIR, "members", f"{4 - k}.png"), x, 300, d, d)
+            text(s, x - 20, 524, d + 40, 36, m, size=25, bold=True, align=PP_ALIGN.CENTER)
+        notes(s, "26年9月期は新しい仲間も増えました。（舘脇さん・頼政さん・川嶋さん・塚本さんを口頭で紹介）")
 
 # =====================================================================
 # 11-2. みなさん、お疲れ様でした（キーメッセージ・Moss 全面）
@@ -783,11 +781,10 @@ fx, fw = 56, 238
 for i, f in enumerate(flow):
     x = fx + i * (fw + 22)
     col = LIGHT if i == len(flow) - 1 else MOSS
-    text(s, x, 610, fw, 44, f, size=25, bold=True, color=col, align=PP_ALIGN.CENTER)
+    text(s, x, 660, fw, 44, f, size=25, bold=True, color=col, align=PP_ALIGN.CENTER,
+         anchor=MSO_ANCHOR.MIDDLE, spacing=1.0)
     if i < len(flow) - 1:
-        arrow(s, x + fw + 4, 622, 12, 16)
-text(s, 56, 680, 1016, 40, "それぞれの事業で入口を広げ、利益を出して、また次の入口をつくる。", size=22,
-     color=SECONDARY, align=PP_ALIGN.CENTER)
+        arrow(s, x + fw + 5, 674, 12, 16)
 notes(s, """
 ・AP／AF：自分たちで花や植物を販売し、楽しむ人を増やす
 ・イネイブラー：いろんな事業者の商品と花をセットで届け、花を買う・贈る機会を増やす
