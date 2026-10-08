@@ -208,18 +208,22 @@ s = prs.slides.add_slide(BLANK)
 # 背景の透かし: 極太の "Domuz" を3段、薄いグレーで全面に
 WATERMARK = RGBColor(0xEC, 0xEE, 0xEE)  # --watermark
 for row in range(3):
-    tb = text(s, -20, -40 + row * 282, W_PX + 40, 300, "Domuz", size=330, color=WATERMARK, bold=False,
+    tb = text(s, -20, -40 + row * 282, W_PX + 40, 300, "Domuz", size=330, color=WATERMARK, bold=True,
               en=True, align=PP_ALIGN.CENTER, anchor=MSO_ANCHOR.MIDDLE, spacing=0.8)
     for r in tb.text_frame.paragraphs[0].runs:
-        set_face(r, "Lato Black")
+        set_face(r, "Google Sans")
 tb = text(s, 0, 236, W_PX, 200, "Domuz", size=170, bold=True, en=True, align=PP_ALIGN.CENTER,
           anchor=MSO_ANCHOR.MIDDLE, spacing=1.0)
-set_face(tb.text_frame.paragraphs[0].runs[0], "Lato")
-text(s, 0, 430, W_PX, 160, "1day合宿", size=120, bold=True, align=PP_ALIGN.CENTER,
-     anchor=MSO_ANCHOR.MIDDLE, spacing=1.0)
+set_face(tb.text_frame.paragraphs[0].runs[0], "Google Sans")
+tb = text(s, 0, 430, W_PX, 160, "1day", size=120, bold=True, en=True, align=PP_ALIGN.CENTER,
+          anchor=MSO_ANCHOR.MIDDLE, spacing=1.0)
+set_face(tb.text_frame.paragraphs[0].runs[0], "Google Sans")
+r = tb.text_frame.paragraphs[0].add_run()
+r.text = "合宿"
+_set_font(r, 120, MOSS, True, en=False)
 tb = text(s, 0, 640, W_PX, 40, "2026.10.09", size=28, color=SECONDARY, en=True, align=PP_ALIGN.CENTER,
           letter=4)
-set_face(tb.text_frame.paragraphs[0].runs[0], "Lato")
+set_face(tb.text_frame.paragraphs[0].runs[0], "Google Sans")
 notes(s, """
 おはようございます。今日は一日よろしくお願いします。
 （会場の雰囲気づくり：横浜まで来てくれてありがとう、など一言）
