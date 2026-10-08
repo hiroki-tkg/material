@@ -66,6 +66,13 @@ def _set_font(run, size_px, color, bold, en=None):
         el.set("typeface", face)
 
 
+def set_face(run, face):
+    run.font.name = face
+    rpr = run._r.get_or_add_rPr()
+    for tag in ("a:ea", "a:cs"):
+        rpr.find(qn(tag)).set("typeface", face)
+
+
 def text(slide, x, y, w, h, lines, size=25, color=MOSS, bold=False, align=PP_ALIGN.LEFT,
          anchor=MSO_ANCHOR.TOP, spacing=1.5, en=None, letter=None, para_gap=0):
     """lines: 文字列 or 文字列のリスト。[[語]] はライトグリーン、**語** は太字。"""
@@ -204,16 +211,15 @@ for row in range(3):
     tb = text(s, -20, -40 + row * 282, W_PX + 40, 300, "Domuz", size=330, color=WATERMARK, bold=False,
               en=True, align=PP_ALIGN.CENTER, anchor=MSO_ANCHOR.MIDDLE, spacing=0.8)
     for r in tb.text_frame.paragraphs[0].runs:
-        r.font.name = "Outfit Black"
-        rpr = r._r.get_or_add_rPr()
-        for tag in ("a:ea", "a:cs"):
-            rpr.find(qn(tag)).set("typeface", "Outfit Black")
-text(s, 0, 236, W_PX, 200, "Domuz", size=170, bold=True, en=True, align=PP_ALIGN.CENTER,
-     anchor=MSO_ANCHOR.MIDDLE, spacing=1.0)
+        set_face(r, "Lato Black")
+tb = text(s, 0, 236, W_PX, 200, "Domuz", size=170, bold=True, en=True, align=PP_ALIGN.CENTER,
+          anchor=MSO_ANCHOR.MIDDLE, spacing=1.0)
+set_face(tb.text_frame.paragraphs[0].runs[0], "Lato")
 text(s, 0, 430, W_PX, 160, "1day合宿", size=120, bold=True, align=PP_ALIGN.CENTER,
      anchor=MSO_ANCHOR.MIDDLE, spacing=1.0)
-text(s, 0, 640, W_PX, 40, "2026.10.09", size=28, color=SECONDARY, en=True, align=PP_ALIGN.CENTER,
-     letter=4)
+tb = text(s, 0, 640, W_PX, 40, "2026.10.09", size=28, color=SECONDARY, en=True, align=PP_ALIGN.CENTER,
+          letter=4)
+set_face(tb.text_frame.paragraphs[0].runs[0], "Lato")
 notes(s, """
 おはようございます。今日は一日よろしくお願いします。
 （会場の雰囲気づくり：横浜まで来てくれてありがとう、など一言）
@@ -491,7 +497,13 @@ def place_contain(slide, path, x, y, w, h):
     small = os.path.join(cache, os.path.splitext(os.path.basename(path))[0] + ".jpg")
     if not os.path.exists(small):
         with Image.open(path) as im:
-            im = ImageOps.exif_transpose(im).convert("RGB")
+            im = ImageOps.exif_transpose(im)
+            if im.mode in ("RGBA", "LA", "P"):
+                im = im.convert("RGBA")
+                bg = Image.new("RGB", im.size, (255, 255, 255))
+                bg.paste(im, mask=im.split()[-1])
+                im = bg
+            im = im.convert("RGB")
             im.thumbnail((1600, 1600))
             im.save(small, quality=85)
     path = small
@@ -526,14 +538,28 @@ for i, t in enumerate(TOPICS):
         s = content_slide("資金調達の到達点")
         for j, (lab, val, unit) in enumerate([("累計資金調達額", "7.4", "億円"), ("会社の時価総額", "21", "億円")]):
             x = 56 + j * 520
-            text(s, x, 236, 480, 36, lab, size=28, color=SECONDARY)
-            tb = text(s, x, 284, 480, 140, val, size=120, bold=True, en=True, spacing=1.0)
+            text(s, x, 150, 480, 30, lab, size=22, color=SECONDARY)
+            tb = text(s, x, 184, 480, 96, val, size=84, bold=True, en=True, spacing=1.0)
             r = tb.text_frame.paragraphs[0].add_run()
             r.text = unit
-            _set_font(r, 38, MOSS, True, en=False)
-        hline(s, 56, 500, 1016)
-        text(s, 56, 548, 1016, 140, ["累計資金調達額は[[7.4億円]]に到達、", "会社の時価総額は[[21億円]]に。"],
-             size=40, bold=True, spacing=1.45)
+            _set_font(r, 31, MOSS, True, en=False)
+        hline(s, 56, 300, 1016)
+        # 投資家ロゴ（VC・事業会社 7社 → エンジェル投資家）
+        logo_dir = os.path.join(PHOTO_DIR, "logos")
+        vc_rows = [["chiba-dojo", "new-commerce-ventures", "ffg", "pola-orbis-capital"],
+                   ["value-chain-innovation-fund", "giftee", "seibu-holdings"]]
+        for ri, row in enumerate(vc_rows):
+            cw = 1016 / 4
+            x0 = 56 + (1016 - cw * len(row)) / 2
+            for ci, name in enumerate(row):
+                place_contain(s, os.path.join(logo_dir, name + ".png"), x0 + ci * cw + 24, 324 + ri * 92, cw - 48, 72)
+        text(s, 56, 524, 300, 28, "エンジェル投資家", size=18, color=SECONDARY)
+        for ci, name in enumerate(["a8net", "jmdc", "dnx"]):
+            place_contain(s, os.path.join(logo_dir, name + ".png"), 260 + ci * 210, 516, 170, 48)
+        text(s, 900, 524, 172, 28, "ほか5名", size=18, color=SECONDARY, align=PP_ALIGN.RIGHT)
+        hline(s, 56, 588, 1016)
+        text(s, 56, 616, 1016, 140, ["累計資金調達額は[[7.4億円]]に到達、", "会社の時価総額は[[21億円]]に。"],
+             size=38, bold=True, spacing=1.45)
         notes(s, "ギフティからの出資で、累計資金調達額は7.4億円に到達。会社の時価総額は21億円になった。")
 
 # =====================================================================
