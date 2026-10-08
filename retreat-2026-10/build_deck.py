@@ -201,15 +201,22 @@ notes(s, """
 # =====================================================================
 # 2. 合宿の目的（3つを一覧）— P-11 番号付きリスト
 # =====================================================================
-s = content_slide("今日の合宿の目的")
-items = [("1", "目線を上げる"), ("2", "チーム感を高める"), ("3", "今後の方針を共有する")]
-y = 236
-for n, label in items:
-    text(s, 96, y, 80, 80, n, size=64, color=LIGHT, bold=True, en=True)
-    text(s, 200, y + 12, 800, 64, label, size=46, bold=True)
-    if n != "3":
-        hline(s, 96, y + 116, 936)
-    y += 148
+items = [("1", "目線を上げる"), ("2", "チーム感を高める"), ("3", "今後の方針のシェア")]
+
+
+def purpose_list():
+    s = content_slide("今日の合宿の目的")
+    y = 236
+    for n, label in items:
+        text(s, 96, y, 80, 80, n, size=64, color=LIGHT, bold=True, en=True)
+        text(s, 200, y + 12, 800, 64, label, size=46, bold=True)
+        if n != "3":
+            hline(s, 96, y + 116, 936)
+        y += 148
+    return s
+
+
+s = purpose_list()
 notes(s, """
 今日の目的は3つです。
 1つずつ、なぜこれをやりたいのかを話します。
@@ -221,13 +228,17 @@ notes(s, """
 purpose_notes = {
     "1": "目線を上げる：（口頭）普段の業務から一歩引いて、会社として何を目指しているかを見る日にしたい。",
     "2": "チーム感を高める：（口頭）普段話さない人とも話して、「この人こんなこと考えてたんだ」を持ち帰ってほしい。",
-    "3": "今後の方針を共有する：（口頭）第9期にどこへ向かうのか、なぜそれをやるのかを全員で揃えたい。",
+    "3": "今後の方針のシェア：（口頭）第9期にどこへ向かうのか、なぜそれをやるのかを全員で揃えたい。",
 }
 for n, label in items:
     s = content_slide()
     text(s, 56, 323, 1016, 200, label, size=64, bold=True, align=PP_ALIGN.CENTER,
          anchor=MSO_ANCHOR.MIDDLE)
     notes(s, purpose_notes[n])
+
+# 目的3つをもう一度（まとめ）
+s = purpose_list()
+notes(s, "改めて、今日の目的はこの3つです。")
 
 # =====================================================================
 # 6. 第8期 お疲れ様でした（キーメッセージ・Moss 全面）
@@ -252,17 +263,16 @@ s = content_slide("全社の数字", "第8期（2025年10月〜2026年9月）　
 kpis = [
     ("売上高", "8.34", "億円", MOSS),
     ("売上総利益", "5.02", "億円", MOSS),
-    ("営業利益", "▲2.21", "億円", STRONG),
 ]
-y = 168
+y = 196
 for lab, val, unit, col in kpis:
     text(s, 56, y, 340, 30, lab, size=22, color=SECONDARY)
     tb = text(s, 56, y + 32, 340, 84, val, size=72, color=col, bold=True, en=True, spacing=1.0)
     r = tb.text_frame.paragraphs[0].add_run()
     r.text = unit
     _set_font(r, 25, col, True, en=False)
-    y += 150
-text(s, 56, 610, 340, 30, "粗利率 60%", size=22, color=SECONDARY)
+    y += 170
+text(s, 56, y, 340, 30, "粗利率 60%", size=22, color=SECONDARY)
 # 月次売上（百万円）。最高の5月だけライトグリーン
 months = ["10", "11", "12", "1", "2", "3", "4", "5", "6", "7", "8", "9"]
 sales = [59.2, 59.8, 59.8, 79.3, 54.8, 67.5, 98.4, 111.5, 62.0, 61.6, 58.7, 65.7]
@@ -279,15 +289,14 @@ for i, (m, v) in enumerate(zip(months, sales)):
     text(s, x - 10, base_y + 8, cw + 20, 24, f"{m}月", size=15, color=SECONDARY,
          align=PP_ALIGN.CENTER)
 hline(s, cx0 - 8, base_y, 12 * (cw + cg))
-text(s, 56, 680, 1016, 44, "5月に[[月商1億円]]を超えた。黒字化は、第9期にやり切る。", size=28,
+text(s, 56, 680, 1016, 44, "5月に、創業以来はじめて[[月商1億円]]を超えた。", size=28,
      bold=True)
 text(s, 56, H_PX - 76, 960, 24,
      "※ 試算表（2026/10/8時点）の暫定値・決算整理前。9月は棚卸未反映。売上高は決算整理▲404万円を含む",
      size=14, color=SECONDARY)
 notes(s, """
-全社の第8期は、売上高8.34億円、売上総利益5.02億円、営業利益は▲2.21億円（試算表ベースの暫定値）。
+全社の第8期は、売上高8.34億円、売上総利益5.02億円（試算表ベースの暫定値）。
 5月は母の日で月商1.1億円。創業以来はじめて月商1億を超えた。
-一方で営業利益はまだ赤字。第9期は黒字化をやり切る年。
 """)
 
 # =====================================================================
@@ -401,25 +410,20 @@ plans = [
     ("AP/AF 広告費込み限界利益", 2.2, 3.5, "億円", "+59%"),
 ]
 for i, (lab, cur, plan, unit, g) in enumerate(plans):
-    x = 56 + i * 344
-    text(s, x, 172, 330, 36, lab, size=22, bold=True)
+    x = 56 + i * 520
+    text(s, x, 172, 480, 36, lab, size=25, bold=True)
     text(s, x, 210, 320, 24, f"単位：{unit}", size=16, color=SECONDARY)
     base_y, max_h = 560, 260
     for j, (val, col, cap) in enumerate([(cur, BG_GRAY, "第8期 実績"), (plan, MOSS, "第9期 計画")]):
         h = max_h * val / plan
-        bx = x + 32 + j * 136
-        rect(s, bx, base_y - h, 96, h, col)
-        text(s, bx - 20, base_y - h - 36, 136, 30, f"{val}億", size=22, bold=True,
+        bx = x + 64 + j * 176
+        rect(s, bx, base_y - h, 120, h, col)
+        text(s, bx - 8, base_y - h - 36, 136, 30, f"{val}億", size=22, bold=True,
              align=PP_ALIGN.CENTER)
-        text(s, bx - 30, base_y + 10, 156, 28, cap, size=16, color=SECONDARY,
+        text(s, bx - 18, base_y + 10, 156, 28, cap, size=16, color=SECONDARY,
              align=PP_ALIGN.CENTER)
-    hline(s, x + 16, base_y, 300)
+    hline(s, x + 32, base_y, 400)
     text(s, x, 610, 320, 70, g, size=48, color=LIGHT, bold=True, en=True)
-x = 56 + 2 * 344
-text(s, x, 172, 330, 36, "全社 営業利益", size=22, bold=True)
-rect(s, x, 248, 320, 312, None, line=MOSS, dash=True)
-text(s, x, 248, 320, 312, ["第8期 ▲2.21億", "↓", "[[黒字化]]", "（目標額は算出中）"], size=28, bold=True,
-     align=PP_ALIGN.CENTER, anchor=MSO_ANCHOR.MIDDLE, spacing=1.4)
 text(s, 56, 700, 1000, 40, "事業計画を各チームの数字に下ろし、[[毎月計画との差を見て]]動く", size=28,
      bold=True)
 text(s, 56, H_PX - 76, 960, 24,
@@ -428,7 +432,6 @@ text(s, 56, H_PX - 76, 960, 24,
 notes(s, """
 第9期は前年比ではなく「計画に対してどうか」で見る。
 AP/AFは売上12億、広告費込み限界利益3.5億が計画。
-全社としては（営業利益の目標を口頭で）。
 """)
 
 # =====================================================================
