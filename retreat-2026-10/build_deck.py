@@ -592,13 +592,14 @@ plans = [
     ("イネイブラー", 0.1, 1.9, "19倍"),
     ("ハナイチ", 0.55, 2.7, "4.9倍"),
 ]
+top = max(p[2] for p in plans)
 for i, (lab, cur, plan, g) in enumerate(plans):
     x = 56 + i * 344
     text(s, x, 172, 330, 36, lab, size=22, bold=True)
     text(s, x, 206, 320, 24, "単位：億円", size=16, color=SECONDARY)
     base_y, max_h = 560, 260
     for j, (val, col, cap) in enumerate([(cur, BG_GRAY, "第8期 実績"), (plan, MOSS, "第9期 計画")]):
-        h = max(max_h * val / plan, 3)
+        h = max(max_h * val / top, 3)  # 3事業とも同じ目盛り（規模の差が見えるように）
         bx = x + 40 + j * 136
         rect(s, bx, base_y - h, 96, h, col)
         text(s, bx - 20, base_y - h - 36, 136, 30, f"{val:g}億", size=22, bold=True,
