@@ -225,9 +225,8 @@ purpose_notes = {
 }
 for n, label in items:
     s = content_slide()
-    text(s, 96, 240, 400, 32, f"合宿の目的  {n} / 3", size=22, color=SECONDARY)
-    text(s, 96, 300, 200, 150, n, size=120, color=LIGHT, bold=True, en=True, spacing=1.0)
-    text(s, 96, 470, 960, 90, label, size=64, bold=True)
+    text(s, 56, 323, 1016, 200, label, size=64, bold=True, align=PP_ALIGN.CENTER,
+         anchor=MSO_ANCHOR.MIDDLE)
     notes(s, purpose_notes[n])
 
 # =====================================================================
@@ -247,9 +246,54 @@ notes(s, """
 s = divider("01", "FY8 REVIEW", "第8期の振り返り", "数字と、起きたこと")
 
 # =====================================================================
-# 8. 第8期の数字（P-9 3項目の成長）
+# 8. 全社の数字（P-6 単系列＋強調：左に主要数字、右に月次売上）
 # =====================================================================
-s = content_slide("第8期の数字", "第7期 → 第8期（前年比）　※税抜")
+s = content_slide("全社の数字", "第8期（2025年10月〜2026年9月）　※税抜")
+kpis = [
+    ("売上高", "8.34", "億円", MOSS),
+    ("売上総利益", "5.02", "億円", MOSS),
+    ("営業利益", "▲2.21", "億円", STRONG),
+]
+y = 168
+for lab, val, unit, col in kpis:
+    text(s, 56, y, 340, 30, lab, size=22, color=SECONDARY)
+    tb = text(s, 56, y + 32, 340, 84, val, size=72, color=col, bold=True, en=True, spacing=1.0)
+    r = tb.text_frame.paragraphs[0].add_run()
+    r.text = unit
+    _set_font(r, 25, col, True, en=False)
+    y += 150
+text(s, 56, 610, 340, 30, "粗利率 60%", size=22, color=SECONDARY)
+# 月次売上（百万円）。最高の5月だけライトグリーン
+months = ["10", "11", "12", "1", "2", "3", "4", "5", "6", "7", "8", "9"]
+sales = [59.2, 59.8, 59.8, 79.3, 54.8, 67.5, 98.4, 111.5, 62.0, 61.6, 58.7, 65.7]
+cx0, cw, cg = 432, 40, 14
+base_y, max_h = 600, 330
+text(s, cx0, 168, 400, 24, "月次売上　単位：百万円", size=16, color=SECONDARY)
+for i, (m, v) in enumerate(zip(months, sales)):
+    x = cx0 + i * (cw + cg)
+    h = max_h * v / max(sales)
+    col = LIGHT if v == max(sales) else MOSS
+    rect(s, x, base_y - h, cw, h, col)
+    text(s, x - 10, base_y - h - 28, cw + 20, 24, f"{v:.0f}", size=15, bold=True,
+         align=PP_ALIGN.CENTER, en=True)
+    text(s, x - 10, base_y + 8, cw + 20, 24, f"{m}月", size=15, color=SECONDARY,
+         align=PP_ALIGN.CENTER)
+hline(s, cx0 - 8, base_y, 12 * (cw + cg))
+text(s, 56, 680, 1016, 44, "5月に[[月商1億円]]を超えた。黒字化は、第9期にやり切る。", size=28,
+     bold=True)
+text(s, 56, H_PX - 76, 960, 24,
+     "※ 試算表（2026/10/8時点）の暫定値・決算整理前。9月は棚卸未反映。売上高は決算整理▲404万円を含む",
+     size=14, color=SECONDARY)
+notes(s, """
+全社の第8期は、売上高8.34億円、売上総利益5.02億円、営業利益は▲2.21億円（試算表ベースの暫定値）。
+5月は母の日で月商1.1億円。創業以来はじめて月商1億を超えた。
+一方で営業利益はまだ赤字。第9期は黒字化をやり切る年。
+""")
+
+# =====================================================================
+# 9. 事業別の数字（P-9 3項目の成長）
+# =====================================================================
+s = content_slide("事業別の数字", "第7期 → 第8期（前年比）　※税抜")
 cols = [
     ("AND PLANTS / AND FLOWER", "売上", 7.2, 7.4, "億円", "+2%", "7.2億 → 7.4億"),
     ("AND PLANTS / AND FLOWER", "広告費込み限界利益", 1.5, 2.2, "億円", "+47%", "1.5億 → 2.2億"),
@@ -278,30 +322,12 @@ for i, (biz, metric, prev, cur, unit, yoy, cap) in enumerate(cols):
 text(s, 56, 690, 1000, 44, "広告を絞っても売上は落とさず、[[利益が大きく残る形]]に変わった", size=28,
      bold=True)
 text(s, 56, H_PX - 76, 960, 24,
-     "※ AP/AFは自社EC＋モール、税抜（小松資料）。ハナイチは税抜・植木鉢＋生花ほか（比須田資料）。全社合計・イネイブラー／3PLは次ページ",
+     "※ AP/AFは自社EC＋モール、税抜（小松資料）。ハナイチは税抜・植木鉢＋生花ほか（比須田資料）",
      size=14, color=SECONDARY)
 notes(s, """
 AP/AF：売上は+2%とほぼ横ばいだけど、広告費込み限界利益は+47%。広告費を3割減らして利益を1.5倍にした。
 ハナイチ：売上+22%、注文数は2.3倍。生花は1本売れば利益が残る形になった。
 詳細はこのあと各事業の発表で。
-""")
-
-# =====================================================================
-# 9. 全社の数字（P-10 未確定は点線枠「算出中」）
-# =====================================================================
-s = content_slide("全社の数字", "第8期 実績　※税抜")
-boxes = [("全社 売上", "算出中"), ("全社 営業利益", "算出中"), ("イネイブラー／3PL 売上", "算出中")]
-for i, (lab, val) in enumerate(boxes):
-    x = 56 + i * 344
-    text(s, x, 196, 320, 36, lab, size=25, bold=True)
-    rect(s, x, 248, 320, 200, None, line=MOSS, dash=True)
-    text(s, x, 248, 320, 200, val, size=44, bold=True, align=PP_ALIGN.CENTER,
-         anchor=MSO_ANCHOR.MIDDLE)
-text(s, 56, 520, 1000, 120,
-     ["（数字を入れたら、この1行を主張文に差し替え）"], size=28, color=SECONDARY)
-text(s, 56, H_PX - 76, 960, 24, "※ 決算確定値で差し替え", size=14, color=SECONDARY)
-notes(s, """
-（全社の確定値を入れてから話す）
 """)
 
 # =====================================================================
@@ -392,8 +418,8 @@ for i, (lab, cur, plan, unit, g) in enumerate(plans):
 x = 56 + 2 * 344
 text(s, x, 172, 330, 36, "全社 営業利益", size=22, bold=True)
 rect(s, x, 248, 320, 312, None, line=MOSS, dash=True)
-text(s, x, 248, 320, 312, ["算出中", "（黒字化）"], size=34, bold=True, align=PP_ALIGN.CENTER,
-     anchor=MSO_ANCHOR.MIDDLE, spacing=1.4)
+text(s, x, 248, 320, 312, ["第8期 ▲2.21億", "↓", "[[黒字化]]", "（目標額は算出中）"], size=28, bold=True,
+     align=PP_ALIGN.CENTER, anchor=MSO_ANCHOR.MIDDLE, spacing=1.4)
 text(s, 56, 700, 1000, 40, "事業計画を各チームの数字に下ろし、[[毎月計画との差を見て]]動く", size=28,
      bold=True)
 text(s, 56, H_PX - 76, 960, 24,
