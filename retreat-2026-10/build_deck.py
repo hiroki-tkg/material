@@ -602,14 +602,20 @@ for n, t in TOPICS:
         notes(s, "ギフティからの出資で、累計資金調達額は7.4億円に到達。会社の時価総額は21億円になった。")
         # 新しい仲間（入社月のみ）
         s = content_slide("新しい出会い（入社）もありました")
-        joins = ["2025年10月", "2025年11月", "2025年12月", "2026年7月"]
-        d, gap = 200, (1016 - 200 * 4) / 3
-        for k, m in enumerate(joins):
-            x = 56 + k * (d + gap)
-            # 写真は入社が新しい順に届いたので逆順で当てる
-            place_contain(s, os.path.join(PHOTO_DIR, "members", f"{4 - k}.png"), x, 300, d, d)
-            text(s, x - 20, 524, d + 40, 36, m, size=25, bold=True, align=PP_ALIGN.CENTER)
-        notes(s, "26年9月期は新しい仲間も増えました。（舘脇さん・頼政さん・川嶋さん・塚本さんを口頭で紹介）")
+        # (写真ファイル, 入社月)。入社月の順。写真は入社が新しい順に届いたので members/4..1 を逆に当てる
+        joins = [("4.png", "2025年10月"), ("3.png", "2025年11月"), ("kawaguchi.png", "2025年11月"),
+                 ("2.png", "2025年12月"), ("mayo.png", "2025年12月"), ("1.png", "2026年7月")]
+        d, gap = 180, (1016 - 180 * 3) / 2
+        for k, (img, m) in enumerate(joins):
+            col, row = k % 3, k // 3
+            x, y = 56 + col * (d + gap), 168 + row * 290
+            path = os.path.join(PHOTO_DIR, "members", img)
+            if os.path.exists(path):
+                place_contain(s, path, x, y, d, d)
+            else:
+                rect(s, x, y, d, d, None, line=BORDER_LIGHT, dash=True, shape=MSO_SHAPE.OVAL)
+            text(s, x - 20, y + d + 16, d + 40, 36, m, size=25, bold=True, align=PP_ALIGN.CENTER)
+        notes(s, "26年9月期は新しい仲間も増えました。（舘脇さん・頼政さん・川口さん・川嶋さん・まよさん・塚本さんを口頭で紹介）")
 
 # =====================================================================
 # 11-2. みなさん、お疲れ様でした（キーメッセージ・Moss 全面）
