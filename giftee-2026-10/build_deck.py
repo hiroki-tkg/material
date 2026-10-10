@@ -30,8 +30,8 @@ BORDER_LIGHT = RGBColor(0xC9, 0xCF, 0xCF)
 WATERMARK = RGBColor(0xEC, 0xEE, 0xEE)   # --watermark
 PALE = RGBColor(0xE4, 0xE8, 0xE9)        # 売上の棒（背景寄りのグレー）
 
-FONT_EN = "M PLUS Rounded 1c"  # 1day合宿2026（Google スライド）と同じ
-FONT_JA = "M PLUS Rounded 1c"
+FONT_EN = "Montserrat"  # ギフティ向け株主報告資料と同じ
+FONT_JA = "Noto Sans CJK JP"  # 和文は Montserrat にないため Noto で補う
 
 W_PX, H_PX = 1128, 846
 EMU_PER_PX = 9144000 / W_PX  # 10in 幅
@@ -54,15 +54,14 @@ page_no = 0
 
 
 def _set_font(run, size_px, color, bold, en=None):
-    is_en = en if en is not None else bool(re.fullmatch(r"[\x00-\x7F¥×→▲％%]*", run.text))
-    face = FONT_EN if is_en else FONT_JA
+    """英数字は Montserrat、和文は Noto Sans CJK JP（1つのランの中でも文字ごとに使い分けられる）。"""
     f = run.font
     f.size = Emu(int(pt(size_px) * 12700))
     f.bold = bold
     f.color.rgb = color
-    f.name = face
+    f.name = FONT_EN
     rpr = run._r.get_or_add_rPr()
-    for tag in ("a:ea", "a:cs"):
+    for tag, face in (("a:ea", FONT_JA), ("a:cs", FONT_EN)):
         el = rpr.find(qn(tag))
         if el is None:
             el = rpr.makeelement(qn(tag), {})
@@ -778,7 +777,7 @@ for i, (h_, b_) in enumerate(nexts, 1):
         hline(s, 96, y + 104, 936)
     y += 128
 
-prs.save("giftee_economics_2026-10.pptx")
+prs.save("giftee_economics_2026-10.pptx")  # PDF は soffice で書き出す
 print("saved", len(prs.slides._sldIdLst), "slides")
 for name, fs, fa, fn in [("AP", ap_fy_s, ap_fy_ad, ap_fy_net), ("AF", af_fy_s, af_fy_ad, af_fy_net),
                          ("HA", ha_fy_s, ha_fy_ad, ha_fy_net)]:
