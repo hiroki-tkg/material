@@ -30,8 +30,8 @@ BORDER_LIGHT = RGBColor(0xC9, 0xCF, 0xCF)
 WATERMARK = RGBColor(0xEC, 0xEE, 0xEE)   # --watermark
 PALE = RGBColor(0xE4, 0xE8, 0xE9)        # 売上の棒（背景寄りのグレー）
 
-FONT_EN = "Outfit"
-FONT_JA = "Zen Kaku Gothic New"
+FONT_EN = "M PLUS Rounded 1c"  # 1day合宿2026（Google スライド）と同じ
+FONT_JA = "M PLUS Rounded 1c"
 
 W_PX, H_PX = 1128, 846
 EMU_PER_PX = 9144000 / W_PX  # 10in 幅
