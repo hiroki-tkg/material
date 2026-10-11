@@ -437,17 +437,21 @@ def mi(ym):
 
 
 def econ(biz, months):
-    mp_series, s_series = (AP_MP, AP_S) if biz == "ap" else (AF_MP, AF_S)
+    """売上・人件費・倉庫光熱費は社内の貢献利益集計、原価率と広告費は月次推移と同じ受注データ（BigQuery）。
+    貢献利益集計は母の日などの共通広告の AP/AF への配賦が BigQuery と違うため、広告費は BigQuery にそろえる。"""
+    mp_series, s_series, ad_series = (AP_MP, AP_S, AP_AD) if biz == "ap" else (AF_MP, AF_S, AF_AD)
     e = dict(S=0.0, NET=0.0, LABOR=0.0, OTHER=0.0, COGS=0.0, AD=0.0)
     for ym in months:
-        S, NET, L, W = (v / 1e6 for v in MONTHLY[(biz, ym)])
-        mpr = mp_series[mi(ym)] / s_series[mi(ym)]
+        S, _net_sheet, L, W = (v / 1e6 for v in MONTHLY[(biz, ym)])
+        i = mi(ym)
+        mpr = mp_series[i] / s_series[i]
+        ad = ad_series[i] * S / s_series[i]  # 売上の集計差ぶんだけ比例させる
         e["S"] += S
-        e["NET"] += NET
         e["LABOR"] += L
         e["OTHER"] += W
         e["COGS"] += S * (1 - mpr)
-        e["AD"] += S * mpr - NET
+        e["AD"] += ad
+        e["NET"] += S * mpr - ad
     e["CONTRIB"] = e["NET"] - e["LABOR"] - e["OTHER"]
     e["ROAS"] = e["S"] / e["AD"] * 100
     return e
@@ -537,11 +541,11 @@ def econ_slide(key, n, takeaway, note):
 
 
 NOTE_ECON = ("人件費＝社員・アルバイト・スポット・CS按分・外部加工。倉庫・光熱費＝倉庫の賃借料・家賃（APは外部倉庫SBS）＋水道光熱費。"
-             "広告費は受注データの限界利益率から算出（共通広告は売上比で配賦）")
+             "原価率と広告費は月次推移と同じ受注データ（BigQuery）の値で、全体ROAS＝売上÷広告費")
 qa, qf = PERIODS["q"]["ap"], PERIODS["q"]["af"]
 econ_slide("q", "①", [f"アンドプランツの貢献利益は3か月で{qa['CONTRIB']:.1f}百万円（売上比{qa['CONTRIB'] / qa['S'] * 100:.0f}%）。",
                       f"アンドフラワーは前年同期（25年4〜6月）の{yen(PREV_Q['af']['CONTRIB'])}百万円から、"
-                      f"[[{yen(qf['CONTRIB'])}百万円まで改善]]"],
+                      f"[[{'+' if qf['CONTRIB'] > 0 else ''}{yen(qf['CONTRIB'])}百万円に改善]]"],
            "※ 社内の貢献利益集計（26年4〜6月の3か月合計）。" + NOTE_ECON)
 econ_slide("may", "②", [f"繁忙期はアンドプランツの貢献利益が月{PERIODS['may']['ap']['CONTRIB']:.1f}百万円。"
                         "アンドフラワーは売上が平常月の約3倍になり、",
@@ -597,7 +601,7 @@ r2("貢献利益（百万円）", lambda b, e: yen(e["CONTRIB"]), bold=True)
 af_be = (af["NET"] - af["CONTRIB"]) / (af["NET"] / af["S"])
 text(s, 56, y + 16, 1016, 70,
      [f"アンドフラワーの損益分岐は、4〜6月の利益率・固定費（月平均）で月商 約[[{af_be:.0f}百万円]]。",
-      "5月は利益率が上がる一方、スポットの人件費も増えるため、月商30百万円でほぼトントン"], size=19, bold=True,
+      f"5月は月商{PERIODS['may']['af']['S']:.0f}百万円で、貢献利益{yen(PERIODS['may']['af']['CONTRIB'])}百万円の黒字"], size=19, bold=True,
      spacing=1.45)
 footnote(s, "※ 損益分岐＝直接固定費÷広告費込み限界利益率。固定費が売上に比例して増えない前提の概算")
 
