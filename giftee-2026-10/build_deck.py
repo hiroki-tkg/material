@@ -647,6 +647,128 @@ text(s, 56, y + 6, 1016, 70,
      spacing=1.45)
 footnote(s, "※ 損益分岐＝直接固定費÷広告費込み限界利益率。固定費が売上に比例して増えない前提の概算。ハナイチの直接固定費は確認中")
 
+# ---- 広告投資①：月次の広告費・売上・ROAS（アンドプランツ、24年10月〜26年9月）
+s = content_slide("広告投資①：26年1月から意図して広告費を絞った",
+                  "アンドプランツの月次の売上・広告費・ROAS（24年10月〜26年9月）　単位：百万円")
+i0 = 24
+n_ = 48 - i0
+x0, x1 = 120, 1040
+slot = (x1 - x0) / n_
+cx = lambda i: x0 + (i - i0) * slot + slot / 2
+top, base = 190, 470
+sy = lambda v: base - (base - top) * v / 70
+for v in range(0, 71, 10):
+    hline(s, x0 - 4, sy(v), x1 - x0 + 4, BORDER_LIGHT if v == 0 else WATERMARK)
+    text(s, 60, sy(v) - 11, 50, 22, str(v), size=12, color=MUTED, align=PP_ALIGN.RIGHT, en=True)
+for i in range(i0, 48):
+    bw_ = slot * 0.62
+    rect(s, cx(i) - bw_ / 2, sy(AP_S[i]), bw_, base - sy(AP_S[i]), AP_GREEN)
+polyline(s, [(cx(i), sy(AP_AD[i])) for i in range(i0, 48)], STRONG, 3.0)
+for i in range(i0, 48):
+    rect(s, cx(i) - 4, sy(AP_AD[i]) - 4, 8, 8, STRONG, shape=MSO_SHAPE.OVAL)
+# ROAS（下段）
+rt, rb = 520, 640
+ry = lambda v: rb - (rb - rt) * v / 1400
+text(s, 56, rt - 30, 300, 22, "ROAS（売上÷広告費）", size=13, color=SECONDARY, bold=True)
+for v in (0, 500, 1000):
+    hline(s, x0 - 4, ry(v), x1 - x0 + 4, BORDER_LIGHT if v == 0 else WATERMARK)
+    text(s, 50, ry(v) - 10, 60, 20, f"{v}%", size=11, color=MUTED, align=PP_ALIGN.RIGHT, en=True)
+roas_ = [AP_S[i] / AP_AD[i] * 100 for i in range(48)]
+polyline(s, [(cx(i), ry(roas_[i])) for i in range(i0, 48)], MOSS, 2.5)
+for i in range(i0, 48):
+    text(s, cx(i) - 20, rb + 4, 40, 18, f"{YM[i][1]}", size=11, color=MUTED, align=PP_ALIGN.CENTER, en=True)
+    if roas_[i] >= 900:
+        text(s, cx(i) - 30, ry(roas_[i]) - 22, 60, 18, f"{roas_[i]:,.0f}%", size=11, bold=True,
+             align=PP_ALIGN.CENTER, en=True)
+for lab, i in (("25年9月期", 24), ("26年9月期", 36)):
+    text(s, cx(i) - slot / 2, rb + 22, 12 * slot, 20, lab, size=13, color=SECONDARY, bold=True, align=PP_ALIGN.CENTER)
+vline(s, cx(36) - slot / 2, top - 10, rb - top + 36, BORDER_LIGHT, 1.0, dash=True)
+# 26年1月の線
+xl = cx(39) - slot / 2
+vline(s, xl, top - 24, rb - top + 24, STRONG, 2.0)
+text(s, xl + 6, top - 30, 260, 22, "26年1月〜 広告費を絞る", size=14, bold=True, color=STRONG)
+# 凡例
+rect(s, 120, 150, 16, 16, AP_GREEN)
+text(s, 142, 146, 80, 24, "売上", size=14, color=SECONDARY)
+rect(s, 206, 156, 28, 4, STRONG)
+text(s, 240, 146, 80, 24, "広告費", size=14, color=SECONDARY)
+rect(s, 310, 156, 28, 4, MOSS)
+text(s, 344, 146, 80, 24, "ROAS", size=14, color=SECONDARY)
+jm_ad = (sum(AP_AD[39:42]), sum(AP_AD[27:30]))
+jm_s = (sum(AP_S[39:42]), sum(AP_S[27:30]))
+text(s, 56, 692, 1016, 60,
+     [f"26年1〜3月は、広告費を前年同期の{jm_ad[1]:.1f}→{jm_ad[0]:.1f}百万円（{(jm_ad[0] / jm_ad[1] - 1) * 100:.0f}%）に絞っても、"
+      f"売上は{jm_s[1]:.0f}→{jm_s[0]:.0f}百万円（{(jm_s[0] / jm_s[1] - 1) * 100:.0f}%）。",
+      "売上の伸びの鈍化は需要の頭打ちではなく、[[広告費を意図して絞った結果]]"], size=18, bold=True, spacing=1.45)
+footnote(s, "※ BigQuery（and-plants）の事業別月次。広告費は25年6月以降モール（Amazon・楽天）を含む（それ以前は自社ECのみ）")
+
+# ---- 広告投資②：広告費を戻した場合のシナリオ（アンドプランツ、年間）
+# 売上の広告費弾力性 e を、モール広告費も入っている 25年6月〜26年9月の月次（ln 売上 = c + e ln 広告費）で推計。
+# 広告費を k 倍にすると売上は k^e 倍（e<1 なので、足すほど1円あたりの売上＝限界ROASが下がる）。
+import math as _m
+_idx = range(32, 48)
+_xs = [_m.log(AP_AD[i]) for i in _idx]
+_ys = [_m.log(AP_S[i]) for i in _idx]
+_mx, _my = sum(_xs) / len(_xs), sum(_ys) / len(_ys)
+ELAS = sum((a_ - _mx) * (b_ - _my) for a_, b_ in zip(_xs, _ys)) / sum((a_ - _mx) ** 2 for a_ in _xs)
+AP_MPR26 = fy_sum(AP_MP)[3] / ap_fy_s[3]
+AP_FIXED_Y = sum(MONTHLY[("ap", ym)][2] + MONTHLY[("ap", ym)][3]
+                 for ym in ("2026-04", "2026-05", "2026-06", "2026-07", "2026-08", "2026-09")) / 6 * 12 / 1e6
+SCEN = []
+for adv in (ap_fy_ad[3], 130.0, 170.0):
+    k_ = adv / ap_fy_ad[3]
+    s_ = ap_fy_s[3] * k_ ** ELAS
+    net_ = s_ * AP_MPR26 - adv
+    SCEN.append(dict(ad=adv, s=s_, net=net_, c=net_ - AP_FIXED_Y, roas=s_ / adv * 100))
+s = content_slide("広告投資②：広告費を戻した場合のシナリオ", "アンドプランツ・年間　単位：百万円　※税抜")
+# 左：広告費の水準別のROAS（根拠）
+text(s, 56, 156, 380, 50, ["月の広告費の水準別のROAS", "（25年6月〜26年9月の16か月）"], size=15, bold=True, spacing=1.3)
+BUCK = [("6百万円未満", lambda a: a < 6), ("6〜8百万円", lambda a: 6 <= a < 8), ("8〜10百万円", lambda a: 8 <= a < 10),
+        ("10百万円以上", lambda a: a >= 10)]
+yy = 216
+for lab, f_ in BUCK:
+    ii = [i for i in range(32, 48) if f_(AP_AD[i])]
+    r_ = sum(AP_S[i] for i in ii) / sum(AP_AD[i] for i in ii) * 100
+    text(s, 56, yy, 130, 32, lab, size=14, color=SECONDARY, anchor=MSO_ANCHOR.MIDDLE)
+    rect(s, 190, yy + 6, 140 * r_ / 1000, 20, MOSS)
+    text(s, 196 + 140 * r_ / 1000, yy, 120, 32, f"{r_:.0f}%（{len(ii)}か月）", size=14, bold=True, anchor=MSO_ANCHOR.MIDDLE)
+    yy += 40
+text(s, 56, yy + 6, 400, 80, ["広告費を増やすほどROASは下がる。", f"この関係から、広告費を1%増やすと売上は",
+                               f"約{ELAS:.2f}%増える（弾力性）とおいた"], size=14, color=SECONDARY, spacing=1.45)
+# 右：3ケースの表
+hdr = ["", "実績", "ケースA", "ケースB"]
+cxs = [480, 660, 800, 940]
+y = 156
+for j, h in enumerate(hdr):
+    text(s, cxs[j], y, 132 if j else 180, 26, h, size=15, bold=True, color=SECONDARY,
+         align=PP_ALIGN.LEFT if j == 0 else PP_ALIGN.RIGHT)
+hline(s, 480, y + 32, 592, MOSS, 1.5)
+y += 42
+rows3 = [
+    ("広告費", [f"{c['ad']:.0f}" for c in SCEN], False),
+    ("売上", [f"{c['s']:.0f}" for c in SCEN], True),
+    ("ROAS", [f"{c['roas']:.0f}%" for c in SCEN], False),
+    ("限界ROAS（追加分）", ["—"] + [f"{(SCEN[q]['s'] - SCEN[q - 1]['s']) / (SCEN[q]['ad'] - SCEN[q - 1]['ad']) * 100:.0f}%"
+                              for q in (1, 2)], False),
+    ("広告費込み限界利益", [f"{c['net']:.0f}" for c in SCEN], True),
+    ("貢献利益", [f"{c['c']:.0f}" for c in SCEN], True),
+]
+for lab, vals, b_ in rows3:
+    text(s, cxs[0], y, 180, 30, lab, size=15, bold=b_, anchor=MSO_ANCHOR.MIDDLE)
+    for j, v in enumerate(vals):
+        text(s, cxs[1 + j], y, 132, 30, v, size=17, bold=b_, align=PP_ALIGN.RIGHT, en=True, anchor=MSO_ANCHOR.MIDDLE)
+    y += 42
+    hline(s, 480, y - 6, 592)
+text(s, 480, y + 4, 592, 50, [f"限界利益率{AP_MPR26 * 100:.1f}%のとき、追加の広告費で利益が出るのは",
+                               f"限界ROASが{100 / AP_MPR26:.0f}%を超える範囲"], size=13, color=SECONDARY, spacing=1.4)
+dn = SCEN[0]["net"] - SCEN[2]["net"]
+text(s, 56, 642, 1016, 70,
+     [f"広告費を170百万円に戻すと売上は約{SCEN[2]['s']:.0f}百万円（+{(SCEN[2]['s'] / SCEN[0]['s'] - 1) * 100:.0f}%）まで伸びるが、"
+      f"広告費込み限界利益は約{dn:.0f}百万円減る。",
+      f"今は[[利益を残す配分]]を選んでいる。成長を優先する場合も、ケースBで貢献利益{SCEN[2]['c']:.0f}百万円の黒字を保てる"], size=18, bold=True, spacing=1.45)
+footnote(s, f"※ 売上＝実績×（広告費の倍率）^{ELAS:.2f}。限界利益率は26年9月期実績、貢献利益の直接固定費は26年4〜9月の月平均×12"
+            f"（{AP_FIXED_Y:.0f}百万円）で固定。新規顧客の翌年以降のリピート売上は含まない（含めると上振れ）")
+
 # ---- LTV/CAC：自社EC（Shopify）の受注を顧客単位で集計（BigQuery and-plants.datawarehouse.sales_profit_by_items）
 # LTV = 初回購入から12か月の限界利益（広告費控除前）の1人あたり平均。初回購入が25年9月期の顧客（12か月を追える最新の年度）。
 # CAC = その年度の広告費 ÷ 新規顧客数（広告費はすべて新規獲得にかかったとみなす。APは25年6月以降モール広告費を含むため高め）
@@ -656,6 +778,7 @@ LTV = {  # 25年9月期に初回購入した顧客の12か月
 }
 NEW26 = {"AP": 24472, "AF": 16864}
 AOV26 = {"AP": 11444, "AF": 7398}  # 26年9月期に初回購入した顧客の初回の購入単価
+MP_FIRST26 = {"AP": 5615, "AF": 3653}  # 同じ顧客の初回購入の限界利益（広告費控除前）
 REPEAT_SHARE = {"AP": (29.5, 34.7), "AF": (19.2, 27.3)}  # リピート顧客の売上比率（25年9月期, 26年9月期）
 AD26 = {"AP": ap_fy_ad[3], "AF": af_fy_ad[3]}
 AD25 = {"AP": ap_fy_ad[2], "AF": af_fy_ad[2]}
@@ -668,7 +791,7 @@ for k, (b_, name, col) in enumerate([("AP", "アンドプランツ（観葉植�
     cac26 = AD26[b_] * 1e6 / NEW26[b_]
     cac25 = AD25[b_] * 1e6 / L["new25"]
     ratio = L["mp12"] / cac26
-    rect(s, x, 156, w, 6, AP_GREEN if b_ == "AP" else FLOWER)
+    rect(s, x, 150, w, 6, AP_GREEN if b_ == "AP" else FLOWER)
     text(s, x, 172, w, 34, name, size=23, bold=True, color=col)
     text(s, x, 216, 200, 24, "LTV/CAC", size=16, color=SECONDARY, bold=True)
     tb = text(s, x, 238, 220, 70, f"{ratio:.1f}", size=60, bold=True, color=col, en=True, spacing=1.0)
@@ -687,7 +810,7 @@ for k, (b_, name, col) in enumerate([("AP", "アンドプランツ（観葉植�
         ("リピート率（12か月以内）", f"{L['rep12']:.1f}%", "—"),
         ("売上に占めるリピート顧客", f"{REPEAT_SHARE[b_][0]:.1f}%", f"{REPEAT_SHARE[b_][1]:.1f}%"),
     ]
-    yy = 340
+    yy = 324
     text(s, x + w - 250, yy, 120, 24, "25年9月期", size=14, color=SECONDARY, bold=True, align=PP_ALIGN.RIGHT)
     text(s, x + w - 120, yy, 120, 24, "26年9月期", size=14, color=SECONDARY, bold=True, align=PP_ALIGN.RIGHT)
     hline(s, x, yy + 30, w, MOSS, 1.5)
@@ -699,9 +822,15 @@ for k, (b_, name, col) in enumerate([("AP", "アンドプランツ（観葉植�
              color=MUTED if v1 == "—" else MOSS)
         text(s, x + w - 120, yy, 120, 30, v2, size=16, bold=bold_, align=PP_ALIGN.RIGHT,
              color=MUTED if v2 == "—" else MOSS)
-        yy += 40
+        yy += 38
         hline(s, x, yy - 8, w)
-vline(s, 564, 156, 560)
+vline(s, 564, 150, 550)
+cac_ap = AD26["AP"] * 1e6 / NEW26["AP"]
+cac_af = AD26["AF"] * 1e6 / NEW26["AF"]
+text(s, 56, 694, 1016, 60,
+     [f"アンドプランツは初回購入の限界利益（{MP_FIRST26['AP']:,}円）でCAC（{cac_ap:,.0f}円）を[[初回で回収済み]]。",
+      f"アンドフラワーも初回の限界利益{MP_FIRST26['AF']:,}円 ＞ CAC{cac_af:,.0f}円。2回目以降の購入はすべて上乗せ"],
+     size=16, bold=True, spacing=1.45)
 footnote(s, "※ 自社EC（Shopify）を顧客単位で集計。LTVは25年9月期に初回購入した顧客の初回から12か月の平均。CACは広告費をすべて"
             "新規獲得にかかったとみなした値（APはモール広告費を含むため高め）。LTV/CACは26年9月期のCACで計算")
 
@@ -741,6 +870,53 @@ text(s, 56, 618, 1016, 120,
      size=18, bold=True, spacing=1.5)
 footnote(s, "※ 損益分岐＝直接固定費（人件費＋倉庫・光熱費、26年4〜6月の月平均）÷ 広告費込み限界利益率（同期間）。"
             "必要な新規顧客数＝損益分岐の月商×（1−リピート売上比率）÷初回の購入単価。売上はモールを含む")
+
+# ---- アンドフラワーの損益分岐を、ギフティ様の販路で閉じる
+# 今の月平均（26年9月期）に、広告費なしで販路から受ける注文を足す。1件の利益 = 単価 ×（限界利益率 − 販路の手数料率）。
+# 直接固定費は今の水準のまま（母の日の月に月商30百万円を処理できている）。
+AF_MPR26 = fy_sum(AF_MP)[3] / af_fy_s[3]
+af_fixed_m, af_m_, _ = need["AF"]
+base_s = act["AF"]
+base_c = base_s * af_m_ - af_fixed_m
+AOV_G = AOV26["AF"]
+CHANNELS = [("自社EC（送客）", 0.0), ("モール", 0.10), ("LINEギフト", 0.20)]
+TARGETS = [("トントン（貢献利益0）", 0.0), ("貢献利益率10%", 0.10), ("貢献利益率30%", 0.30)]
+s = content_slide("アンドフラワーの損益分岐を、ギフティ様の販路で閉じる",
+                  "今の月平均に、広告費なしの注文を何件足せば届くか　※税抜・月あたり")
+text(s, 56, 150, 1016, 50,
+     [f"今の月平均：売上{base_s:.1f}百万円、貢献利益{yen(base_c)}百万円（直接固定費{af_fixed_m:.1f}百万円/月）。"
+      f"追加の注文は単価{AOV_G:,}円、限界利益率{AF_MPR26 * 100:.1f}%、広告費なし"], size=15, color=SECONDARY, spacing=1.45)
+cxg = [56, 360, 600, 840]
+y = 214
+text(s, cxg[0], y, 290, 44, "目標", size=15, bold=True, color=SECONDARY, anchor=MSO_ANCHOR.MIDDLE)
+for j, (ch, fee) in enumerate(CHANNELS):
+    text(s, cxg[1 + j], y, 232, 44, [ch, f"販路の手数料 {fee * 100:.0f}%（仮）"], size=15, bold=True, color=MOSS,
+         align=PP_ALIGN.RIGHT, spacing=1.2)
+hline(s, 56, y + 52, 1016, MOSS, 1.5)
+y += 64
+for lab, x_ in TARGETS:
+    text(s, cxg[0], y, 290, 64, lab, size=18, bold=True, anchor=MSO_ANCHOR.MIDDLE)
+    for j, (ch, fee) in enumerate(CHANNELS):
+        per = AOV_G * (AF_MPR26 - fee - x_)  # 追加1件で目標に近づく額
+        need_ = x_ * base_s * 1e6 - base_c * 1e6
+        if per <= 0:
+            v1, v2 = "届かない", f"限界利益率−手数料が{x_ * 100:.0f}%以下"
+        else:
+            n_ = need_ / per
+            v1, v2 = f"月{n_:,.0f}件", f"1日{n_ / 30:,.0f}件・売上+{n_ * AOV_G / 1e6:.1f}百万円"
+        text(s, cxg[1 + j], y + 2, 232, 32, v1, size=22, bold=True, align=PP_ALIGN.RIGHT,
+             color=MUTED if v1 == "届かない" else (FLOWER if x_ == 0 else MOSS))
+        text(s, cxg[1 + j], y + 36, 232, 24, v2, size=13, color=SECONDARY, align=PP_ALIGN.RIGHT)
+    y += 82
+    hline(s, 56, y - 10, 1016)
+peak_orders = AF_S[43] * 1e6 / AOV_G
+text(s, 56, y + 8, 1016, 70,
+     [f"自社ECへの送客なら月約{(-base_c * 1e6) / (AOV_G * AF_MPR26):,.0f}件（1日約{(-base_c * 1e6) / (AOV_G * AF_MPR26) / 30:.0f}件）でトントン。"
+      f"母の日の月は約{peak_orders:,.0f}件分を出荷できており、",
+      "[[今の体制のまま受けられる量]]。貢献利益率30%は、手数料の高い販路では構造上届かない"], size=17, bold=True,
+     spacing=1.45)
+footnote(s, "※ 必要件数＝（目標の貢献利益 − 今の貢献利益）÷ 1件あたり（単価×（限界利益率 − 手数料率 − 目標の貢献利益率））。"
+            "手数料率は仮置き（実際の条件で置き換え）。直接固定費は26年4〜6月の月平均で、件数が増えても変わらない前提")
 
 # ---- Value UP プラン：上に「数量→原価→売価→数量」の循環、下に事業ごとの打ち手（原価を下げる／売価・数量）
 s = content_slide("今後のValue UPプラン", "数量が増えたときに打てる手 ── 卸と輸入で原価を下げ、売価を下げる")
