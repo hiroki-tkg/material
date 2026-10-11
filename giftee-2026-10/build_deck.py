@@ -8,6 +8,7 @@ retreat-2026-10/build_deck.py と同じ型（4:3・1128×846px 基準、Google �
 - 現在のエコノミクス（AP/AF）: #リーダー 26年9月 貢献利益（速報値、AP Marketing Master ベース）
 - 川崎拠点: スプレッドシート「花拠点_坪単位売上効率_月次推移」
 """
+import os
 import re
 
 from pptx import Presentation
@@ -749,6 +750,41 @@ text(s, 56, 660, 1016, 80, ["平常月は家賃の約4〜5倍、母の日は約1
      spacing=1.45)
 footnote(s, "※ 花拠点_坪単位売上効率_月次推移（25年6月〜26年8月）。25年3月〜26年3月の面積は川崎128.84坪＋新城40.49坪。"
          "限界利益は広告費控除前。観葉（アンドプランツ）はSBSに委託のため対象外")
+
+# ---- 川崎拠点（2I）の使い方：図面から 2I を切り出し、柱で区切った区画（A1〜C3）ごとに用途を書く
+s = content_slide("川崎拠点（2I）の使い方", "借りているのは2階の2I（128.84坪）。柱で区切った区画ごとの用途")
+PLAN = os.path.join(os.path.dirname(os.path.abspath(__file__)), "assets", "kawasaki_2I.png")
+ph = 560
+s.shapes.add_picture(PLAN, px(56), px(160), height=px(ph))
+pw = ph * 670 / 935
+rect(s, 56, 160, pw, ph, None, line=BORDER_LIGHT, weight=1.0)
+USES = [  # (用途, 区画, 坪数)。[　] は確認中
+    ("アンドフラワー（作業・保管）", "[　]", "[　]", FLOWER),
+    ("ハナイチ", "[　]", "[　]", MOSS),
+    ("高付加価値3PL（花同梱・ギフト）", "[　]", "[　]", MOSS),
+    ("共用（梱包・出荷・事務）", "[　]", "[　]", SECONDARY),
+    ("建物の共用部（荷物用EV・階段・トイレ）", "C列", "—", MUTED),
+]
+tx = 56 + pw + 40
+tw = 1072 - tx
+text(s, tx, 160, tw, 26, "用途", size=15, color=SECONDARY, bold=True)
+text(s, tx + tw - 190, 160, 90, 26, "区画", size=15, color=SECONDARY, bold=True, align=PP_ALIGN.RIGHT)
+text(s, tx + tw - 90, 160, 90, 26, "坪数", size=15, color=SECONDARY, bold=True, align=PP_ALIGN.RIGHT)
+hline(s, tx, 194, tw, MOSS, 1.5)
+y = 206
+for name, bays, tsubo, col in USES:
+    rect(s, tx, y + 8, 6, 22, col)
+    text(s, tx + 16, y, tw - 220, 56, name, size=17, bold=True, color=MOSS if col != MUTED else MUTED, spacing=1.3)
+    for xx, v in ((tx + tw - 190, bays), (tx + tw - 90, tsubo)):
+        text(s, xx, y, 90, 30, v, size=17, color=MUTED if v.startswith("[") or v == "—" else MOSS,
+             align=PP_ALIGN.RIGHT)
+    y += 66
+    hline(s, tx, y - 10, tw)
+text(s, tx, y + 4, tw, 28, "合計", size=17, bold=True)
+text(s, tx + tw - 160, y + 4, 160, 28, "128.84坪", size=17, bold=True, align=PP_ALIGN.RIGHT)
+text(s, tx, y + 60, tw, 90, ["区画ごとの用途が決まると、次ページ以降の", "用途別の坪数・坪あたり利益に反映できる"],
+     size=17, color=SECONDARY, spacing=1.45)
+footnote(s, "※ 図面は2階平面図から2Iを切り出し、柱の位置で区画（A1〜C3）を付けたもの。C列の荷物用EV・階段・トイレは建物の共用部")
 
 # ---- 試算の考え方
 s = content_slide("坪効率の試算の考え方", "用途別に面積を割り、坪あたり貢献利益で比べる")
