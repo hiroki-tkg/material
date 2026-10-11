@@ -301,7 +301,7 @@ text(s, 96, 640, 900, 120, ["2026年10月", "株式会社DOMUZ", "髙木 弘貴"
 s = content_slide("本資料の構成")
 items = [
     ("1", "各事業のエコノミクスの整理と経年推移", "アンドプランツ/アンドフラワー（23年9月期〜26年9月期）"),
-    ("2", "今後の事業におけるエコノミクスの整理", "原価・広告ROAS・直接固定費、LTV/CAC、損益分岐の月商と、Value UPプラン"),
+    ("2", "今後の事業におけるエコノミクスの整理", "原価・全体ROAS・直接固定費、LTV/CAC、損益分岐の月商"),
 ]
 y = 260
 for n, label, sub in items:
@@ -409,7 +409,7 @@ trend_slide(
 # =====================================================================
 # 章 02
 # =====================================================================
-divider("02", "UNIT ECONOMICS", "今後の事業におけるエコノミクス", "原価・広告ROAS・直接固定費")
+divider("02", "UNIT ECONOMICS", "今後の事業におけるエコノミクス", "原価・全体ROAS・直接固定費")
 
 # ---- 現在のエコノミクス（繁忙期を含む四半期＝26年4〜6月、繁忙期の単月＝26年5月）
 # AP/AF: 予実管理Master「貢献利益(四半期)」の費目別の値（円）。9月は速報値。
@@ -511,7 +511,8 @@ def waterfall(s, x, name, steps, end_label, end_val, sales, color, lo=-40, unit=
     y0, y1 = sorted((yv(0), yv(endp)))
     rect(s, bx, y0, bw, max(y1 - y0, 2), col)
     ly = y0 - 24 if endp >= 0 else y1 + 3
-    text(s, bx - 12, ly, bw + 24, 22, f"{endp:.1f}", size=14, bold=True, color=col, align=PP_ALIGN.CENTER, en=True)
+    text(s, bx - 12, ly, bw + 24, 22, f"{(0.0 if abs(endp) < 0.05 else endp):.1f}", size=14, bold=True, color=col,
+         align=PP_ALIGN.CENTER, en=True)
     labels.append((bx, end_label, MOSS, True))
     hline(s, x - 6, yv(0), bx + bw + 12 - x, MUTED)
     for lx, lab, c, b in labels:
@@ -544,7 +545,7 @@ econ_slide("q", "①", [f"アンドプランツの貢献利益は3か月で{qa['
            "※ 社内の貢献利益集計（26年4〜6月の3か月合計）。" + NOTE_ECON)
 econ_slide("may", "②", [f"繁忙期はアンドプランツの貢献利益が月{PERIODS['may']['ap']['CONTRIB']:.1f}百万円。"
                         "アンドフラワーは売上が平常月の約3倍になり、",
-                        "人件費（スポット含む）も増えるが、[[母の日の月で損益分岐]]（貢献利益ほぼ0）"],
+                        "人件費（スポット含む）も増えるが、[[損益分岐を達成]]"],
            "※ 社内の貢献利益集計（26年5月）。APの人件費は外部加工費1.1百万円を含む。" + NOTE_ECON)
 
 # ---- 主要指標（表）：四半期と単月を並べる
@@ -588,7 +589,7 @@ def r2(label, fn, sub=None, bold=False):
 
 r2("売上（百万円）", lambda b, e: f"{e['S']:.1f}", "4〜6月は3か月の合計")
 r2("原価率", lambda b, e: f"{e['COGS'] / e['S'] * 100:.0f}%", "原価・送料・資材・決済手数料を含む")
-r2("広告ROAS", lambda b, e: f"{e['ROAS']:.0f}%", "売上÷広告費")
+r2("全体ROAS", lambda b, e: f"{e['ROAS']:.0f}%", "売上÷広告費")
 r2("広告費込み限界利益率", lambda b, e: f"{e['NET'] / e['S'] * 100:.1f}%", bold=True)
 r2("直接固定費（百万円）", lambda b, e: f"{e['LABOR'] + e['OTHER']:.1f}",
    "人件費＋倉庫・光熱費")
@@ -830,140 +831,7 @@ text(s, 56, 618, 1016, 120,
 footnote(s, "※ 損益分岐＝直接固定費（人件費＋倉庫・光熱費、26年4〜6月の月平均）÷ 広告費込み限界利益率（同期間）。"
             "必要な新規顧客数＝損益分岐の月商×（1−リピート売上比率）÷初回の購入単価。売上はモールを含む")
 
-# ---- アンドフラワーの損益分岐を、ギフティ様の販路で閉じる
-# 今の月平均（26年9月期）に、広告費なしで販路から受ける注文を足す。1件の利益 = 単価 ×（限界利益率 − 販路の手数料率）。
-# 直接固定費は今の水準のまま（母の日の月に月商30百万円を処理できている）。
 AF_MPR26 = fy_sum(AF_MP)[3] / af_fy_s[3]
-af_fixed_m, af_m_, _ = need["AF"]
-base_s = act["AF"]
-base_c = base_s * af_m_ - af_fixed_m
-AOV_G = AOV26["AF"]
-CHANNELS = [("自社EC（送客）", 0.0), ("モール", 0.10), ("LINEギフト", 0.20)]
-TARGETS = [("トントン（貢献利益0）", 0.0), ("貢献利益率10%", 0.10), ("貢献利益率30%", 0.30)]
-s = content_slide("アンドフラワーの損益分岐を、ギフティ様の販路で閉じる",
-                  "今の月平均に、広告費なしの注文を何件足せば届くか　※税抜・月あたり")
-text(s, 56, 150, 1016, 50,
-     [f"今の月平均：売上{base_s:.1f}百万円、貢献利益{yen(base_c)}百万円（直接固定費{af_fixed_m:.1f}百万円/月）。"
-      f"追加の注文は単価{AOV_G:,}円、限界利益率{AF_MPR26 * 100:.1f}%、広告費なし"], size=15, color=SECONDARY, spacing=1.45)
-cxg = [56, 360, 600, 840]
-y = 214
-text(s, cxg[0], y, 290, 44, "目標", size=15, bold=True, color=SECONDARY, anchor=MSO_ANCHOR.MIDDLE)
-for j, (ch, fee) in enumerate(CHANNELS):
-    text(s, cxg[1 + j], y, 232, 44, [ch, f"販路の手数料 {fee * 100:.0f}%（仮）"], size=15, bold=True, color=MOSS,
-         align=PP_ALIGN.RIGHT, spacing=1.2)
-hline(s, 56, y + 52, 1016, MOSS, 1.5)
-y += 64
-for lab, x_ in TARGETS:
-    text(s, cxg[0], y, 290, 64, lab, size=18, bold=True, anchor=MSO_ANCHOR.MIDDLE)
-    for j, (ch, fee) in enumerate(CHANNELS):
-        per = AOV_G * (AF_MPR26 - fee - x_)  # 追加1件で目標に近づく額
-        need_ = x_ * base_s * 1e6 - base_c * 1e6
-        if per <= 0:
-            v1, v2 = "届かない", f"限界利益率−手数料が{x_ * 100:.0f}%以下"
-        else:
-            n_ = need_ / per
-            v1, v2 = f"月{n_:,.0f}件", f"1日{n_ / 30:,.0f}件・売上+{n_ * AOV_G / 1e6:.1f}百万円"
-        text(s, cxg[1 + j], y + 2, 232, 32, v1, size=22, bold=True, align=PP_ALIGN.RIGHT,
-             color=MUTED if v1 == "届かない" else (FLOWER if x_ == 0 else MOSS))
-        text(s, cxg[1 + j], y + 36, 232, 24, v2, size=13, color=SECONDARY, align=PP_ALIGN.RIGHT)
-    y += 82
-    hline(s, 56, y - 10, 1016)
-peak_orders = AF_S[43] * 1e6 / AOV_G
-text(s, 56, y + 8, 1016, 70,
-     [f"自社ECへの送客なら月約{(-base_c * 1e6) / (AOV_G * AF_MPR26):,.0f}件（1日約{(-base_c * 1e6) / (AOV_G * AF_MPR26) / 30:.0f}件）でトントン。"
-      f"母の日の月は約{peak_orders:,.0f}件分を出荷できており、",
-      "[[今の体制のまま受けられる量]]。貢献利益率30%は、手数料の高い販路では構造上届かない"], size=17, bold=True,
-     spacing=1.45)
-footnote(s, "※ 必要件数＝（目標の貢献利益 − 今の貢献利益）÷ 1件あたり（単価×（限界利益率 − 手数料率 − 目標の貢献利益率））。"
-            "手数料率は仮置き（実際の条件で置き換え）。直接固定費は26年4〜6月の月平均で、件数が増えても変わらない前提")
-
-# ---- Value UP プラン：上に「数量→原価→売価→数量」の循環、下に事業ごとの打ち手（原価を下げる／売価・数量）
-s = content_slide("今後のValue UPプラン", "数量が増えたときに打てる手 ── 卸と輸入で原価を下げ、売価を下げる")
-CYCLE = ["数量が\n増える", "卸・輸入で\n仕入条件が改善", "原価が\n下がる", "売価を\n下げられる", "CVR・ROASが\n上がる"]
-cw_, cg_ = 196, 8
-for i, lab in enumerate(CYCLE):
-    cx_ = 56 + i * (cw_ + cg_)
-    shp = MSO_SHAPE.PENTAGON if i == 0 else MSO_SHAPE.CHEVRON
-    fill = MOSS if i in (0, 4) else LIGHT
-    rect(s, cx_, 160, cw_, 76, fill, shape=shp)
-    text(s, cx_ + (16 if i == 0 else 30), 160, cw_ - (46 if i == 0 else 56), 76, lab.split("\n"), size=16, bold=True,
-         color=WHITE, align=PP_ALIGN.CENTER, anchor=MSO_ANCHOR.MIDDLE, spacing=1.2)
-text(s, 56, 244, 1016, 26, "→ 上がったCVR・ROASで、さらに数量が増える（この循環を回す）", size=15, color=SECONDARY,
-     align=PP_ALIGN.RIGHT)
-LEVERS = [
-    ("アンドプランツ", AP_GREEN,
-     "生産者・海外から直接仕入れ（輸入）。卸を並行し、仕入ロットを大きくする",
-     "下がった原価の一部を売価に回し、CVR・ROASを上げる"),
-    ("アンドフラワー", FLOWER,
-     "輸入花・産地直送を増やし、仕入をまとめて単価を下げる",
-     "平常月の売価を下げて数量を取り、固定費を薄める"),
-]
-for k, (name, col, cost, price) in enumerate(LEVERS):
-    x = 56 + k * 520
-    w = 496
-    rect(s, x, 286, w, 372, None, line=BORDER_LIGHT, weight=1.0)
-    rect(s, x, 286, w, 52, col)
-    text(s, x + 20, 286, w - 40, 52, name, size=22, bold=True, color=WHITE, anchor=MSO_ANCHOR.MIDDLE)
-    for j, (chip, body) in enumerate([("原価を下げる", cost), ("売価・数量", price)]):
-        yy = 358 + j * 164
-        rect(s, x + 20, yy, 128, 30, WATERMARK, shape=MSO_SHAPE.ROUNDED_RECTANGLE)
-        text(s, x + 20, yy, 128, 30, chip, size=14, bold=True, color=MOSS, align=PP_ALIGN.CENTER,
-             anchor=MSO_ANCHOR.MIDDLE, spacing=1.0)
-        text(s, x + 20, yy + 42, w - 40, 100, body, size=17, spacing=1.45)
-    hline(s, x + 20, 506, w - 40)
-text(s, 56, 690, 1016, 36, "ギフティ様の販路での数量は、この循環の[[起点]]になる", size=22, bold=True)
-footnote(s, "※ 方向性の整理。具体的な仕入先・条件は今後詰める")
-
-# ---- Value UP の効果（感応度）
-s = content_slide("原価を下げたときの効果（試算）", "26年9月期の売上規模のまま、原価率だけが下がった場合　単位：百万円/年")
-fy26 = [("アンドプランツ", ap_fy_s[3], MOSS), ("アンドフラワー", af_fy_s[3], FLOWER)]
-cx3 = [56, 400, 600, 800]
-y = 176
-for j, c in enumerate(["", "26年9月期 売上", "原価率 −3pt", "原価率 −5pt"]):
-    text(s, cx3[j], y, 200, 30, c, size=18, color=SECONDARY, bold=True,
-         align=PP_ALIGN.LEFT if j == 0 else PP_ALIGN.RIGHT)
-hline(s, 56, y + 40, 1016, MOSS, 1.5)
-y += 56
-tot3 = tot5 = 0
-for name, sv, col in fy26:
-    text(s, cx3[0], y, 300, 30, name, size=20, bold=True, color=col)
-    text(s, cx3[1], y, 200, 30, f"{sv:.0f}", size=21, align=PP_ALIGN.RIGHT, en=True)
-    text(s, cx3[2], y, 200, 30, f"+{sv * 0.03:.1f}", size=21, bold=True, color=LIGHT, align=PP_ALIGN.RIGHT, en=True)
-    text(s, cx3[3], y, 200, 30, f"+{sv * 0.05:.1f}", size=21, bold=True, color=LIGHT, align=PP_ALIGN.RIGHT, en=True)
-    tot3 += sv * 0.03
-    tot5 += sv * 0.05
-    y += 48
-    hline(s, 56, y - 10, 1016)
-text(s, cx3[0], y, 300, 30, "合計", size=20, bold=True)
-text(s, cx3[2], y, 200, 30, f"+{tot3:.1f}", size=22, bold=True, color=LIGHT, align=PP_ALIGN.RIGHT, en=True)
-text(s, cx3[3], y, 200, 30, f"+{tot5:.1f}", size=22, bold=True, color=LIGHT, align=PP_ALIGN.RIGHT, en=True)
-y += 70
-m_now = af["NET"] / af["S"]
-fixed = af["NET"] - af["CONTRIB"]
-text(s, 56, y, 1016, 30, "アンドフラワーの損益分岐（月商）", size=22, bold=True)
-y += 44
-for lab, m in [("現状", m_now), ("原価率 −5pt", m_now + 0.05), ("原価率 −10pt", m_now + 0.10)]:
-    text(s, 56, y, 300, 30, lab, size=19, color=SECONDARY)
-    w = 560 * (fixed / m) / 30
-    rect(s, 300, y + 4, w, 22, MOSS if lab == "現状" else LIGHT)
-    text(s, 300 + w + 12, y, 200, 30, f"{fixed / m:.0f}百万円", size=19, bold=True, en=False)
-    y += 40
-footnote(s, "※ 原価率の改善分がそのまま利益になる前提（売価を下げない場合）。売価に回す分は数量の増加で回収する想定。"
-         "損益分岐は直接固定費を26年4〜6月の月平均で固定した概算")
-
-# ---- 次のステップ
-s = content_slide("今後の進め方")
-nexts = [
-    ("Value UPプランを数値に落とす", "卸・輸入で下がる原価率と、売価に回す幅を事業ごとに置く"),
-]
-y = 170
-for i, (h_, b_) in enumerate(nexts, 1):
-    text(s, 96, y, 60, 60, str(i), size=44, color=LIGHT, bold=True, en=True)
-    text(s, 170, y + 2, 880, 36, h_, size=28, bold=True)
-    text(s, 170, y + 46, 880, 30, b_, size=19, color=SECONDARY)
-    if i < len(nexts):
-        hline(s, 96, y + 104, 936)
-    y += 128
 
 # ---- 要約（本資料の主張。数字が出そろってから、前に作っておいたページに描く）
 def draw_claims(s, claims, y=140):
@@ -994,14 +862,13 @@ draw_claims(summary_slide, [
         f"LTV/CAC {LTV['AP']['mp12'] / cac_ap:.1f}倍。12か月以内に回収が完結している",
         f"12か月リピート率{LTV['AP']['rep12']:.0f}%。売上に占めるリピート顧客は{REPEAT_SHARE['AP'][1]:.1f}%",
         f"月商{need['AP'][2]:.1f}百万円で損益分岐（貢献利益ベース）。26年9月期は月平均{act['AP']:.1f}百万円で大きく上回る",
-        "広告を戻せば、限界ROASが下がっても貢献利益の黒字を保ったまま売上を積める余地がある"]),
+        "貢献利益の黒字を保ったまま、売上を積める余地がある"]),
 ])
 footnote(summary_slide, "※ 数値は税抜。用語の定義と集計の前提は最終ページ")
 y_ = draw_claims(summary_slide2, [
-    ("3", "アンドフラワーは採算が成立。損益分岐を超える売上規模の確保が収益化の鍵", [
+    ("3", "アンドフラワーは損益分岐を超える売上規模の確保が収益化の鍵", [
         f"限界利益率{AF_MPR26 * 100:.1f}%、LTV/CAC {LTV['AF']['mp12'] / cac_af:.1f}倍と、1人あたりの採算は成立",
         f"損益分岐は月商{need['AF'][2]:.0f}百万円（貢献利益ベース）。26年9月期の平均は{act['AF']:.1f}百万円（母の日の月は{peak['AF']:.0f}百万円超）",
-        f"直接固定費の比率が高く、原価改善（−5ptで分岐{fixed / (m_now + 0.05):.0f}百万円）だけでは閉じない",
         "今後、複数の売上・トップライン向上施策により、この分岐を超える販売数を担保する"]),
 ])
 footnote(summary_slide2, "※ 数値は税抜。用語の定義と集計の前提は最終ページ")
