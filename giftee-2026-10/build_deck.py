@@ -412,7 +412,7 @@ trend_slide(
     "アンドプランツ：月次売上と期別の収益性", AP_S, AP_MP, AP_AD, AP_NET, AP_GREEN, 70,
     "※ 税抜・注文日ベース。自社EC＋モール（楽天・Amazon・Yahoo!）。BigQuery（and-plants）の事業別月次。"
     "モール広告費は25年6月以降のみ計上（それ以前の広告費込み限界利益は実態より高め）",
-    f"広告費を絞って広告費込み限界利益は{ap_fy_net[3]:.0f}百万円（前期比 +{(ap_fy_net[3] / ap_fy_net[2] - 1) * 100:.0f}%）に",
+    f"広告費を絞って広告費込み限界利益は年間{ap_fy_net[3]:.0f}百万円（前期比 +{(ap_fy_net[3] / ap_fy_net[2] - 1) * 100:.0f}%）に",
 )
 trend_slide(
     "アンドフラワー：月次売上と期別の収益性", AF_S, AF_MP, AF_AD, AF_NET, FLOWER, 35,
@@ -655,6 +655,7 @@ LTV = {  # 25年9月期に初回購入した顧客の12か月
     "AF": dict(new25=17438, aov=7479, orders=1.24, sales12=8955, mp12=4182, rep12=14.1, rep3=7.7),
 }
 NEW26 = {"AP": 24472, "AF": 16864}
+AOV26 = {"AP": 11444, "AF": 7398}  # 26年9月期に初回購入した顧客の初回の購入単価
 REPEAT_SHARE = {"AP": (29.5, 34.7), "AF": (19.2, 27.3)}  # リピート顧客の売上比率（25年9月期, 26年9月期）
 AD26 = {"AP": ap_fy_ad[3], "AF": af_fy_ad[3]}
 AD25 = {"AP": ap_fy_ad[2], "AF": af_fy_ad[2]}
@@ -677,9 +678,8 @@ for k, (b_, name, col) in enumerate([("AP", "アンドプランツ（観葉植�
     text(s, x + 210, 238, w - 210, 70, [f"LTV {L['mp12']:,}円 ÷ CAC {cac26:,.0f}円", "LTV＝12か月の限界利益"],
          size=15, color=SECONDARY, spacing=1.5, anchor=MSO_ANCHOR.MIDDLE)
     rows_ = [
-        ("新規顧客数（年）", f"{L['new25']:,}人", f"{NEW26[b_]:,}人"),
         ("CAC（広告費÷新規顧客数）", f"{cac25:,.0f}円", f"{cac26:,.0f}円"),
-        ("初回の購入単価", f"{L['aov']:,}円", "—"),
+        ("初回の購入単価", f"{L['aov']:,}円", f"{AOV26[b_]:,}円"),
         ("12か月の購入回数", f"{L['orders']:.2f}回", "—"),
         ("12か月の売上（LTV・売上）", f"{L['sales12']:,}円", "—"),
         ("12か月の限界利益（LTV）", f"{L['mp12']:,}円", "—"),
@@ -687,7 +687,7 @@ for k, (b_, name, col) in enumerate([("AP", "アンドプランツ（観葉植�
         ("リピート率（12か月以内）", f"{L['rep12']:.1f}%", "—"),
         ("売上に占めるリピート顧客", f"{REPEAT_SHARE[b_][0]:.1f}%", f"{REPEAT_SHARE[b_][1]:.1f}%"),
     ]
-    yy = 326
+    yy = 340
     text(s, x + w - 250, yy, 120, 24, "25年9月期", size=14, color=SECONDARY, bold=True, align=PP_ALIGN.RIGHT)
     text(s, x + w - 120, yy, 120, 24, "26年9月期", size=14, color=SECONDARY, bold=True, align=PP_ALIGN.RIGHT)
     hline(s, x, yy + 30, w, MOSS, 1.5)
@@ -699,8 +699,8 @@ for k, (b_, name, col) in enumerate([("AP", "アンドプランツ（観葉植�
              color=MUTED if v1 == "—" else MOSS)
         text(s, x + w - 120, yy, 120, 30, v2, size=16, bold=bold_, align=PP_ALIGN.RIGHT,
              color=MUTED if v2 == "—" else MOSS)
-        yy += 36
-        hline(s, x, yy - 6, w)
+        yy += 40
+        hline(s, x, yy - 8, w)
 vline(s, 564, 156, 560)
 footnote(s, "※ 自社EC（Shopify）を顧客単位で集計。LTVは25年9月期に初回購入した顧客の初回から12か月の平均。CACは広告費をすべて"
             "新規獲得にかかったとみなした値（APはモール広告費を含むため高め）。LTV/CACは26年9月期のCACで計算")
@@ -742,31 +742,44 @@ text(s, 56, 618, 1016, 120,
 footnote(s, "※ 損益分岐＝直接固定費（人件費＋倉庫・光熱費、26年4〜6月の月平均）÷ 広告費込み限界利益率（同期間）。"
             "必要な新規顧客数＝損益分岐の月商×（1−リピート売上比率）÷初回の購入単価。売上はモールを含む")
 
-# ---- Value UP プラン
+# ---- Value UP プラン：上に「数量→原価→売価→数量」の循環、下に事業ごとの打ち手（原価を下げる／売価・数量）
 s = content_slide("今後のValue UPプラン", "数量が増えたときに打てる手 ── 卸と輸入で原価を下げ、売価を下げる")
-cols3 = [("アンドプランツ", MOSS,
-          ["観葉植物・鉢を生産者／海外から直接仕入れ（輸入）し、仕入単価を下げる",
-           "卸（法人・小売向け）を並行し、仕入ロットを大きくする",
-           "下がった原価の一部を売価に回し、CVRとROASを上げる"]),
-         ("アンドフラワー", FLOWER,
-          ["輸入花・産地直送を増やし、市場経由の仕入を減らす",
-           "ハナイチの仕入網と仕入量をまとめて使い、単価を下げる",
-           "平常月の売価を下げて数量を取り、固定費を薄める"]),
-         ("ハナイチ", MOSS,
-          ["取扱量の増加を背景に、産地・輸入元と直接取引する",
-           "鉢・資材は卸ルートで調達し、粗利率を上げる",
-           "小売店・教室向けに価格を下げ、継続の仕入先になる"])]
-for k, (name, col, pts) in enumerate(cols3):
+CYCLE = ["数量が\n増える", "卸・輸入で\n仕入条件が改善", "原価が\n下がる", "売価を\n下げられる", "CVR・ROASが\n上がる"]
+cw_, cg_ = 196, 8
+for i, lab in enumerate(CYCLE):
+    cx_ = 56 + i * (cw_ + cg_)
+    shp = MSO_SHAPE.PENTAGON if i == 0 else MSO_SHAPE.CHEVRON
+    fill = MOSS if i in (0, 4) else LIGHT
+    rect(s, cx_, 160, cw_, 76, fill, shape=shp)
+    text(s, cx_ + (16 if i == 0 else 30), 160, cw_ - (46 if i == 0 else 56), 76, lab.split("\n"), size=16, bold=True,
+         color=WHITE, align=PP_ALIGN.CENTER, anchor=MSO_ANCHOR.MIDDLE, spacing=1.2)
+text(s, 56, 244, 1016, 26, "→ 上がったCVR・ROASで、さらに数量が増える（この循環を回す）", size=15, color=SECONDARY,
+     align=PP_ALIGN.RIGHT)
+LEVERS = [
+    ("アンドプランツ", AP_GREEN,
+     "生産者・海外から直接仕入れ（輸入）。卸を並行し、仕入ロットを大きくする",
+     "下がった原価の一部を売価に回し、CVR・ROASを上げる"),
+    ("アンドフラワー", FLOWER,
+     "輸入花・産地直送を増やし、ハナイチの仕入網とまとめて調達する",
+     "平常月の売価を下げて数量を取り、固定費を薄める"),
+    ("ハナイチ", MOSS,
+     "取扱量を背景に産地・輸入元と直接取引。鉢・資材は卸ルートで",
+     "小売店・教室向けに価格を下げ、継続の仕入先になる"),
+]
+for k, (name, col, cost, price) in enumerate(LEVERS):
     x = 56 + k * 344
-    rect(s, x, 168, 320, 6, col)
-    text(s, x, 186, 320, 36, name, size=26, bold=True, color=col)
-    yy = 240
-    for p_ in pts:
-        rect(s, x, yy + 10, 8, 8, LIGHT)
-        text(s, x + 20, yy, 300, 110, p_, size=18, spacing=1.4)
-        yy += 112
-text(s, 56, 600, 1016, 80, ["数量 → 仕入条件の改善 → 原価↓ → 売価↓ → 数量↑ の[[循環をつくる]]",
-                             "ギフティ様の販路での数量は、この循環の起点になる"], size=22, bold=True, spacing=1.5)
+    w = 320
+    rect(s, x, 286, w, 372, None, line=BORDER_LIGHT, weight=1.0)
+    rect(s, x, 286, w, 52, col)
+    text(s, x + 20, 286, w - 40, 52, name, size=22, bold=True, color=WHITE, anchor=MSO_ANCHOR.MIDDLE)
+    for j, (chip, body) in enumerate([("原価を下げる", cost), ("売価・数量", price)]):
+        yy = 358 + j * 164
+        rect(s, x + 20, yy, 128, 30, WATERMARK, shape=MSO_SHAPE.ROUNDED_RECTANGLE)
+        text(s, x + 20, yy, 128, 30, chip, size=14, bold=True, color=MOSS, align=PP_ALIGN.CENTER,
+             anchor=MSO_ANCHOR.MIDDLE, spacing=1.0)
+        text(s, x + 20, yy + 42, w - 40, 100, body, size=17, spacing=1.45)
+    hline(s, x + 20, 506, w - 40)
+text(s, 56, 690, 1016, 36, "ギフティ様の販路での数量は、この循環の[[起点]]になる", size=22, bold=True)
 footnote(s, "※ 方向性の整理。具体的な仕入先・条件は今後詰める")
 
 # ---- Value UP の効果（感応度）
