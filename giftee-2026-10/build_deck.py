@@ -314,9 +314,10 @@ for n, label, sub in items:
     if n != "3":
         hline(s, 96, y + 128, 936)
     y += 160
-footnote(s, "※ 用語と集計の前提は4ページにまとめています")
+footnote(s, "※ 用語と集計の前提は5ページにまとめています")
 
-summary_slide = content_slide("要約")
+summary_slide = content_slide("要約①：アンドプランツ")
+summary_slide2 = content_slide("要約②：アンドフラワーと倉庫")
 terms = content_slide("用語と集計の前提")
 TERMS = [
     ("期", "9月決算。「26年9月期」＝2025年10月〜2026年9月"),
@@ -699,7 +700,8 @@ jm_s = (sum(AP_S[39:42]), sum(AP_S[27:30]))
 text(s, 56, 692, 1016, 60,
      [f"26年1〜3月は、広告費を前年同期の{jm_ad[1]:.1f}→{jm_ad[0]:.1f}百万円（{(jm_ad[0] / jm_ad[1] - 1) * 100:.0f}%）に絞っても、"
       f"売上は{jm_s[1]:.0f}→{jm_s[0]:.0f}百万円（{(jm_s[0] / jm_s[1] - 1) * 100:.0f}%）。",
-      "売上の伸びの鈍化は需要の頭打ちではなく、[[広告費を意図して絞った結果]]"], size=18, bold=True, spacing=1.45)
+      "ファイナンス環境の変化を受け、トップラインより健全性を優先した[[経営判断]]であり、広告効率の悪化ではない"],
+     size=18, bold=True, spacing=1.45)
 footnote(s, "※ BigQuery（and-plants）の事業別月次。広告費は25年6月以降モール（Amazon・楽天）を含む（それ以前は自社ECのみ）")
 
 # ---- 広告投資②：広告費を戻した場合のシナリオ（アンドプランツ、年間）
@@ -1159,36 +1161,51 @@ for i, (h_, b_) in enumerate(nexts, 1):
         hline(s, 96, y + 104, 936)
     y += 128
 
-# ---- 要約（2ページ目の次。数字が出そろってから描く）
-s = summary_slide
-SUM = [
-    ("1", "各事業のエコノミクスの推移", [
-        f"アンドプランツ：26年9月期の売上{ap_fy_s[3]:.0f}百万円は前期並み。広告費を{ap_fy_ad[2]:.0f} → {ap_fy_ad[3]:.0f}百万円に抑え、"
-        f"広告費込み限界利益は{ap_fy_net[3]:.0f}百万円（+{(ap_fy_net[3] / ap_fy_net[2] - 1) * 100:.0f}%）",
-        f"アンドフラワー：売上{af_fy_s[3]:.0f}百万円。母の日に集中し、広告費込み限界利益は{af_fy_net[2]:.0f} → {af_fy_net[3]:.0f}百万円",
-        f"ハナイチ：売上{ha_fy_s[3]:.0f}百万円（+{(ha_fy_s[3] / ha_fy_s[2] - 1) * 100:.0f}%）。注文数が伸びている"]),
-    ("2", "今後のエコノミクス", [
-        f"26年4〜6月の貢献利益は、アンドプランツ{qa['CONTRIB']:.1f}百万円。アンドフラワーは{yen(qf['CONTRIB'])}百万円で、"
-        f"前年同期の{yen(PREV_Q['af']['CONTRIB'])}百万円から大きく改善。5月単月は損益分岐",
-        f"LTV/CAC（12か月の限界利益÷CAC）は観葉植物{LTV['AP']['mp12'] / (AD26['AP'] * 1e6 / NEW26['AP']):.1f}倍、"
-        f"花{LTV['AF']['mp12'] / (AD26['AF'] * 1e6 / NEW26['AF']):.1f}倍。12か月のリピート率は{LTV['AP']['rep12']:.0f}%・{LTV['AF']['rep12']:.0f}%",
-        f"アンドフラワーの損益分岐は月商 約{af_be:.0f}百万円。卸・輸入で原価率を5pt下げると年+{tot5:.0f}百万円（3事業計）"]),
-    ("3", "倉庫の収益性", [
-        "川崎拠点の坪あたり限界利益は、平常月で家賃の約4〜5倍、母の日の月は約17〜19倍",
+# ---- 要約（本資料の主張。数字が出そろってから、前に作っておいたページに描く）
+def draw_claims(s, claims, y=140):
+    for n, head, lines_ in claims:
+        text(s, 56, y, 60, 50, n, size=42, color=LIGHT, bold=True, en=True, anchor=MSO_ANCHOR.MIDDLE, spacing=1.0)
+        text(s, 120, y, 952, 50, head, size=24, bold=True, anchor=MSO_ANCHOR.MIDDLE, spacing=1.2)
+        y += 62
+        for ln_ in lines_:
+            rect(s, 124, y + 16, 8, 8, LIGHT)  # 行間の余白は文字の上に付くので、1行目の文字の中心に合わせて下げる
+            text(s, 142, y, 930, 70, ln_, size=19, spacing=1.45)
+            vis = sum(1.0 if ord(ch) > 0x7F else 0.55 for ch in ln_)  # 全角1・半角0.55で幅を見積もる
+            y += 64 if vis > 47 else 38
+        y += 30
+    return y
+
+
+apq = PERIODS["q"]["ap"]
+draw_claims(summary_slide, [
+    ("1", "トップラインの鈍化は「意図した結果」であり、収益性は改善している", [
+        f"26年1月以降、広告費を意図的に削減（年間{ap_fy_ad[2]:.0f}→{ap_fy_ad[3]:.0f}百万円。月次ではより大きく絞った）",
+        f"それでも売上は前期並み（{ap_fy_s[2]:.0f}→{ap_fy_s[3]:.0f}百万円）を維持し、ROASは"
+        f"{ap_fy_s[2] / ap_fy_ad[2] * 100:.0f}→{ap_fy_s[3] / ap_fy_ad[3] * 100:.0f}%に改善",
+        f"広告費込み限界利益は{ap_fy_net[2]:.1f}→{ap_fy_net[3]:.1f}百万円（+{(ap_fy_net[3] / ap_fy_net[2] - 1) * 100:.0f}%）、"
+        f"同率{ap_fy_net[2] / ap_fy_s[2] * 100:.1f}→{ap_fy_net[3] / ap_fy_s[3] * 100:.1f}%",
+        "ファイナンス環境の変化を受け、トップラインより健全性を優先した経営判断であって、広告効率の悪化ではない"]),
+    ("2", "アンドプランツは、採算が合った状態で広告を踏める", [
+        f"CAC {cac_ap:,.0f}円に対し、初回購入の限界利益（約{MP_FIRST26['AP'] / 1000:.1f}千円）で回収が完結している",
+        f"12か月LTV（限界利益）{LTV['AP']['mp12']:,}円、LTV/CAC {LTV['AP']['mp12'] / cac_ap:.1f}倍、"
+        f"12か月リピート率{LTV['AP']['rep12']:.0f}%",
+        f"月商{need['AP'][2]:.1f}百万円で損益分岐。26年9月期は月平均{act['AP']:.1f}百万円で大きく上回る",
+        f"広告を戻せば、限界ROASが下がっても貢献利益の黒字を保ったまま売上を積める"
+        f"（広告費{SCEN[2]['ad']:.0f}百万円で売上{SCEN[2]['s']:.0f}百万円、貢献利益{SCEN[2]['c']:.0f}百万円）"]),
+])
+footnote(summary_slide, "※ 数値は税抜。用語の定義と集計の前提は5ページ")
+y_ = draw_claims(summary_slide2, [
+    ("3", "アンドフラワーは「平常月赤字・母の日で回収」の構造。拡大が収益化の条件", [
+        f"限界利益率{AF_MPR26 * 100:.1f}%、LTV/CAC {LTV['AF']['mp12'] / cac_af:.1f}倍と、1人あたりの採算は成立している",
+        f"損益分岐は月商{need['AF'][2]:.0f}百万円。26年9月期の平均は{act['AF']:.1f}百万円（母の日の月は{peak['AF']:.0f}百万円超）",
+        f"直接固定費の比率が高く、原価改善（−5ptで分岐{fixed / (m_now + 0.05):.0f}百万円）だけでは閉じない",
+        f"閉じる手段は数量＝販路。ギフティ様のLINEギフト等の販路が、この分岐を越える起点になる"
+        f"（自社ECへの送客なら月約{(-base_c * 1e6) / (AOV_G * AF_MPR26):,.0f}件でトントン）"]),
+    ("4", "倉庫（川崎拠点）は、平常月の空き坪の使い方で坪効率を上げられる", [
+        "坪あたり限界利益は、平常月で家賃の約4〜5倍、母の日の月は約17〜19倍",
         "ピークに合わせた面積が平常月に余っている。用途別に面積を割り、空き坪を坪あたり利益の高い用途で埋める"]),
-]
-y = 140
-for n, head, lines_ in SUM:
-    text(s, 56, y, 60, 50, n, size=42, color=LIGHT, bold=True, en=True, anchor=MSO_ANCHOR.MIDDLE, spacing=1.0)
-    text(s, 120, y, 940, 50, head, size=27, bold=True, anchor=MSO_ANCHOR.MIDDLE, spacing=1.0)
-    y += 58
-    for ln_ in lines_:
-        rect(s, 124, y + 15, 8, 8, LIGHT)  # 行間の余白は文字の上に付くので、1行目の文字の中心に合わせて下げる
-        text(s, 142, y, 920, 64, ln_, size=18, spacing=1.45)
-        vis = sum(1.0 if ord(ch) > 0x7F else 0.55 for ch in ln_)  # 全角1・半角0.55で幅を見積もる
-        y += 58 if vis > 50 else 34
-    y += 18
-footnote(s, "※ 数値は税抜。用語の定義と集計の前提は次のページ")
+])
+footnote(summary_slide2, "※ 数値は税抜。用語の定義と集計の前提は5ページ")
 
 prs.save("giftee_economics_2026-10.pptx")  # PDF は soffice で書き出す
 print("saved", len(prs.slides._sldIdLst), "slides")
