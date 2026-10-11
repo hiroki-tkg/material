@@ -289,10 +289,10 @@ page_no += 1
 s = prs.slides.add_slide(BLANK)
 rect(s, 0, 0, 8, H_PX, LIGHT)
 text(s, 96, 250, 960, 40, "株式会社ギフティ様　ご参考資料", size=26, color=SECONDARY)
-text(s, 96, 310, 960, 200, ["事業エコノミクスの整理と", "倉庫の収益性"], size=60, bold=True, spacing=1.3)
-text(s, 96, 520, 960, 40, "AP/AF・ハナイチの推移、今後のエコノミクス、川崎拠点の坪効率", size=24,
+text(s, 96, 330, 980, 100, "事業エコノミクスの整理とまとめ", size=60, bold=True, spacing=1.3)
+text(s, 96, 450, 960, 40, "AP/AF・ハナイチの推移、今後のエコノミクス、川崎拠点の坪効率", size=24,
      color=SECONDARY)
-text(s, 96, 700, 600, 32, "2026.10　株式会社Domuz", size=22, color=SECONDARY)
+text(s, 96, 700, 900, 32, "2026年10月　株式会社DOMUZ　高木裕樹", size=22, color=SECONDARY)
 
 # =====================================================================
 # 2. 本資料の構成・要約・用語
@@ -305,9 +305,10 @@ items = [
 ]
 y = 200
 for n, label, sub in items:
-    text(s, 96, y, 80, 80, n, size=64, color=LIGHT, bold=True, en=True)
-    text(s, 200, y + 6, 860, 50, label, size=34, bold=True)
-    text(s, 200, y + 60, 860, 36, sub, size=20, color=SECONDARY)
+    text(s, 96, y, 80, 104, n, size=64, color=LIGHT, bold=True, en=True, anchor=MSO_ANCHOR.MIDDLE,
+         spacing=1.0)
+    text(s, 200, y + 8, 860, 50, label, size=34, bold=True, anchor=MSO_ANCHOR.MIDDLE, spacing=1.0)
+    text(s, 200, y + 64, 860, 32, sub, size=20, color=SECONDARY, anchor=MSO_ANCHOR.MIDDLE, spacing=1.0)
     if n != "3":
         hline(s, 96, y + 128, 936)
     y += 160
@@ -342,7 +343,8 @@ def trend_slide(title, sales, mp, ad, net, color, ymax, note, msg, fy0=0, mp_lab
                 net_label="広告費込み限界利益", fy_names=None):
     """月次売上の棒（事業の色）＋期別の収益性の表。棒の上は各期の最高月、期名の下は期合計。"""
     s = content_slide(title)
-    text(s, 56, 104, 1016, 36, msg, size=21, bold=True)
+    if msg:
+        text(s, 56, 104, 1016, 36, msg, size=21, bold=True)
     fy_names = fy_names or FY_NAMES
     x0, x1 = 214, 914
     text(s, x0, 154, 900, 24, f"{FY_NAMES[fy0]}（{YM[fy0 * 12][0]}年10月）〜26年9月期（2026年9月）　単位：百万円　"
@@ -408,12 +410,12 @@ trend_slide(
     "アンドプランツ：月次売上と期別の収益性", AP_S, AP_MP, AP_AD, AP_NET, AP_GREEN, 70,
     "※ 税抜・注文日ベース。自社EC＋モール（楽天・Amazon・Yahoo!）。BigQuery（and-plants）の事業別月次。"
     "モール広告費は25年6月以降のみ計上（それ以前の広告費込み限界利益は実態より高め）",
-    f"売上は前期並みのまま、広告費を絞って広告費込み限界利益は{ap_fy_net[3]:.0f}百万円（前期比 +{(ap_fy_net[3] / ap_fy_net[2] - 1) * 100:.0f}%）に",
+    f"広告費を絞って広告費込み限界利益は{ap_fy_net[3]:.0f}百万円（前期比 +{(ap_fy_net[3] / ap_fy_net[2] - 1) * 100:.0f}%）に",
 )
 trend_slide(
     "アンドフラワー：月次売上と期別の収益性", AF_S, AF_MP, AF_AD, AF_NET, FLOWER, 35,
     "※ 税抜・注文日ベース。自社EC（モールの花は微小のため含む）。BigQuery（and-plants）の事業別月次",
-    f"売上は母の日に集中。広告効率が戻り、広告費込み限界利益は{af_fy_net[2]:.0f} → {af_fy_net[3]:.0f}百万円に",
+    "",
 )
 trend_slide(
     "ハナイチ：月次売上と期別の収益性", HA_S, HA_GP, HA_AD, HA_NET, MOSS, 7,
@@ -822,7 +824,7 @@ for n, head, lines_ in SUM:
     text(s, 120, y + 6, 940, 36, head, size=27, bold=True)
     y += 52
     for ln_ in lines_:
-        rect(s, 124, y + 13, 8, 8, LIGHT)
+        rect(s, 124, y + 16, 8, 8, LIGHT)  # 行間の余白は文字の上に付くので、1行目の文字の中心に合わせて下げる
         text(s, 142, y, 920, 64, ln_, size=19, spacing=1.45)
         y += 62 if len(ln_) > 46 else 36
     y += 26
