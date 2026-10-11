@@ -291,7 +291,7 @@ s = prs.slides.add_slide(BLANK)
 rect(s, 0, 0, 8, H_PX, LIGHT)
 text(s, 96, 250, 960, 40, "株式会社ギフティ様　ご参考資料", size=26, color=SECONDARY)
 text(s, 96, 330, 980, 100, "事業エコノミクスの整理とまとめ", size=60, bold=True, spacing=1.3)
-text(s, 96, 450, 960, 40, "AP/AF・ハナイチの推移、今後のエコノミクス、川崎拠点の坪効率", size=24,
+text(s, 96, 450, 960, 40, "AP/AF・ハナイチの推移と、今後のエコノミクス", size=24,
      color=SECONDARY)
 text(s, 96, 640, 900, 120, ["2026年10月", "株式会社DOMUZ", "髙木 弘貴"], size=22, color=SECONDARY, spacing=1.5)
 
@@ -302,22 +302,21 @@ s = content_slide("本資料の構成")
 items = [
     ("1", "各事業のエコノミクスの整理と経年推移", "アンドプランツ/アンドフラワー、ハナイチ（23年9月期〜26年9月期）"),
     ("2", "今後の事業におけるエコノミクスの整理", "原価・広告ROAS・直接固定費、LTV/CAC、損益分岐の月商と、Value UPプラン"),
-    ("3", "倉庫としての収益性の試算", "川崎拠点の坪効率（単純3PL／高付加価値3PL／AP・AF）"),
 ]
-y = 200
+y = 260
 for n, label, sub in items:
     # 番号とタイトルは同じ高さの箱に入れて上下中央でそろえる（説明はタイトルの下）
     text(s, 96, y + 16, 80, 64, n, size=60, color=LIGHT, bold=True, en=True, anchor=MSO_ANCHOR.MIDDLE,
          spacing=1.0)
     text(s, 190, y + 16, 870, 64, label, size=34, bold=True, anchor=MSO_ANCHOR.MIDDLE, spacing=1.0)
     text(s, 190, y + 84, 870, 30, sub, size=20, color=SECONDARY, anchor=MSO_ANCHOR.MIDDLE, spacing=1.0)
-    if n != "3":
+    if n != items[-1][0]:
         hline(s, 96, y + 128, 936)
     y += 160
 footnote(s, "※ 用語と集計の前提は5ページにまとめています")
 
 summary_slide = content_slide("要約①：アンドプランツ")
-summary_slide2 = content_slide("要約②：アンドフラワーと倉庫")
+summary_slide2 = content_slide("要約②：アンドフラワー")
 terms = content_slide("用語と集計の前提")
 TERMS = [
     ("期", "9月決算。「26年9月期」＝2025年10月〜2026年9月"),
@@ -1146,159 +1145,10 @@ for lab, m in [("現状", m_now), ("原価率 −5pt", m_now + 0.05), ("原価�
 footnote(s, "※ 原価率の改善分がそのまま利益になる前提（売価を下げない場合）。売価に回す分は数量の増加で回収する想定。"
          "損益分岐は直接固定費を26年4〜6月の月平均で固定した概算")
 
-# =====================================================================
-# 章 03
-# =====================================================================
-divider("03", "WAREHOUSE", "倉庫としての収益性", "川崎拠点の坪効率を、用途別に見える化する")
-
-# ---- 川崎拠点の現状
-KAWA_TSUBO, KAWA_RENT = 128.84, 0.94  # 坪, 百万円/月
-WH = [  # (ラベル, 面積, AF限界利益, ハナイチ限界利益)  単位：百万円。25年3月〜26年3月は新城40.49坪を含む
-    ("25/6", 169.33, 4.851, 0.0), ("7", 169.33, 5.077, 0.0), ("8", 169.33, 4.668, 0.051), ("9", 169.33, 6.309, 0.052),
-    ("10", 169.33, 6.357, 0.127), ("11", 169.33, 6.573, -0.019), ("12", 169.33, 5.258, 0.0), ("26/1", 169.33, 5.212, 0.140),
-    ("2", 169.33, 4.622, 0.162), ("3", 169.33, 6.654, 0.245), ("4", 128.84, 15.393, 0.205), ("5", 128.84, 17.552, 0.315),
-    ("6", 128.84, 4.043, 0.120), ("7", 128.84, 3.513, 0.165), ("8", 128.84, 4.289, 0.450),
-]
-s = content_slide("川崎拠点の現状", "花の拠点の坪あたり限界利益（月）　単位：千円/坪")
-kp = [("面積", f"{KAWA_TSUBO:.2f}", "坪"), ("家賃", "94", "万円/月"), ("坪単価", "7,296", "円/坪")]
-for k, (lab, v, u) in enumerate(kp):
-    x = 56 + k * 200
-    text(s, x, 150, 190, 26, lab, size=17, color=SECONDARY)
-    tb = text(s, x, 176, 190, 50, v, size=40, bold=True, en=True, spacing=1.0)
-    r = tb.text_frame.paragraphs[0].add_run()
-    r.text = u
-    _set_font(r, 17, MOSS, True, en=False)
-# 棒（AF + ハナイチの積み上げ）と家賃の坪単価
-x0, top, base = 112, 290, 600
-slot = (1060 - x0) / len(WH)
-bw = slot * 0.6
-ymax = 140
-sy = lambda v: base - (base - top) * v / ymax
-for v in range(0, ymax + 1, 20):
-    hline(s, x0 - 4, sy(v), 1060 - x0 + 4, BORDER_LIGHT if v == 0 else WATERMARK)
-    text(s, 56, sy(v) - 11, 46, 22, str(v), size=13, color=MUTED, align=PP_ALIGN.RIGHT, en=True)
-for i, (lab, area, af_mp, ha_mp) in enumerate(WH):
-    bx = x0 + i * slot + (slot - bw) / 2
-    a = af_mp * 1000 / area
-    h_ = max(ha_mp, 0) * 1000 / area
-    rect(s, bx, sy(a), bw, base - sy(a), FLOWER)
-    if h_ > 0:
-        rect(s, bx, sy(a + h_), bw, sy(a) - sy(a + h_), MOSS)
-    text(s, bx - 12, sy(a + h_) - 24, bw + 24, 20, f"{a + h_:.0f}", size=13, bold=True, align=PP_ALIGN.CENTER,
-         en=True)
-    text(s, bx - 12, base + 6, bw + 24, 20, lab, size=12, color=SECONDARY, align=PP_ALIGN.CENTER, en=True)
-rent_y = sy(KAWA_RENT * 1000 / KAWA_TSUBO)
-hline(s, x0, rent_y, 1060 - x0, STRONG, 2.0, dash=True)
-vline(s, x0 + 10 * slot, top - 10, base - top + 30, BORDER_LIGHT, 1.0, dash=True)
-text(s, x0 + 10 * slot - 306, top - 14, 300, 20, "26年4月〜 川崎のみ（新城を閉鎖）→", size=13, color=SECONDARY,
-     align=PP_ALIGN.RIGHT)
-rect(s, 112, 228, 16, 16, FLOWER)
-text(s, 136, 223, 160, 26, "アンドフラワー", size=15, color=SECONDARY)
-rect(s, 282, 228, 16, 16, MOSS)
-text(s, 306, 223, 120, 26, "ハナイチ", size=15, color=SECONDARY)
-hline(s, 412, 236, 28, STRONG, 2.0, dash=True)
-text(s, 448, 223, 200, 26, "家賃 7.3千円/坪", size=15, color=SECONDARY)
-text(s, 56, 660, 1016, 80, ["平常月は家賃の約4〜5倍、母の日は約17〜19倍。[[ピーク前提の面積]]が平常月に余っている",
-                             "→ 平常月の空きを、坪あたり利益の高い用途で埋めることが坪効率向上の鍵"], size=21, bold=True,
-     spacing=1.45)
-footnote(s, "※ 花拠点_坪単位売上効率_月次推移（25年6月〜26年8月）。25年3月〜26年3月の面積は川崎128.84坪＋新城40.49坪。"
-         "限界利益は広告費控除前。観葉（アンドプランツ）はSBSに委託のため対象外")
-
-# ---- 川崎拠点（2I）の使い方：図面から 2I を切り出し、柱で区切った区画（A1〜C3）ごとに用途を書く
-s = content_slide("川崎拠点（2I）の使い方", "借りているのは2階の2I（128.84坪）。柱で区切った区画ごとの用途")
-PLAN = os.path.join(os.path.dirname(os.path.abspath(__file__)), "assets", "kawasaki_2I.png")
-ph = 560
-s.shapes.add_picture(PLAN, px(56), px(160), height=px(ph))
-pw = ph * 670 / 935
-rect(s, 56, 160, pw, ph, None, line=BORDER_LIGHT, weight=1.0)
-USES = [  # (用途, 区画, 坪数)。[　] は確認中
-    ("アンドフラワー（作業・保管）", "[　]", "[　]", FLOWER),
-    ("ハナイチ", "[　]", "[　]", MOSS),
-    ("高付加価値3PL（花同梱・ギフト）", "[　]", "[　]", MOSS),
-    ("共用（梱包・出荷・事務）", "[　]", "[　]", SECONDARY),
-    ("建物の共用部（荷物用EV・階段・トイレ）", "C列", "—", MUTED),
-]
-tx = 56 + pw + 40
-tw = 1072 - tx
-text(s, tx, 160, tw, 26, "用途", size=15, color=SECONDARY, bold=True)
-text(s, tx + tw - 190, 160, 90, 26, "区画", size=15, color=SECONDARY, bold=True, align=PP_ALIGN.RIGHT)
-text(s, tx + tw - 90, 160, 90, 26, "坪数", size=15, color=SECONDARY, bold=True, align=PP_ALIGN.RIGHT)
-hline(s, tx, 194, tw, MOSS, 1.5)
-y = 206
-for name, bays, tsubo, col in USES:
-    rect(s, tx, y + 8, 6, 22, col)
-    text(s, tx + 16, y, tw - 220, 56, name, size=17, bold=True, color=MOSS if col != MUTED else MUTED, spacing=1.3)
-    for xx, v in ((tx + tw - 190, bays), (tx + tw - 90, tsubo)):
-        text(s, xx, y, 90, 30, v, size=17, color=MUTED if v.startswith("[") or v == "—" else MOSS,
-             align=PP_ALIGN.RIGHT)
-    y += 66
-    hline(s, tx, y - 10, tw)
-text(s, tx, y + 4, tw, 28, "合計", size=17, bold=True)
-text(s, tx + tw - 160, y + 4, 160, 28, "128.84坪", size=17, bold=True, align=PP_ALIGN.RIGHT)
-text(s, tx, y + 60, tw, 90, ["区画ごとの用途が決まると、次ページ以降の", "用途別の坪数・坪あたり利益に反映できる"],
-     size=17, color=SECONDARY, spacing=1.45)
-footnote(s, "※ 図面は2階平面図から2Iを切り出し、柱の位置で区画（A1〜C3）を付けたもの。C列の荷物用EV・階段・トイレは建物の共用部")
-
-# ---- 試算の考え方
-s = content_slide("坪効率の試算の考え方", "用途別に面積を割り、坪あたり貢献利益で比べる")
-steps = [
-    ("1", "面積を用途別に割る",
-     "図面で専有エリア（AF作業・保管／高付加価値3PL／ハナイチ／単純3PL保管）と共用（梱包・出荷・事務・通路）に分ける。共用は出荷件数比で按分"),
-    ("2", "用途別の坪あたり貢献利益を出す",
-     "（限界利益 − 直接人件費 − 資材等）÷ 按分後の坪数。月次で出し、家賃の坪単価7,296円と比べる"),
-    ("3", "繁忙月と平常月の2断面で見る",
-     "母の日など繁忙月に必要な坪数と、平常月に実際に使う坪数の差を「空き坪」として数える"),
-    ("4", "空き坪の埋め方を比べて計画にする",
-     "単純3PL（保管料＋出荷料）／高付加価値3PL（花同梱・ギフト加工）／AP・AFの拡大を、坪あたり貢献利益の高い順に割り当てる"),
-]
-y = 168
-for n, head, body in steps:
-    text(s, 72, y - 6, 70, 70, n, size=52, color=LIGHT, bold=True, en=True)
-    text(s, 150, y, 900, 36, head, size=26, bold=True)
-    text(s, 150, y + 40, 900, 70, body, size=18, color=SECONDARY, spacing=1.4)
-    if n != "4":
-        hline(s, 72, y + 118, 1000)
-    y += 134
-footnote(s, "※ 必要なデータ：拠点の図面（用途別の坪数）、用途別の出荷件数・作業時間（人件費の按分）、3PLの料金表（保管・出荷・加工単価）")
-
-# ---- 用途別の試算（現状の暫定値と計画の枠）
-s = content_slide("用途別の試算（たたき台）", "26年8月　単位：千円/月（坪あたりは千円/坪）")
-hdr = ["用途", "面積（坪）", "限界利益", "直接人件費", "坪あたり\n貢献利益", "今後の計画"]
-cx4 = [56, 300, 440, 580, 720, 880]
-wid = [230, 120, 120, 120, 130, 190]
-y = 160
-for j, c in enumerate(hdr):
-    text(s, cx4[j], y, wid[j], 56, c, size=16, color=SECONDARY, bold=True, spacing=1.2,
-         align=PP_ALIGN.LEFT if j in (0, 5) else PP_ALIGN.RIGHT)
-hline(s, 56, y + 60, 1016, MOSS, 1.5)
-y += 72
-share_af = 7.186 / (7.186 + 3.285)  # 暫定：8月の売上比で面積を按分
-rows = [
-    ("アンドフラワー", f"{KAWA_TSUBO * share_af:.0f}*", "4,289", "[　]", f"{4289 / (KAWA_TSUBO * share_af):.0f}*", "平常月の効率を上げる", FLOWER),
-    ("ハナイチ", f"{KAWA_TSUBO * (1 - share_af):.0f}*", "450", "[　]", f"{450 / (KAWA_TSUBO * (1 - share_af)):.1f}*", "取扱量の増加", MOSS),
-    ("高付加価値3PL\n（花同梱・ギフト）", "[　]", "[　]", "[　]", "[　]", "空き坪に優先配分", MOSS),
-    ("単純3PL\n（保管・出荷）", "[　]", "[　]", "[　]", "[　]", "残りの空き坪", MOSS),
-    ("共用（梱包・出荷・事務）", "[　]", "—", "—", "—", "出荷件数比で按分", SECONDARY),
-]
-for name, a, mp, lab, per, plan, col in rows:
-    text(s, cx4[0], y, wid[0], 56, name, size=18, bold=True, color=col, spacing=1.2)
-    for j, v in enumerate([a, mp, lab, per], 1):
-        text(s, cx4[j], y, wid[j], 30, v, size=19, align=PP_ALIGN.RIGHT, en=True,
-             color=MUTED if v.startswith("[") else MOSS, bold=(j == 4))
-    text(s, cx4[5], y, wid[5], 56, plan, size=16, color=SECONDARY, spacing=1.2)
-    y += 70
-    hline(s, 56, y - 10, 1016)
-text(s, 56, y + 6, 1016, 80,
-     [f"暫定でも、アンドフラワーとハナイチで[[坪あたり利益に約{(4289 / share_af) / (450 / (1 - share_af)):.0f}倍の差]]がある",
-      "図面で実際の面積を割り、3PLの単価を入れると、空き坪の使い道が決められる"], size=21, bold=True, spacing=1.45)
-footnote(s, "* 面積は暫定で8月の売上比（AF 69%／ハナイチ 31%）で按分。[　] は今後入れる数値。家賃の坪単価は7.3千円/坪")
-
 # ---- 次のステップ
 s = content_slide("今後の進め方")
 nexts = [
     ("ハナイチの直接固定費を確定する", "人件費（現場・CS）と設備費を、AP/AFと同じ貢献利益の形にそろえる"),
-    ("川崎拠点の用途別の坪数を測る", "図面で専有と共用に分け、出荷件数で共用を按分する"),
-    ("3PLの単価をそろえる", "単純3PL（保管・出荷）と高付加価値3PL（花同梱・加工）の料金表から坪あたり利益を出す"),
     ("Value UPプランを数値に落とす", "卸・輸入で下がる原価率と、売価に回す幅を事業ごとに置く"),
 ]
 y = 170
@@ -1349,9 +1199,6 @@ y_ = draw_claims(summary_slide2, [
         f"損益分岐は月商{need['AF'][2]:.0f}百万円（貢献利益ベース）。26年9月期の平均は{act['AF']:.1f}百万円（母の日の月は{peak['AF']:.0f}百万円超）",
         f"直接固定費の比率が高く、原価改善（−5ptで分岐{fixed / (m_now + 0.05):.0f}百万円）だけでは閉じない",
         "今後、複数の売上・トップライン向上施策により、この分岐を超える販売数を担保する"]),
-    ("4", "倉庫（川崎拠点）は、平常月の空き坪の使い方で坪効率を上げられる", [
-        "坪あたり限界利益は、平常月で家賃の約4〜5倍、母の日の月は約17〜19倍",
-        "ピークに合わせた面積が平常月に余っている。用途別に面積を割り、空き坪を坪あたり利益の高い用途で埋める"]),
 ])
 footnote(summary_slide2, "※ 数値は税抜。用語の定義と集計の前提は5ページ")
 
