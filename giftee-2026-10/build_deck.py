@@ -329,12 +329,14 @@ TERMS = [
     ("貢献利益", "広告費込み限界利益 − 直接固定費。車両・修繕・消耗品・通信費と、本社の人件費・共通費は含まない"),
     ("出典", "受注データ（BigQuery）、社内の貢献利益集計（月次速報値を含む）、花拠点の坪効率シート。試算表とは集計基準が異なる"),
 ]
-y = 160
+y = 150
+hline(terms, 56, y, 1016)
 for k_, v_ in TERMS:
-    text(terms, 56, y, 250, 60, k_, size=19, bold=True)
-    text(terms, 300, y, 772, 60, v_, size=17, color=SECONDARY, spacing=1.4)
+    # 行の高さをそろえ、項目名と説明（1〜2行）を上下中央に置く
+    text(terms, 56, y, 236, 72, k_, size=19, bold=True, anchor=MSO_ANCHOR.MIDDLE, spacing=1.0)
+    text(terms, 300, y, 772, 72, v_, size=17, color=SECONDARY, spacing=1.35, anchor=MSO_ANCHOR.MIDDLE)
     y += 72
-    hline(terms, 56, y - 14, 1016)
+    hline(terms, 56, y, 1016)
 
 # =====================================================================
 # 章 01
@@ -415,10 +417,13 @@ trend_slide(
     "モール広告費は25年6月以降のみ計上（それ以前の広告費込み限界利益は実態より高め）",
     f"年間の売上は{ap_fy_s[3]:.0f}百万円。広告費を絞って広告費込み限界利益は年間{ap_fy_net[3]:.0f}百万円（前期比 +{(ap_fy_net[3] / ap_fy_net[2] - 1) * 100:.0f}%）に",
 )
+AF69 = {k_: (sum(v_[i] for i in range(32, 36)), sum(v_[i] for i in range(44, 48)))
+        for k_, v_ in (("s", AF_S), ("ad", AF_AD), ("net", AF_NET))}  # 6〜9月の合計（25年, 26年）
 trend_slide(
     "アンドフラワー：月次売上と期別の収益性", AF_S, AF_MP, AF_AD, AF_NET, FLOWER, 35,
-    "※ 税抜・注文日ベース。自社EC（モールの花は微小のため含む）。BigQuery（and-plants）の事業別月次",
-    "",
+    f"※ 税抜・注文日ベース。自社EC（モールの花は微小のため含む）。BigQuery（and-plants）の事業別月次。"
+    f"6〜9月の合計（25年→26年）：広告費{AF69['ad'][0]:.1f}→{AF69['ad'][1]:.1f}、売上{AF69['s'][0]:.1f}→{AF69['s'][1]:.1f}百万円",
+    f"26年6〜9月は広告費を前年の半分以下に絞り、広告費込み限界利益は{AF69['net'][0]:.1f}→{AF69['net'][1]:.1f}百万円に増加",
 )
 trend_slide(
     "ハナイチ：月次売上と期別の収益性", HA_S, HA_GP, HA_AD, HA_NET, MOSS, 7,
@@ -541,7 +546,8 @@ HA_NOW = PERIODS["q"]["ha"]
 def waterfall(s, x, name, steps, end_label, end_val, sales, color, lo=-40, unit=""):
     """steps: [(ラベル, 金額)] を売上から順に引く。縦軸は 100 〜 lo（%）で3事業共通。"""
     text(s, x, 156, 330, 34, name, size=24, bold=True, color=color)
-    text(s, x, 192, 330, 26, f"売上 {sales:.1f}百万円{unit}", size=17, color=SECONDARY)
+    end_name = end_label.replace("\n", "")
+    text(s, x, 192, 340, 26, f"売上 {sales:.1f}／{end_name} {yen(end_val)}百万円{unit}", size=15, color=SECONDARY)
     top, bot = 262, 612
     yv = lambda v: top + (bot - top) * (100 - v) / (100 - lo)
     bw, gap = 46, 12
@@ -574,7 +580,7 @@ def waterfall(s, x, name, steps, end_label, end_val, sales, color, lo=-40, unit=
 
 def econ_slide(key, n, takeaway, note):
     P = PERIODS[key]
-    s = content_slide(f"エコノミクス{n}：{P['label']}", "売上を100としたときの内訳　※税抜")
+    s = content_slide(f"エコノミクス{n}：{P['label']}", "棒の数字は売上を100としたときの割合（%）。金額は各事業名の下　※税抜")
     a_, f_, h_ = P["ap"], P["af"], P["ha"]
     unit = "（3か月計）" if key == "q" else ""
     waterfall(s, 56, "アンドプランツ",
@@ -614,24 +620,32 @@ for j, (name, col) in enumerate([("アンドプランツ", MOSS), ("アンドフ
     for q, lab in enumerate(["4〜6月", "5月"]):
         text(s, cx2[1 + 2 * j + q], y + 40, 114, 24, lab, size=15, color=SECONDARY, align=PP_ALIGN.RIGHT)
 hline(s, 56, y + 74, 1016, MOSS, 1.5)
-y += 88
+y += 74
 SEQ = [PERIODS["q"], PERIODS["may"]]
+
+
+RH = 60  # 1行の高さ。項目名（＋補足）と数字はこの中で上下中央
 
 
 def r2(label, fn, sub=None, bold=False):
     global y
-    text(s, cx2[0], y, 280, 30, label, size=18, bold=True)
+    tb = text(s, cx2[0], y, 280, RH, label, size=18, bold=True, anchor=MSO_ANCHOR.MIDDLE, spacing=1.0)
     if sub:
-        text(s, cx2[0], y + 28, 280, 22, sub, size=12, color=SECONDARY)
+        p_ = tb.text_frame.add_paragraph()
+        p_.line_spacing = 1.0
+        p_.space_before = Emu(int(pt(4) * 12700))
+        r_ = p_.add_run()
+        r_.text = sub
+        _set_font(r_, 12, SECONDARY, False)
     vals = []
     for b_ in ("ap", "af", "ha"):
         for P in SEQ:
             vals.append(fn(b_, P[b_]))
     for j, v in enumerate(vals):
-        text(s, cx2[1 + j], y, 114, 30, v, size=18, bold=bold, align=PP_ALIGN.RIGHT,
-             color=STRONG if v.startswith("▲") else (MUTED if v.startswith("確認") else MOSS))
-    y += 62 if sub else 48
-    hline(s, 56, y - 12, 1016)
+        text(s, cx2[1 + j], y, 114, RH, v, size=18, bold=bold, align=PP_ALIGN.RIGHT, anchor=MSO_ANCHOR.MIDDLE,
+             spacing=1.0, color=STRONG if v.startswith("▲") else (MUTED if v.startswith("確認") else MOSS))
+    y += RH
+    hline(s, 56, y, 1016)
 
 
 r2("売上（百万円）", lambda b, e: f"{e['S']:.1f}", "4〜6月は3か月の合計")
@@ -642,7 +656,7 @@ r2("直接固定費（百万円）", lambda b, e: "確認中" if b == "ha" else 
    "人件費＋倉庫・光熱費")
 r2("貢献利益（百万円）", lambda b, e: "確認中" if b == "ha" else yen(e["CONTRIB"]), bold=True)
 af_be = (af["NET"] - af["CONTRIB"]) / (af["NET"] / af["S"])
-text(s, 56, y + 6, 1016, 70,
+text(s, 56, y + 16, 1016, 70,
      [f"アンドフラワーの損益分岐は、4〜6月の利益率・固定費（月平均）で月商 約[[{af_be:.0f}百万円]]。",
       "5月は利益率が上がる一方、スポットの人件費も増えるため、月商30百万円でほぼトントン"], size=19, bold=True,
      spacing=1.45)
@@ -1178,7 +1192,7 @@ def draw_claims(s, claims, y=140):
 
 apq = PERIODS["q"]["ap"]
 draw_claims(summary_slide, [
-    ("1", "トップラインの鈍化は「意図した結果」であり、収益性は改善している", [
+    ("1", "トップラインの成長率鈍化は「意図した結果」であり、収益性は改善している", [
         f"26年1月以降、広告費を意図的に削減（年間{ap_fy_ad[2]:.0f}→{ap_fy_ad[3]:.0f}百万円。月次ではより大きく絞った）",
         f"それでも売上は前期並み（{ap_fy_s[2]:.0f}→{ap_fy_s[3]:.0f}百万円）を維持し、ROASは"
         f"{ap_fy_s[2] / ap_fy_ad[2] * 100:.0f}→{ap_fy_s[3] / ap_fy_ad[3] * 100:.0f}%に改善",
@@ -1196,11 +1210,10 @@ draw_claims(summary_slide, [
 footnote(summary_slide, "※ 数値は税抜。用語の定義と集計の前提は5ページ")
 y_ = draw_claims(summary_slide2, [
     ("3", "アンドフラワーは「平常月赤字・母の日で回収」の構造。拡大が収益化の条件", [
-        f"限界利益率{AF_MPR26 * 100:.1f}%、LTV/CAC {LTV['AF']['mp12'] / cac_af:.1f}倍と、1人あたりの採算は成立している",
+        f"限界利益率{AF_MPR26 * 100:.1f}%、LTV/CAC {LTV['AF']['mp12'] / cac_af:.1f}倍と、1人あたりの採算は成立",
         f"損益分岐は月商{need['AF'][2]:.0f}百万円（貢献利益ベース）。26年9月期の平均は{act['AF']:.1f}百万円（母の日の月は{peak['AF']:.0f}百万円超）",
         f"直接固定費の比率が高く、原価改善（−5ptで分岐{fixed / (m_now + 0.05):.0f}百万円）だけでは閉じない",
-        f"閉じる手段は数量＝販路。ギフティ様のLINEギフト等の販路が、この分岐を越える起点になる"
-        f"（自社ECへの送客なら月約{(-base_c * 1e6) / (AOV_G * AF_MPR26):,.0f}件でトントン）"]),
+        "今後、複数の売上・トップライン向上施策により、この分岐を超える販売数を担保する"]),
     ("4", "倉庫（川崎拠点）は、平常月の空き坪の使い方で坪効率を上げられる", [
         "坪あたり限界利益は、平常月で家賃の約4〜5倍、母の日の月は約17〜19倍",
         "ピークに合わせた面積が平常月に余っている。用途別に面積を割り、空き坪を坪あたり利益の高い用途で埋める"]),
