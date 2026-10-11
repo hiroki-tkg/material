@@ -292,7 +292,7 @@ text(s, 96, 250, 960, 40, "株式会社ギフティ様　ご参考資料", size=
 text(s, 96, 330, 980, 100, "事業エコノミクスの整理とまとめ", size=60, bold=True, spacing=1.3)
 text(s, 96, 450, 960, 40, "AP/AF・ハナイチの推移、今後のエコノミクス、川崎拠点の坪効率", size=24,
      color=SECONDARY)
-text(s, 96, 700, 900, 32, "2026年10月　株式会社DOMUZ　高木裕樹", size=22, color=SECONDARY)
+text(s, 96, 700, 900, 32, "2026年10月　株式会社DOMUZ　髙木 弘貴", size=22, color=SECONDARY)
 
 # =====================================================================
 # 2. 本資料の構成・要約・用語
@@ -322,8 +322,8 @@ TERMS = [
     ("限界利益", "売上 − 原価・送料・資材・決済手数料（ハナイチは粗利＝売上 − 仕入原価）"),
     ("広告費込み限界利益", "限界利益 − 広告費。AP/AFに共通する広告（母の日・指名検索など）は売上比で配賦"),
     ("ROAS", "売上 ÷ 広告費"),
-    ("直接固定費", "事業に直接かかる人件費（アルバイト・スポット・外部加工）と、水道光熱・車両・修繕・消耗品・通信・賃借料"),
-    ("貢献利益", "広告費込み限界利益 − 直接固定費。本社の人件費・共通費は含まない"),
+    ("直接固定費", "事業に直接かかる人件費（社員・アルバイト・スポット・CS按分・外部加工）と、倉庫・光熱費（倉庫の賃借料・家賃、水道光熱費）"),
+    ("貢献利益", "広告費込み限界利益 − 直接固定費。車両・修繕・消耗品・通信費と、本社の人件費・共通費は含まない"),
     ("出典", "受注データ（BigQuery）、社内の貢献利益集計（月次速報値を含む）、花拠点の坪効率シート。試算表とは集計基準が異なる"),
 ]
 y = 160
@@ -466,15 +466,33 @@ text(s, 56, 748, 1016, 40, "APは[[広告効率の改善で利益が残る形]]�
 divider("02", "UNIT ECONOMICS", "今後の事業におけるエコノミクス", "原価・広告ROAS・直接固定費")
 
 # ---- 現在のエコノミクス（閑散期＝26年9月、繁忙期＝26年5月）
-# AP/AF: 社内の貢献利益集計（9月は #リーダー の速報値、5月は「貢献利益（共有用）」）。
+# AP/AF: 予実管理Master「貢献利益(四半期)」の費目別の値（円）。9月は速報値。
+# 人件費 = 社員・アルバイト・CS按分・スポット・外部加工（三和園芸）、倉庫・光熱費 = 水道光熱費＋地代家賃・賃借料＋SBS賃借料。
+# 車両費・修繕費・備品消耗品費・通信費は含めない（貢献利益はこの2つだけを引いた値）。
 # 広告費 = 売上 × 限界利益率（BigQuery の同月） − 広告費込み限界利益（共通広告は売上比で配賦されたもの）
-def econ(S, NET, LABOR, CONTRIB, i, mp_series, s_series):
+COST = {
+    ("ap", "sep"): dict(S=44436966, NET=12772467, LABOR=[1131147, 177043, 90113, 2061598, 274837, 72432, 0, 71400,
+                                                        796534, 129723, 34591], WH=[29180, 219200, 1951580]),
+    ("ap", "may"): dict(S=65895599, NET=21702271, LABOR=[1137037, 177076, 90113, 2123313, 240866, 151827, 0, 1069600,
+                                                        964251, 147187, 39184], WH=[28330, 219200, 2167842]),
+    ("af", "sep"): dict(S=11345345, NET=2567548, LABOR=[1536726, 246035, 96987, 2783619, 308452, 184987, -317460,
+                                                       -27160, -28468, 50534, 203366, 33120, 8832],
+                        WH=[125354, 1010532]),
+    ("af", "may"): dict(S=30414263, NET=9422901, LABOR=[1385334, 212233, 76610, 4237428, 338411, 499364, -155870,
+                                                       -12772, -27452, 1207516, 445052, 67935, 18086],
+                        WH=[122917, 1010532]),
+}
+
+
+def econ(biz, key, i, mp_series, s_series):
+    c = COST[(biz, key)]
+    S, NET = c["S"] / 1e6, c["NET"] / 1e6
     mpr = mp_series[i] / s_series[i]
-    e = dict(S=S, NET=NET, LABOR=LABOR, CONTRIB=CONTRIB)
+    e = dict(S=S, NET=NET, LABOR=sum(c["LABOR"]) / 1e6, OTHER=sum(c["WH"]) / 1e6)
+    e["CONTRIB"] = NET - e["LABOR"] - e["OTHER"]
     e["COGS"] = S * (1 - mpr)
     e["AD"] = S * mpr - NET
     e["ROAS"] = S / e["AD"] * 100
-    e["OTHER"] = NET - LABOR - CONTRIB
     return e
 
 
@@ -488,12 +506,12 @@ def ha_econ(i):
 
 PERIODS = {
     "sep": dict(label="閑散期（26年9月）",
-                ap=econ(44.44, 12.77, 2.41, 5.27, 47, AP_MP, AP_S),
-                af=econ(11.35, 2.57, 3.28, -4.07, 47, AF_MP, AF_S),
+                ap=econ("ap", "sep", 47, AP_MP, AP_S),
+                af=econ("af", "sep", 47, AF_MP, AF_S),
                 ha=ha_econ(47)),
     "may": dict(label="繁忙期（26年5月・母の日）",
-                ap=econ(65.90, 21.70, 3.59, 12.73, 43, AP_MP, AP_S),
-                af=econ(30.41, 9.42, 6.09, -0.36, 43, AF_MP, AF_S),
+                ap=econ("ap", "may", 43, AP_MP, AP_S),
+                af=econ("af", "may", 43, AF_MP, AF_S),
                 ha=ha_econ(43)),
 }
 ap, af = PERIODS["sep"]["ap"], PERIODS["sep"]["af"]
@@ -522,11 +540,11 @@ def waterfall(s, x, name, steps, end_label, end_val, sales, color, lo=-40):
         cur -= p
     bx += bw + gap
     endp = end_val / sales * 100
-    col = LIGHT if endp >= 0 else STRONG
+    col = LIGHT if endp >= 0 else (MUTED if round(endp) == 0 else STRONG)
     y0, y1 = sorted((yv(0), yv(endp)))
     rect(s, bx, y0, bw, max(y1 - y0, 2), col)
     ly = y0 - 24 if endp >= 0 else y1 + 3
-    text(s, bx - 6, ly, bw + 12, 22, f"{endp:.0f}", size=15, bold=True, color=col, align=PP_ALIGN.CENTER, en=True)
+    text(s, bx - 6, ly, bw + 12, 22, f"{round(endp) or 0:.0f}", size=15, bold=True, color=col, align=PP_ALIGN.CENTER, en=True)
     labels.append((bx, end_label, MOSS, True))
     hline(s, x - 6, yv(0), bx + bw + 12 - x, MUTED)
     for lx, lab, c, b in labels:
@@ -539,10 +557,10 @@ def econ_slide(key, n, takeaway, note):
     s = content_slide(f"エコノミクス{n}：{P['label']}", "売上を100としたときの内訳　※税抜")
     a_, f_, h_ = P["ap"], P["af"], P["ha"]
     waterfall(s, 56, "アンドプランツ",
-              [("原価等", a_["COGS"]), ("広告費", a_["AD"]), ("人件費", a_["LABOR"]), ("その他", a_["OTHER"])],
+              [("原価等", a_["COGS"]), ("広告費", a_["AD"]), ("人件費", a_["LABOR"]), ("倉庫・\n光熱費", a_["OTHER"])],
               "貢献\n利益", a_["CONTRIB"], a_["S"], MOSS)
     waterfall(s, 420, "アンドフラワー",
-              [("原価等", f_["COGS"]), ("広告費", f_["AD"]), ("人件費", f_["LABOR"]), ("その他", f_["OTHER"])],
+              [("原価等", f_["COGS"]), ("広告費", f_["AD"]), ("人件費", f_["LABOR"]), ("倉庫・\n光熱費", f_["OTHER"])],
               "貢献\n利益", f_["CONTRIB"], f_["S"], FLOWER)
     waterfall(s, 784, "ハナイチ", [("原価", h_["COGS"]), ("広告費", h_["AD"])],
               "広告費\n込み粗利", h_["NET"], h_["S"], MOSS)
@@ -553,13 +571,14 @@ def econ_slide(key, n, takeaway, note):
     footnote(s, note)
 
 
-NOTE_ECON = ("広告費は受注データの限界利益率から算出（共通広告は売上比で配賦）。その他＝光熱・消耗品・賃借料等（貢献利益からの逆算）。"
-             "ハナイチは受注データの粗利")
+NOTE_ECON = ("人件費＝社員・アルバイト・スポット・CS按分・外部加工。倉庫・光熱費＝倉庫の賃借料・家賃（APは外部倉庫SBS）＋水道光熱費。"
+             "広告費は受注データの限界利益率から算出（共通広告は売上比で配賦）。ハナイチは受注データの粗利")
 econ_slide("sep", "①", ["アンドプランツは平常月でも貢献利益が残る。アンドフラワーは原価・広告は回っているが、",
                         "[[固定費を賄う売上規模]]に届いていない"],
-           "※ 社内の9月貢献利益（速報値。APはSBSの棚卸費用を含む）。" + NOTE_ECON)
-econ_slide("may", "②", ["繁忙期はアンドプランツの貢献利益が月12.7百万円。アンドフラワーは売上が3倍になるが、",
-                        "人件費（スポット含む）も増え、[[母の日の月でほぼ損益分岐]]"],
+           "※ 社内の貢献利益集計（9月は速報値）。" + NOTE_ECON)
+econ_slide("may", "②", [f"繁忙期はアンドプランツの貢献利益が月{PERIODS['may']['ap']['CONTRIB']:.1f}百万円。"
+                        "アンドフラワーは売上が3倍になるが、",
+                        "人件費（スポット含む）も増え、[[母の日の月で損益分岐]]（貢献利益ほぼ0）"],
            "※ 社内の貢献利益集計（26年5月）。APの人件費は外部加工費1.1百万円を含む。" + NOTE_ECON)
 
 # ---- 主要指標（表）：閑散期と繁忙期を並べる
@@ -593,7 +612,7 @@ def r2(label, fn, sub=None, bold=False):
 
 
 def yen(v):
-    return f"▲{-v:.1f}" if v < 0 else f"{v:.1f}"
+    return f"▲{-v:.1f}" if v <= -0.05 else f"{abs(v):.1f}"
 
 
 r2("売上（月・百万円）", lambda b, e: f"{e['S']:.1f}")
@@ -601,7 +620,7 @@ r2("原価率", lambda b, e: f"{e['COGS'] / e['S'] * 100:.0f}%", "AP/AFは原価
 r2("広告ROAS", lambda b, e: f"{e['ROAS']:.0f}%", "売上÷広告費")
 r2("広告費込み限界利益率", lambda b, e: f"{e['NET'] / e['S'] * 100:.1f}%", "ハナイチは広告費込み粗利率", bold=True)
 r2("直接固定費（月・百万円）", lambda b, e: "確認中" if b == "ha" else f"{e['LABOR'] + e['OTHER']:.1f}",
-   "人件費＋光熱・消耗品・賃借料等")
+   "人件費＋倉庫・光熱費")
 r2("貢献利益（月・百万円）", lambda b, e: "確認中" if b == "ha" else yen(e["CONTRIB"]), bold=True)
 af_be = (af["NET"] - af["CONTRIB"]) / (af["NET"] / af["S"])
 text(s, 56, y + 6, 1016, 70,
@@ -812,7 +831,7 @@ SUM = [
         f"ハナイチ：売上{ha_fy_s[3]:.0f}百万円（+{(ha_fy_s[3] / ha_fy_s[2] - 1) * 100:.0f}%）。注文数が伸びている"]),
     ("2", "今後のエコノミクス", [
         f"貢献利益（月）は、アンドプランツが閑散期{PERIODS['sep']['ap']['CONTRIB']:.1f}・繁忙期{PERIODS['may']['ap']['CONTRIB']:.1f}百万円。"
-        f"アンドフラワーは閑散期▲{-PERIODS['sep']['af']['CONTRIB']:.1f}、繁忙期▲{-PERIODS['may']['af']['CONTRIB']:.1f}百万円",
+        f"アンドフラワーは閑散期{yen(PERIODS['sep']['af']['CONTRIB'])}、繁忙期{yen(PERIODS['may']['af']['CONTRIB'])}百万円（ほぼ損益分岐）",
         f"アンドフラワーの損益分岐は月商 約{af_be:.0f}百万円。卸・輸入で原価率を5pt下げると年+{tot5:.0f}百万円（3事業計）"]),
     ("3", "倉庫の収益性", [
         "川崎拠点の坪あたり限界利益は、平常月で家賃の約4〜5倍、母の日の月は約17〜19倍",
