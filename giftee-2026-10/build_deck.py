@@ -32,7 +32,7 @@ WATERMARK = RGBColor(0xEC, 0xEE, 0xEE)   # --watermark
 PALE = RGBColor(0xE4, 0xE8, 0xE9)        # 売上の棒（背景寄りのグレー）
 
 FONT_EN = "Montserrat"  # ギフティ向け株主報告資料と同じ
-FONT_JA = "Noto Sans CJK JP"  # 和文は Montserrat にないため Noto で補う
+FONT_JA = "Zen Kaku Gothic New"  # 和文はデザインシステムの指定フォント（Montserrat にない文字を補う）
 
 W_PX, H_PX = 1128, 846
 EMU_PER_PX = 9144000 / W_PX  # 10in 幅
@@ -502,16 +502,16 @@ def waterfall(s, x, name, steps, end_label, end_val, sales, color, lo=-40, unit=
         p = v / sales * 100
         y0, y1 = yv(cur), yv(cur - p)
         rect(s, bx, y0, bw, y1 - y0, BG_GRAY)
-        text(s, bx - 10, y1 + 3, bw + 20, 20, f"{p:.0f}", size=13, color=SECONDARY, align=PP_ALIGN.CENTER, en=True)
+        text(s, bx - 12, y1 + 3, bw + 24, 20, f"{p:.1f}", size=12, color=SECONDARY, align=PP_ALIGN.CENTER, en=True)
         labels.append((bx, lab, SECONDARY, False))
         cur -= p
     bx += bw + gap
     endp = end_val / sales * 100
-    col = LIGHT if endp >= 0 else (MUTED if round(endp) == 0 else STRONG)
+    col = LIGHT if endp >= 0 else (MUTED if abs(endp) < 0.05 else STRONG)
     y0, y1 = sorted((yv(0), yv(endp)))
     rect(s, bx, y0, bw, max(y1 - y0, 2), col)
     ly = y0 - 24 if endp >= 0 else y1 + 3
-    text(s, bx - 6, ly, bw + 12, 22, f"{round(endp) or 0:.0f}", size=15, bold=True, color=col, align=PP_ALIGN.CENTER, en=True)
+    text(s, bx - 12, ly, bw + 24, 22, f"{endp:.1f}", size=14, bold=True, color=col, align=PP_ALIGN.CENTER, en=True)
     labels.append((bx, end_label, MOSS, True))
     hline(s, x - 6, yv(0), bx + bw + 12 - x, MUTED)
     for lx, lab, c, b in labels:
@@ -982,7 +982,7 @@ def draw_claims(s, claims, y=140):
 
 apq = PERIODS["q"]["ap"]
 draw_claims(summary_slide, [
-    ("1", "トップラインの成長率鈍化は意図した結果であり、収益性は改善している", [
+    ("1", "トップラインの成長率鈍化は意図した結果であり、収益性は改善", [
         f"26年1月以降、広告費を意図的に削減（年間{ap_fy_ad[2]:.0f}→{ap_fy_ad[3]:.0f}百万円。月次ではより大きく絞った）",
         f"それでも売上は前期並み（{ap_fy_s[2]:.0f}→{ap_fy_s[3]:.0f}百万円）を維持し、ROASは"
         f"{ap_fy_s[2] / ap_fy_ad[2] * 100:.0f}→{ap_fy_s[3] / ap_fy_ad[3] * 100:.0f}%に改善",
@@ -990,7 +990,7 @@ draw_claims(summary_slide, [
         f"同率{ap_fy_net[2] / ap_fy_s[2] * 100:.1f}→{ap_fy_net[3] / ap_fy_s[3] * 100:.1f}%",
         "ファイナンス環境の変化を受け、トップラインより健全性を優先した経営判断であり、広告効率の悪化ではない"]),
     ("2", "アンドプランツは、採算が合った状態で広告を踏める", [
-        f"CAC {cac_ap:,.0f}円に対し、12か月LTV（限界利益）は{LTV['AP']['mp12']:,}円で、"
+        f"CAC {cac_ap:,.0f}円に対し、12か月LTV（限界利益ベース）は{LTV['AP']['mp12']:,}円で、"
         f"LTV/CAC {LTV['AP']['mp12'] / cac_ap:.1f}倍。12か月以内に回収が完結している",
         f"12か月リピート率{LTV['AP']['rep12']:.0f}%。売上に占めるリピート顧客は{REPEAT_SHARE['AP'][1]:.1f}%",
         f"月商{need['AP'][2]:.1f}百万円で損益分岐（貢献利益ベース）。26年9月期は月平均{act['AP']:.1f}百万円で大きく上回る",

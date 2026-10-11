@@ -9,7 +9,7 @@ import re
 
 HERE = os.path.dirname(os.path.abspath(__file__))
 slides = []
-for k, path in enumerate(sorted(glob.glob(os.path.join(HERE, "preview/svg18/s*.svg"))), 1):
+for k, path in enumerate(sorted(glob.glob(os.path.join(HERE, "preview/svg19/s*.svg"))), 1):
     svg = open(path, encoding="utf-8").read()
     svg = re.sub(r"<\?xml[^>]*\?>\s*", "", svg)
     # ページごとに id が重なるので接頭辞を付ける
