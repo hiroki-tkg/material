@@ -412,7 +412,7 @@ trend_slide(
     "アンドプランツ：月次売上と期別の収益性", AP_S, AP_MP, AP_AD, AP_NET, AP_GREEN, 70,
     "※ 税抜・注文日ベース。自社EC＋モール（楽天・Amazon・Yahoo!）。BigQuery（and-plants）の事業別月次。"
     "モール広告費は25年6月以降のみ計上（それ以前の広告費込み限界利益は実態より高め）",
-    f"広告費を絞って広告費込み限界利益は年間{ap_fy_net[3]:.0f}百万円（前期比 +{(ap_fy_net[3] / ap_fy_net[2] - 1) * 100:.0f}%）に",
+    f"年間の売上は{ap_fy_s[3]:.0f}百万円。広告費を絞って広告費込み限界利益は年間{ap_fy_net[3]:.0f}百万円（前期比 +{(ap_fy_net[3] / ap_fy_net[2] - 1) * 100:.0f}%）に",
 )
 trend_slide(
     "アンドフラワー：月次売上と期別の収益性", AF_S, AF_MP, AF_AD, AF_NET, FLOWER, 35,
