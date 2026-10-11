@@ -22,6 +22,7 @@ from pptx.util import Emu
 MOSS = RGBColor(0x00, 0x43, 0x47)        # --brand-primary / --text-primary
 LIGHT = RGBColor(0x00, 0xD7, 0x9C)       # --brand-secondary
 FLOWER = RGBColor(0xEF, 0x66, 0x7D)      # --brand-flower
+FLOWER_LIGHT = RGBColor(0xF7, 0xB3, 0xBE)  # 花の薄い色
 SECONDARY = RGBColor(0x62, 0x62, 0x62)   # --text-secondary
 STRONG = RGBColor(0xE1, 0x64, 0x64)      # --text-strong
 MUTED = RGBColor(0x99, 0x99, 0x99)       # --text-muted
@@ -218,65 +219,11 @@ def divider(num, en_label, title, sub=""):
 # =====================================================================
 # データ（2022年10月〜2026年9月の48か月。単位：百万円・税抜）
 # =====================================================================
-YM = [(2022 + (9 + i) // 12, (9 + i) % 12 + 1) for i in range(48)]  # (年, 月)
+from data_monthly import (YM, mi, AP_S, AP_MP, AP_AD, AP_NET, AF_S, AF_MP, AF_AD, AF_NET,
+                          WEB_AP_AD, WEB_AF_AD, MALL_AP_AD, MALL_AP_S, MALL_AD_RATIO)
+
 FY_NAMES = ["23年9月期", "24年9月期", "25年9月期", "26年9月期"]
-
-AP_S = [11.2, 10.6, 10.5, 12.0, 13.1, 16.4, 19.8, 19.1, 19.1, 24.8, 19.9, 17.7,
-        22.2, 20.3, 22.5, 29.3, 24.7, 36.6, 37.6, 40.0, 40.1, 35.9, 37.2, 46.5,
-        39.3, 33.2, 37.5, 59.0, 39.3, 47.2, 61.9, 62.3, 46.8, 47.5, 38.8, 42.0,
-        41.3, 39.4, 37.5, 63.1, 34.5, 43.6, 58.6, 65.5, 47.9, 49.0, 40.1, 42.6]
-AP_MP = [5.4, 5.0, 5.0, 5.6, 6.1, 7.8, 9.4, 9.2, 9.3, 11.4, 8.9, 8.1,
-         9.9, 8.8, 10.4, 13.1, 11.5, 16.3, 17.2, 18.4, 18.4, 16.3, 17.1, 21.0,
-         17.9, 15.4, 18.1, 25.9, 18.8, 21.5, 29.0, 29.0, 21.5, 21.2, 17.9, 19.7,
-         18.6, 18.5, 17.8, 27.8, 16.8, 20.7, 27.8, 31.1, 22.5, 22.3, 18.3, 19.6]
-AP_NET = [3.3, 2.7, 2.9, 3.7, 3.6, 5.1, 5.6, 4.7, 6.5, 5.8, 4.6, 4.0,
-          4.6, 4.0, 5.9, 8.5, 6.5, 9.4, 8.8, 7.3, 10.1, 8.0, 8.6, 11.1,
-          10.0, 9.1, 8.3, 18.3, 11.6, 15.7, 16.5, 12.7, 11.9, 11.7, 11.6, 13.2,
-          11.6, 12.0, 12.0, 21.5, 13.6, 17.5, 17.1, 17.4, 14.2]
-AP_ROAS = [545, 478, 506, 634, 526, 605, 514, 422, 669, 440, 467, 427,
-           422, 418, 499, 626, 493, 530, 450, 360, 482, 432, 435, 468,
-           495, 529, 381, 785, 544, 810, 499, 383, 491, 497, 616, 644,
-           588, 605, 651, 996, 1061, 1342, 544, 478, 579, 564, 543, 613]
-
-AF_S = [1.1, 1.1, 1.9, 1.7, 1.7, 2.8, 6.4, 8.7, 1.8, 2.3, 2.2, 3.7,
-        3.3, 3.7, 3.9, 4.5, 5.6, 10.1, 16.3, 19.6, 5.6, 6.9, 9.3, 10.8,
-        11.0, 10.3, 11.8, 9.9, 12.6, 14.0, 21.7, 23.8, 10.8, 11.2, 10.5, 13.9,
-        14.6, 14.6, 11.9, 12.1, 10.4, 14.6, 27.8, 30.3, 8.4, 7.5, 9.0, 11.3]
-AF_MP = [0.6, 0.5, 1.0, 0.8, 0.8, 1.4, 2.6, 3.8, 0.9, 1.1, 1.1, 1.7,
-         1.6, 1.8, 1.9, 2.0, 2.5, 4.4, 8.0, 10.4, 2.5, 2.9, 4.0, 4.7,
-         4.8, 4.6, 5.3, 4.3, 5.6, 6.3, 11.0, 12.6, 4.9, 5.1, 4.7, 6.3,
-         6.4, 6.6, 5.3, 5.2, 4.6, 6.7, 15.5, 17.7, 4.1, 3.5, 4.3, 5.5]
-AF_NET = [0.5, 0.3, 0.7, 0.4, 0.3, 0.6, 1.4, 2.5, 0.0, 0.0, 0.4, 0.4,
-          0.6, 0.6, 0.9, 0.8, 1.1, 1.5, 3.1, 5.4, 0.0, 0.0, -0.2, 0.1,
-          -1.1, -0.6, 0.2, 0.2, -0.8, 1.1, 4.9, 7.8, -0.3, -0.4, 0.7, 2.3,
-          1.9, 2.0, 1.1, 1.5, 2.3, 3.5, 11.9, 13.7, 2.0]
-AF_ROAS = [1868, 627, 538, 415, 315, 373, 521, 665, 218, 201, 347, 288,
-           327, 302, 424, 378, 385, 335, 335, 398, 228, 235, 219, 237,
-           184, 196, 229, 240, 196, 270, 360, 487, 212, 206, 266, 346,
-           331, 316, 287, 320, 438, 464, 763, 755, 408, 445, 480, 376]
-
-# ハナイチは 2024年2月から（それ以前は 0）
-_pad = [0.0] * 16
-HA_S = _pad + [0.0, 0.63, 1.49, 0.92, 1.66, 3.44, 2.05, 1.86, 1.44, 0.45, 1.03, 0.6, 1.76, 3.37, 4.64, 2.49,
-               3.64, 3.94, 3.57, 3.45, 2.3, 2.43, 2.72, 1.88, 2.34, 5.64, 5.79, 4.42, 3.64, 4.19, 5.94, 5.53]
-HA_GP = _pad + [0.0, 0.26, 0.59, 0.37, 0.67, 1.36, 0.81, 0.71, 0.56, 0.14, 0.27, 0.17, 0.47, 0.97, 1.33, 0.74,
-                1.09, 1.34, 1.12, 1.0, 0.57, 0.63, 0.76, 0.6, 0.76, 2.06, 2.17, 1.64, 1.28, 1.39, 1.71, 1.52]
-HA_ROAS = [None] * 25 + [5989, 1244, 577, 491, 346, 295, 255, 215, 453, 570, 688, 381, 387, 448, 364, 545,
-                         1249, 1766, 1690, 1264, 727, 448, 398]
-
-
-def ad_from_roas(sales, roas):
-    return [s * 100 / r if r else 0.0 for s, r in zip(sales, roas)]
-
-
-AP_AD = ad_from_roas(AP_S, AP_ROAS)
-AF_AD = ad_from_roas(AF_S, AF_ROAS)
-HA_AD = ad_from_roas(HA_S, HA_ROAS)
-# 26年7〜9月の広告費込み限界利益 = 限界利益 − 広告費
-AP_NET = AP_NET + [m - a for m, a in zip(AP_MP[45:], AP_AD[45:])]
-AF_NET = AF_NET + [m - a for m, a in zip(AF_MP[45:], AF_AD[45:])]
-HA_NET = [g - a for g, a in zip(HA_GP, HA_AD)]
-assert all(len(v) == 48 for v in (AP_S, AP_MP, AP_NET, AP_AD, AF_S, AF_MP, AF_NET, AF_AD, HA_S, HA_GP, HA_NET, HA_AD))
+assert all(len(v) == 48 for v in (AP_S, AP_MP, AP_NET, AP_AD, AF_S, AF_MP, AF_NET, AF_AD))
 
 
 def fy_sum(series):
@@ -291,7 +238,7 @@ s = prs.slides.add_slide(BLANK)
 rect(s, 0, 0, 8, H_PX, LIGHT)
 text(s, 96, 250, 960, 40, "株式会社ギフティ様　ご参考資料", size=26, color=SECONDARY)
 text(s, 96, 330, 980, 100, "事業エコノミクスの整理とまとめ", size=60, bold=True, spacing=1.3)
-text(s, 96, 450, 960, 40, "AP/AF・ハナイチの推移と、今後のエコノミクス", size=24,
+text(s, 96, 450, 960, 40, "アンドプランツ/アンドフラワーの推移と、今後のエコノミクス", size=24,
      color=SECONDARY)
 text(s, 96, 640, 900, 120, ["2026年10月", "株式会社DOMUZ", "髙木 弘貴"], size=22, color=SECONDARY, spacing=1.5)
 
@@ -363,7 +310,7 @@ def trend_slide(title, sales, mp, ad, net, color, ymax, note, msg, fy0=0, mp_lab
     cxs = [56, 190, 290, 410, 520, 620, 740, 950]
     cws = [130, 100, 120, 110, 100, 120, 210, 122]
     ty = 512
-    rect(s, 56, ty, 1016, 40, MOSS)
+    rect(s, 56, ty, 1016, 40, MOSS if color != FLOWER else FLOWER)
     for j, h in enumerate(hdr):
         text(s, cxs[j] + (12 if j == 0 else 0), ty, cws[j] - (0 if j == 0 else 12), 40, h, size=16, color=WHITE,
              bold=True, anchor=MSO_ANCHOR.MIDDLE, align=PP_ALIGN.LEFT if j == 0 else PP_ALIGN.RIGHT)
@@ -388,20 +335,19 @@ def trend_slide(title, sales, mp, ad, net, color, ymax, note, msg, fy0=0, mp_lab
 
 ap_fy_s, ap_fy_net, ap_fy_ad = fy_sum(AP_S), fy_sum(AP_NET), fy_sum(AP_AD)
 af_fy_s, af_fy_net, af_fy_ad = fy_sum(AF_S), fy_sum(AF_NET), fy_sum(AF_AD)
-ha_fy_s, ha_fy_net, ha_fy_ad, ha_fy_gp = fy_sum(HA_S), fy_sum(HA_NET), fy_sum(HA_AD), fy_sum(HA_GP)
 
 AP_GREEN = LIGHT
 trend_slide(
     "アンドプランツ：月次売上と期別の収益性", AP_S, AP_MP, AP_AD, AP_NET, AP_GREEN, 70,
-    "※ 税抜・注文日ベース。自社EC＋モール（楽天・Amazon・Yahoo!）。BigQuery（and-plants）の事業別月次。"
-    "モール広告費は25年6月以降のみ計上（それ以前の広告費込み限界利益は実態より高め）",
+    f"※ 税抜・注文日ベース。売上・限界利益・広告費はいずれも自社EC＋モール（楽天・Amazon・Yahoo!）。"
+    f"モール広告費は社内集計のある月（25年4〜6月・26年4〜9月）は実績、それ以外はモール限界利益の{MALL_AD_RATIO[1] * 100:.0f}%で推計",
     f"年間の売上は{ap_fy_s[3]:.0f}百万円。広告費を絞って広告費込み限界利益は年間{ap_fy_net[3]:.0f}百万円（前期比 +{(ap_fy_net[3] / ap_fy_net[2] - 1) * 100:.0f}%）に",
 )
 AF69 = {k_: (sum(v_[i] for i in range(32, 36)), sum(v_[i] for i in range(44, 48)))
         for k_, v_ in (("s", AF_S), ("ad", AF_AD), ("net", AF_NET))}  # 6〜9月の合計（25年, 26年）
 trend_slide(
     "アンドフラワー：月次売上と期別の収益性", AF_S, AF_MP, AF_AD, AF_NET, FLOWER, 35,
-    f"※ 税抜・注文日ベース。自社EC（モールの花は微小のため含む）。BigQuery（and-plants）の事業別月次。"
+    f"※ 税抜・注文日ベース。自社EC＋モール（花のモール売上は微小）。共通広告は自社ECの売上比で月ごとに配賦。"
     f"6〜9月の合計（25年→26年）：広告費{AF69['ad'][0]:.1f}→{AF69['ad'][1]:.1f}、売上{AF69['s'][0]:.1f}→{AF69['s'][1]:.1f}百万円",
     f"26年6〜9月は広告費を前年の半分以下に絞り、広告費込み限界利益は{AF69['net'][0]:.1f}→{AF69['net'][1]:.1f}百万円に増加",
 )
@@ -428,12 +374,6 @@ MONTHLY = {  # (売上, 広告費込み限界利益, 人件費, 倉庫・光熱�
     ("ap", "2026-07"): (50032306, 14791661, 4974759, 2206555), ("ap", "2026-08"): (42078221, 12800591, 5035606, 1978470),
     ("ap", "2026-09"): (44436966, 12772467, 4839419, 2199960),
 }
-
-
-def mi(ym):
-    """'2026-05' → 月次データ（2022年10月始まり）の位置。"""
-    y_, m_ = map(int, ym.split("-"))
-    return (y_ - 2022) * 12 + m_ - 10
 
 
 def econ(biz, months):
@@ -465,30 +405,19 @@ def per_month(e, n):
     return {k: (v / n if k != "ROAS" else v) for k, v in e.items()}
 
 
-def ha_econ(months):
-    idx = [mi(ym) for ym in months]
-    e = dict(S=sum(HA_S[i] for i in idx), GP=sum(HA_GP[i] for i in idx))
-    e["AD"] = sum(HA_S[i] * 100 / HA_ROAS[i] for i in idx)
-    e["ROAS"] = e["S"] / e["AD"] * 100
-    e["COGS"] = e["S"] - e["GP"]
-    e["NET"] = e["GP"] - e["AD"]
-    return e
-
-
 Q3 = ["2026-04", "2026-05", "2026-06"]
 PERIODS = {
     "q": dict(label="繁忙期を含む四半期（26年4〜6月）", short="4〜6月",
-              ap=econ("ap", Q3), af=econ("af", Q3), ha=ha_econ(Q3)),
+              ap=econ("ap", Q3), af=econ("af", Q3)),
     "may": dict(label="繁忙期（26年5月・母の日）", short="5月",
-                ap=econ("ap", ["2026-05"]), af=econ("af", ["2026-05"]), ha=ha_econ(["2026-05"])),
+                ap=econ("ap", ["2026-05"]), af=econ("af", ["2026-05"])),
 }
 PREV_Q = {b_: econ(b_, ["2025-04", "2025-05", "2025-06"]) for b_ in ("ap", "af")}  # 前年同期
 # 損益分岐・感応度は四半期の月平均で見る
 ap, af = per_month(PERIODS["q"]["ap"], 3), per_month(PERIODS["q"]["af"], 3)
-HA_NOW = PERIODS["q"]["ha"]
 
 
-def waterfall(s, x, name, steps, end_label, end_val, sales, color, lo=-40, unit=""):
+def waterfall(s, x, name, steps, end_label, end_val, sales, color, lo=-40, unit="", bar=None):
     """steps: [(ラベル, 金額)] を売上から順に引く。縦軸は 100 〜 lo（%）で3事業共通。"""
     text(s, x, 156, 330, 34, name, size=24, bold=True, color=color)
     end_name = end_label.replace("\n", "")
@@ -511,7 +440,7 @@ def waterfall(s, x, name, steps, end_label, end_val, sales, color, lo=-40, unit=
         cur -= p
     bx += bw + gap
     endp = end_val / sales * 100
-    col = LIGHT if endp >= 0 else (MUTED if abs(endp) < 0.05 else STRONG)
+    col = (bar or color) if endp >= 0 else (MUTED if abs(endp) < 0.05 else STRONG)
     y0, y1 = sorted((yv(0), yv(endp)))
     rect(s, bx, y0, bw, max(y1 - y0, 2), col)
     ly = y0 - 24 if endp >= 0 else y1 + 3
@@ -531,7 +460,7 @@ def econ_slide(key, n, takeaway, note):
     unit = "（3か月計）" if key == "q" else ""
     waterfall(s, 150, "アンドプランツ",
               [("原価等", a_["COGS"]), ("広告費", a_["AD"]), ("人件費", a_["LABOR"]), ("倉庫・\n光熱費", a_["OTHER"])],
-              "貢献\n利益", a_["CONTRIB"], a_["S"], MOSS, unit=unit)
+              "貢献\n利益", a_["CONTRIB"], a_["S"], MOSS, unit=unit, bar=LIGHT)
     waterfall(s, 640, "アンドフラワー",
               [("原価等", f_["COGS"]), ("広告費", f_["AD"]), ("人件費", f_["LABOR"]), ("倉庫・\n光熱費", f_["OTHER"])],
               "貢献\n利益", f_["CONTRIB"], f_["S"], FLOWER, unit=unit)
@@ -659,7 +588,7 @@ text(s, 56, 692, 1016, 60,
       f"売上は{jm_s[1]:.0f}→{jm_s[0]:.0f}百万円（{(jm_s[0] / jm_s[1] - 1) * 100:.0f}%）。",
       "ファイナンス環境の変化を受け、トップラインより健全性を優先した[[経営判断]]であり、広告効率の悪化ではない"],
      size=18, bold=True, spacing=1.45)
-footnote(s, "※ BigQuery（and-plants）の事業別月次。広告費は25年6月以降モール（Amazon・楽天）を含む（それ以前は自社ECのみ）")
+footnote(s, "※ 売上・広告費とも自社EC＋モール（楽天・Amazon・Yahoo!）。モール広告費は社内集計のない月は推計（推移ページの注記を参照）")
 
 # ---- 広告投資②：アンドフラワーの月次の広告費・売上・ROAS（24年10月〜26年9月）
 s = content_slide("広告投資②：アンドフラワーも広告費を絞った",
@@ -721,11 +650,11 @@ for lab, (a1, a2), (b1, b2) in cmp_rows:
         text(s, 330 + j * 370, y, 360, 26, f"{u:.1f} → {v:.1f}百万円{tag}", size=16, bold=(lab != "売上"),
              color=MOSS, anchor=MSO_ANCHOR.MIDDLE)
     y += 28
-footnote(s, "※ BigQuery（and-plants）の事業別月次。母の日の4〜5月は需要が大きく、広告費を絞ってもROASが高く出る")
+footnote(s, "※ 自社EC＋モール（花のモール売上は微小）。母の日の4〜5月は需要が大きく、広告費を絞ってもROASが高く出る")
 
 # ---- LTV/CAC：自社EC（Shopify）の受注を顧客単位で集計（BigQuery and-plants.datawarehouse.sales_profit_by_items）
 # LTV = 初回購入から12か月の限界利益（広告費控除前）の1人あたり平均。初回購入が25年9月期の顧客（12か月を追える最新の年度）。
-# CAC = その年度の広告費 ÷ 新規顧客数（広告費はすべて新規獲得にかかったとみなす。APは25年6月以降モール広告費を含むため高め）
+# CAC = その年度のWeb広告費（モール広告費を除く）÷ 新規顧客数（広告費はすべて新規獲得にかかったとみなす）
 LTV = {  # 25年9月期に初回購入した顧客の12か月
     "AP": dict(new25=28625, aov=11156, orders=1.39, sales12=14802, mp12=7186, rep12=22.0, rep3=14.3),
     "AF": dict(new25=17438, aov=7479, orders=1.24, sales12=8955, mp12=4182, rep12=14.1, rep3=7.7),
@@ -734,8 +663,8 @@ NEW26 = {"AP": 24472, "AF": 16864}
 AOV26 = {"AP": 11444, "AF": 7398}  # 26年9月期に初回購入した顧客の初回の購入単価
 MP_FIRST26 = {"AP": 5615, "AF": 3653}  # 同じ顧客の初回購入の限界利益（広告費控除前）
 REPEAT_SHARE = {"AP": (29.5, 34.7), "AF": (19.2, 27.3)}  # リピート顧客の売上比率（25年9月期, 26年9月期）
-AD26 = {"AP": ap_fy_ad[3], "AF": af_fy_ad[3]}
-AD25 = {"AP": ap_fy_ad[2], "AF": af_fy_ad[2]}
+AD26 = {"AP": fy_sum(WEB_AP_AD)[3], "AF": fy_sum(WEB_AF_AD)[3]}  # 自社ECの新規獲得なので、モール広告費は除く
+AD25 = {"AP": fy_sum(WEB_AP_AD)[2], "AF": fy_sum(WEB_AF_AD)[2]}
 
 s = content_slide("LTV/CAC：観葉植物と花", "自社ECの新規顧客1人あたり　※税抜")
 for k, (b_, name, col) in enumerate([("AP", "アンドプランツ（観葉植物）", MOSS), ("AF", "アンドフラワー（花）", FLOWER)]):
@@ -765,7 +694,7 @@ for k, (b_, name, col) in enumerate([("AP", "アンドプランツ（観葉植�
     text(s, x, 300, w, 22, f"LTV {L['mp12']:,}円 ÷ CAC {cac26:,.0f}円　／　売上ベースは12か月の売上{L['sales12']:,}円 ÷ CAC",
          size=12, color=SECONDARY)
     rows_ = [
-        ("CAC（広告費÷新規顧客数）", f"{cac25:,.0f}円", f"{cac26:,.0f}円"),
+        ("CAC（Web広告費÷新規）", f"{cac25:,.0f}円", f"{cac26:,.0f}円"),
         ("初回の購入単価", f"{L['aov']:,}円", f"{AOV26[b_]:,}円"),
         ("12か月の購入回数", f"{L['orders']:.2f}回", "—"),
         ("12か月の売上（LTV・売上）", f"{L['sales12']:,}円", "—"),
@@ -796,7 +725,7 @@ text(s, 56, 694, 1016, 60,
       f"アンドフラワーも初回の限界利益{MP_FIRST26['AF']:,}円 ＞ CAC{cac_af:,.0f}円。2回目以降の購入はすべて上乗せ"],
      size=16, bold=True, spacing=1.45)
 footnote(s, "※ 自社EC（Shopify）を顧客単位で集計。LTVは25年9月期に初回購入した顧客の初回から12か月の平均。CACは広告費をすべて"
-            "新規獲得にかかったとみなした値（APはモール広告費を含むため高め）。LTV/CACは26年9月期のCACで計算")
+            "新規獲得にかかったとみなした値（自社ECのWeb広告費で、モール広告費は除く）。LTV/CACは26年9月期のCACで計算")
 
 # ---- 月次でいくら売り上げればよいか
 s = content_slide("損益分岐に必要な月商", "貢献利益が0になる月商と、26年9月期の月平均の売上　単位：百万円/月")
@@ -814,7 +743,8 @@ for k, (b_, name, col) in enumerate([("AP", "アンドプランツ", AP_GREEN), 
     text(s, 56, y0, 300, 36, name, size=24, bold=True, color=MOSS if b_ == "AP" else FLOWER, anchor=MSO_ANCHOR.MIDDLE)
     text(s, 330, y0, 742, 36, f"直接固定費 {fixed_m:.1f}百万円/月　広告費込み限界利益率 {m_ * 100:.1f}%", size=15,
          color=SECONDARY, anchor=MSO_ANCHOR.MIDDLE)
-    for j, (lab, v, c_) in enumerate([("損益分岐の月商", be, MOSS), ("26年9月期の月平均", act[b_], col),
+    for j, (lab, v, c_) in enumerate([("損益分岐の月商", be, MOSS if b_ == "AP" else FLOWER),
+                                      ("26年9月期の月平均", act[b_], col if b_ == "AP" else FLOWER_LIGHT),
                                       ("26年9月期の最高月", peak[b_], BG_GRAY)]):
         yy = y0 + 48 + j * 44
         text(s, 56, yy, 230, 36, lab, size=16, color=SECONDARY, bold=(j == 0), anchor=MSO_ANCHOR.MIDDLE)
@@ -883,8 +813,9 @@ TERMS = [
     ("期", "9月決算。「26年9月期」＝2025年10月〜2026年9月"),
     ("売上", "税抜・注文日ベース。アンドプランツ/アンドフラワーは自社EC＋モール（楽天・Amazon・Yahoo!）"),
     ("限界利益", "売上 − 原価・送料・資材・決済手数料"),
-    ("広告費込み限界利益", "限界利益 − 広告費。AP/AFに共通する広告（母の日・指名検索など）は売上比で配賦"),
-    ("ROAS", "売上 ÷ 広告費"),
+    ("広告費", "Web広告（Google・Meta・Yahoo!など）＋モール広告（Amazon・楽天）。共通するWeb広告（母の日・指名検索）は自社ECの売上比で配賦。モール広告費は社内集計のない月は推計"),
+    ("広告費込み限界利益", "限界利益 − 広告費"),
+    ("全体ROAS", "売上 ÷ 広告費（モールを含む）。LTV/CACのCACは自社ECのWeb広告費で計算"),
     ("直接固定費", "事業に直接かかる人件費（社員・アルバイト・スポット・CS按分・外部加工）と、倉庫・光熱費（倉庫の賃借料・家賃、水道光熱費）"),
     ("貢献利益", "広告費込み限界利益 − 直接固定費。車両・修繕・消耗品・通信費と、本社の人件費・共通費は含まない"),
     ("出典", "受注データ（BigQuery）、社内の貢献利益集計（月次速報値を含む）。試算表とは集計基準が異なる"),
@@ -900,7 +831,6 @@ for k_, v_ in TERMS:
 
 prs.save("giftee_economics_2026-10.pptx")  # PDF は soffice で書き出す
 print("saved", len(prs.slides._sldIdLst), "slides")
-for name, fs, fa, fn in [("AP", ap_fy_s, ap_fy_ad, ap_fy_net), ("AF", af_fy_s, af_fy_ad, af_fy_net),
-                         ("HA", ha_fy_s, ha_fy_ad, ha_fy_net)]:
+for name, fs, fa, fn in [("AP", ap_fy_s, ap_fy_ad, ap_fy_net), ("AF", af_fy_s, af_fy_ad, af_fy_net)]:
     print(name, [round(v, 1) for v in fs], [round(v, 1) for v in fa], [round(v, 1) for v in fn])
-print({p_: {b_: {kk: round(vv, 2) for kk, vv in PERIODS[p_][b_].items()} for b_ in ("ap", "af", "ha")} for p_ in PERIODS})
+print({p_: {b_: {kk: round(vv, 2) for kk, vv in PERIODS[p_][b_].items()} for b_ in ("ap", "af")} for p_ in PERIODS})
