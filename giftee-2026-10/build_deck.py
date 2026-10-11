@@ -318,157 +318,121 @@ for n, label, sub in items:
 divider("01", "ECONOMICS TREND", "各事業のエコノミクスの推移", "23年9月期（2022年10月）〜 26年9月期（2026年9月）")
 
 
-def trend_slide(title, sub, sales, net, ad, ymax, step, topics, takeaway, note, net_label="広告費込み限界利益",
-                start=0):
-    """月次の売上（棒）・広告費込み限界利益（線）・広告費（線）。topics: [(月index, 文言)]"""
-    s = content_slide(title, sub)
-    x0, x1 = 112, 1072
-    top, base = 214, 520
-    w0 = start // 12 * 12  # 表示の開始月（年度の頭）
-    slot = (x1 - x0) / (48 - w0)
-    x0 -= w0 * slot
-    bw = slot * 0.62
-    sy = lambda v: base - (base - top) * v / ymax
-    # 凡例
-    lx = 112
-    rect(s, lx, 166, 16, 16, PALE)
-    text(s, lx + 24, 161, 120, 26, "売上", size=16, color=SECONDARY)
-    lx += 110
-    rect(s, lx, 172, 28, 4, MOSS)
-    text(s, lx + 36, 161, 260, 26, net_label, size=16, color=SECONDARY)
-    lx += 290
-    rect(s, lx, 172, 28, 4, STRONG)
-    text(s, lx + 36, 161, 160, 26, "広告費", size=16, color=SECONDARY)
-    text(s, 760, 161, 312, 26, "単位：百万円", size=14, color=SECONDARY, align=PP_ALIGN.RIGHT)
-    # 目盛り
-    v = 0
-    while v <= ymax + 1e-9:
-        y = sy(v)
-        hline(s, 108, y, x1 - 104, BORDER_LIGHT if v == 0 else WATERMARK, 1.0)
-        text(s, 56, y - 11, 46, 22, f"{v:g}", size=13, color=MUTED, align=PP_ALIGN.RIGHT, en=True)
-        v += step
-    # 年度の区切り
-    for k in range(w0 // 12 + 1, 4):
-        vline(s, x0 + k * 12 * slot, top - 10, base - top + 52, BORDER_LIGHT, 1.0, dash=True)
-    for k, name in enumerate(FY_NAMES):
-        if k < w0 // 12:
-            continue
-        text(s, x0 + k * 12 * slot, base + 24, 12 * slot, 24, name, size=15, color=SECONDARY,
-             align=PP_ALIGN.CENTER)
-    for i in range(w0, 48):
-        if i % 3 == 0:
-            text(s, x0 + i * slot - 6, base + 4, slot + 12, 18, f"{YM[i][1]}", size=11, color=MUTED,
-                 align=PP_ALIGN.CENTER, en=True)
-    # 売上の棒
-    for i in range(start, 48):
-        if sales[i] > 0:
-            h = base - sy(sales[i])
-            rect(s, x0 + i * slot + (slot - bw) / 2, base - h, bw, h, PALE)
-    # 線
-    cx = lambda i: x0 + i * slot + slot / 2
-    polyline(s, [(cx(i), sy(ad[i])) for i in range(start, 48)], STRONG, 2.0)
-    polyline(s, [(cx(i), sy(net[i])) for i in range(start, 48)], MOSS, 3.0)
-    # 26年9月期の合計
-    # トピック
-    for n, (i, _) in enumerate(topics, 1):
-        badge(s, cx(i), sy(sales[i]) - 18, n)
-    ty = 590
-    colw = 492
-    for n, (i, body) in enumerate(topics, 1):
-        col, row = (n - 1) % 2, (n - 1) // 2
-        bx, by = 56 + col * (colw + 32), ty + row * 34
-        badge(s, bx + 11, by + 13, n)
-        text(s, bx + 30, by, colw - 30, 30, body, size=15, color=MOSS, spacing=1.2)
-    text(s, 56, 700, 1016, 40, takeaway, size=22, bold=True)
+def trend_slide(title, sales, mp, ad, net, color, ymax, note, fy0=0, mp_label="限界利益",
+                net_label="広告費込み限界利益", fy_names=None):
+    """月次売上の棒（事業の色）＋期別の収益性の表。棒の上は各期の最高月、期名の下は期合計。"""
+    s = content_slide(title, f"{FY_NAMES[fy0]}（{YM[fy0 * 12][0]}年10月）〜 26年9月期（2026年9月）")
+    fy_names = fy_names or FY_NAMES
+    text(s, 150, 148, 900, 24, "単位：百万円　棒の上は各期の最高月、期名の下は期合計", size=15, color=SECONDARY,
+         bold=True)
+    x0, x1 = 150, 1040
+    top, base = 206, 434
+    n = 48 - fy0 * 12
+    slot = (x1 - x0) / n
+    bw = slot * 0.66
+    vmax = max(sales)
+    sy = lambda v: base - (base - top) * v / vmax
+    for k in range(fy0, 4):
+        idx = range(k * 12, k * 12 + 12)
+        peak = max(idx, key=lambda i: sales[i])
+        for i in idx:
+            if sales[i] <= 0:
+                continue
+            bx = x0 + (i - fy0 * 12) * slot + (slot - bw) / 2
+            rect(s, bx, sy(sales[i]), bw, base - sy(sales[i]), color)
+            if i == peak:
+                text(s, bx - 20, sy(sales[i]) - 26, bw + 40, 22, f"{sales[i]:.0f}" if vmax >= 20 else f"{sales[i]:.1f}", size=15, bold=True,
+                     align=PP_ALIGN.CENTER, en=True)
+        gx = x0 + (k - fy0) * 12 * slot
+        if k > fy0:
+            vline(s, gx, 190, base - 190 + 70, BORDER_LIGHT, 1.0, dash=True)
+        text(s, gx, base + 12, 12 * slot, 26, fy_names[k], size=17, bold=True, align=PP_ALIGN.CENTER)
+        text(s, gx, base + 40, 12 * slot, 24, f"{sum(sales[i] for i in idx):.0f}", size=16, color=SECONDARY,
+             align=PP_ALIGN.CENTER, en=True)
+    hline(s, x0 - 4, base, x1 - x0 + 8, BORDER_LIGHT, 1.5)
+    # 期別の表
+    hdr = ["期", "売上", mp_label, f"{mp_label}率", "広告費", "全体ROAS", net_label, "同率"]
+    cxs = [56, 190, 290, 410, 520, 620, 740, 950]
+    cws = [130, 100, 120, 110, 100, 120, 210, 122]
+    ty = 512
+    rect(s, 56, ty, 1016, 40, MOSS)
+    for j, h in enumerate(hdr):
+        text(s, cxs[j] + (12 if j == 0 else 0), ty, cws[j] - (0 if j == 0 else 12), 40, h, size=16, color=WHITE,
+             bold=True, anchor=MSO_ANCHOR.MIDDLE, align=PP_ALIGN.LEFT if j == 0 else PP_ALIGN.RIGHT)
+    y = ty + 40
+    fs, fm, fa, fn = fy_sum(sales), fy_sum(mp), fy_sum(ad), fy_sum(net)
+    rh = 48 if fy0 == 0 else 56
+    for k in range(fy0, 4):
+        if k == 3:
+            rect(s, 56, y, 1016, rh, WATERMARK)
+        roas = f"{fs[k] / fa[k] * 100:.0f}%" if fa[k] > 0 else "—"
+        vals = [fy_names[k], f"{fs[k]:.1f}", f"{fm[k]:.1f}", f"{fm[k] / fs[k] * 100:.1f}%", f"{fa[k]:.1f}" if fa[k] > 0 else "—", roas,
+                f"{fn[k]:.1f}", f"{fn[k] / fs[k] * 100:.1f}%"]
+        for j, v in enumerate(vals):
+            text(s, cxs[j] + (12 if j == 0 else 0), y, cws[j] - (0 if j == 0 else 12), rh, v, size=19, bold=True,
+                 color=STRONG if v.startswith("-") else MOSS, anchor=MSO_ANCHOR.MIDDLE,
+                 align=PP_ALIGN.LEFT if j == 0 else PP_ALIGN.RIGHT)
+        y += rh
+        hline(s, 56, y, 1016, BORDER_LIGHT)
     footnote(s, note)
     return s
-
-
-def fy_line(vals):
-    return " → ".join(f"{v:.0f}" if v >= 10 else f"{v:.1f}" for v in vals)
 
 
 ap_fy_s, ap_fy_net, ap_fy_ad = fy_sum(AP_S), fy_sum(AP_NET), fy_sum(AP_AD)
 af_fy_s, af_fy_net, af_fy_ad = fy_sum(AF_S), fy_sum(AF_NET), fy_sum(AF_AD)
 ha_fy_s, ha_fy_net, ha_fy_ad, ha_fy_gp = fy_sum(HA_S), fy_sum(HA_NET), fy_sum(HA_AD), fy_sum(HA_GP)
 
+AP_GREEN = LIGHT
 trend_slide(
-    "アンドプランツ（観葉植物）", "月次推移　23年9月期〜26年9月期　※税抜・注文日ベース",
-    AP_S, AP_NET, AP_AD, 70, 10,
-    [(27, "25年1月　月商59百万円（当時の過去最高）"),
-     (32, "25年6月〜　モール（Amazon・楽天）の広告費も計上"),
-     (39, "26年1月　月商63百万円"),
-     (41, "26年2〜3月　広告を絞りROAS1,000%超"),
-     (43, "26年5月　月商65.5百万円（過去最高）")],
-    "26年9月期は売上を維持したまま、[[広告費を減らして利益が残る形]]に",
-    "※ BigQuery（and-plants）の事業別月次。25年5月以前の広告費は自社EC分のみで、モール広告費を含まない（その期間の広告費込み限界利益は実態より高め）。"
-    "26年7〜9月の広告費は売上÷ROASで算出",
+    "アンドプランツ：月次売上と期別の収益性", AP_S, AP_MP, AP_AD, AP_NET, AP_GREEN, 70,
+    "※ 税抜・注文日ベース。自社EC＋モール（楽天・Amazon・Yahoo!）。BigQuery（and-plants）の事業別月次。"
+    "モール広告費は25年6月以降のみ計上（それ以前の広告費込み限界利益は実態より高め）",
 )
-
 trend_slide(
-    "アンドフラワー（花）", "月次推移　23年9月期〜26年9月期　※税抜・注文日ベース",
-    AF_S, AF_NET, AF_AD, 35, 5,
-    [(7, "毎年5月は母の日（26年5月 月商30.3百万円）"),
-     (24, "24年10月〜25年3月　ROAS200%前後で赤字圏"),
-     (29, "25年3月　川崎拠点を開設"),
-     (42, "26年4月　新城拠点を閉じ、川崎に集約"),
-     (43, "26年5月　広告費込み限界利益13.7百万円（過去最高）")],
-    "利益は[[母の日に集中]]。平常月の広告効率と固定費が課題",
-    "※ BigQuery（and-plants）の事業別月次。26年7〜9月の広告費は売上÷ROASで算出",
+    "アンドフラワー：月次売上と期別の収益性", AF_S, AF_MP, AF_AD, AF_NET, FLOWER, 35,
+    "※ 税抜・注文日ベース。自社EC（モールの花は微小のため含む）。BigQuery（and-plants）の事業別月次",
 )
-
 trend_slide(
-    "ハナイチ（花の仕入れEC）", "月次推移　24年9月期（2024年3月開始）〜26年9月期　※税抜・注文日ベース",
-    HA_S, HA_NET, HA_AD, 7, 1,
-    [(17, "24年3月　サービス開始"),
-     (25, "24年11月　広告を開始"),
-     (29, "25年3月　生花の注文が増える（月133件）"),
-     (41, "26年3月　月商5.6百万円（前年同月比 +67%）"),
-     (46, "26年8月　注文430件（前年同月の3.5倍）")],
-    "注文数は伸びている。[[広告費込みで利益を残す]]のが次の段階",
-    "※ ハナイチ注文DB（BigQuery）の注文合計・税抜。「広告費込み粗利」＝粗利−広告費。卸・法人など注文DB外の売上は含まない",
-    net_label="広告費込み粗利", start=17,
+    "ハナイチ：月次売上と期別の収益性", HA_S, HA_GP, HA_AD, HA_NET, MOSS, 7,
+    "※ 税抜・注文日ベース。ハナイチ注文DB（BigQuery）の注文合計で、卸・法人など注文DB外の売上は含まない。"
+    "24年9月期は2024年3月〜9月の7か月。広告は24年11月に開始",
+    fy0=1, mp_label="粗利", net_label="広告費込み粗利",
 )
 
 # =====================================================================
-# 年度のまとめ（表）
+# 主なトピック
 # =====================================================================
-s = content_slide("年度ごとのまとめ", "単位：百万円　※税抜・注文日ベース（月次推移と同じ集計）")
-cols = ["", "", *FY_NAMES]
-cx_ = [56, 300, 470, 620, 770, 920]
-y = 172
-for j, c in enumerate(cols):
-    text(s, cx_[j], y, 150, 30, c, size=18, color=SECONDARY, bold=True, align=PP_ALIGN.RIGHT if j >= 2 else PP_ALIGN.LEFT)
-hline(s, 56, y + 38, 1016, MOSS, 1.5)
-y += 50
-
-
-def row(label, metric, vals, fmt="{:.0f}", color=MOSS, bold=False):
-    global y
-    text(s, cx_[0], y, 240, 30, label, size=18, bold=True)
-    text(s, cx_[1], y, 170, 30, metric, size=17, color=SECONDARY)
-    for j, v in enumerate(vals):
-        t = "—" if v is None else fmt.format(v)
-        text(s, cx_[2 + j], y, 150, 30, t, size=19, color=color, bold=bold, align=PP_ALIGN.RIGHT, en=True)
-    y += 36
-
-
-def pct(a, b):
-    return [None if bb == 0 else aa / bb * 100 for aa, bb in zip(a, b)]
-
-
-for name, fs, fa, fn in [("アンドプランツ", ap_fy_s, ap_fy_ad, ap_fy_net), ("アンドフラワー", af_fy_s, af_fy_ad, af_fy_net)]:
-    row(name, "売上", fs, bold=True)
-    row("", "広告費", fa)
-    row("", "ROAS", pct(fs, fa), "{:.0f}%")
-    row("", "広告費込み限界利益", fn, color=MOSS, bold=True)
-    row("", "　同 利益率", pct(fn, fs), "{:.1f}%", color=SECONDARY)
-    hline(s, 56, y + 2, 1016)
-    y += 14
-row("ハナイチ", "売上", [None] + ha_fy_s[1:], "{:.1f}", bold=True)
-row("", "広告費", [None] + ha_fy_ad[1:], "{:.1f}")
-row("", "広告費込み粗利", [None] + ha_fy_net[1:], "{:.1f}", bold=True)
-footnote(s, "※ アンドプランツの25年9月期（25年5月まで）以前の広告費はモール広告費を含まない。ハナイチの24年9月期は2024年3月〜9月の7か月")
+s = content_slide("各事業の主なトピック", "23年9月期〜26年9月期")
+TOPICS = [
+    ("アンドプランツ", AP_GREEN, [
+        ("25年1月", "月商59百万円（当時の過去最高）"),
+        ("25年6月〜", "モール（Amazon・楽天）の広告費も計上"),
+        ("26年1月", "月商63百万円"),
+        ("26年2〜3月", "広告を絞り、ROAS1,000%超で利益を維持"),
+        ("26年5月", "月商65.5百万円（過去最高）")]),
+    ("アンドフラワー", FLOWER, [
+        ("毎年5月", "母の日。26年5月は月商30.3百万円"),
+        ("24年10月〜25年3月", "ROAS200%前後で広告費込み限界利益が赤字圏"),
+        ("25年3月", "川崎拠点を開設"),
+        ("26年4月", "新城拠点を閉じ、川崎に集約"),
+        ("26年5月", "広告費込み限界利益13.7百万円（過去最高）")]),
+    ("ハナイチ", MOSS, [
+        ("24年3月", "サービス開始"),
+        ("24年11月", "広告を開始"),
+        ("25年3月", "生花の注文が増える（月133件）"),
+        ("26年3月", "月商5.6百万円（前年同月比 +67%）"),
+        ("26年8月", "注文430件（前年同月の3.5倍）")]),
+]
+for k, (name, col, items_) in enumerate(TOPICS):
+    x = 56 + k * 344
+    rect(s, x, 168, 320, 6, col)
+    text(s, x, 186, 320, 36, name, size=26, bold=True, color=FLOWER if col == FLOWER else MOSS)
+    yy = 244
+    for when, body in items_:
+        text(s, x, yy, 320, 26, when, size=17, bold=True, color=SECONDARY)
+        text(s, x, yy + 28, 320, 60, body, size=17, spacing=1.3)
+        yy += 98
+text(s, 56, 748, 1016, 40, "APは[[広告効率の改善で利益が残る形]]に。AFは母の日、ハナイチは注文数の伸びが柱", size=22, bold=True)
 
 # =====================================================================
 # 章 02
