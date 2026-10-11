@@ -293,7 +293,7 @@ text(s, 96, 250, 960, 40, "株式会社ギフティ様　ご参考資料", size=
 text(s, 96, 330, 980, 100, "事業エコノミクスの整理とまとめ", size=60, bold=True, spacing=1.3)
 text(s, 96, 450, 960, 40, "AP/AF・ハナイチの推移、今後のエコノミクス、川崎拠点の坪効率", size=24,
      color=SECONDARY)
-text(s, 96, 700, 900, 32, "2026年10月　株式会社DOMUZ　髙木 弘貴", size=22, color=SECONDARY)
+text(s, 96, 640, 900, 120, ["2026年10月", "株式会社DOMUZ", "髙木 弘貴"], size=22, color=SECONDARY, spacing=1.5)
 
 # =====================================================================
 # 2. 本資料の構成・要約・用語
@@ -301,15 +301,16 @@ text(s, 96, 700, 900, 32, "2026年10月　株式会社DOMUZ　髙木 弘貴", si
 s = content_slide("本資料の構成")
 items = [
     ("1", "各事業のエコノミクスの整理と経年推移", "アンドプランツ/アンドフラワー、ハナイチ（23年9月期〜26年9月期）"),
-    ("2", "今後の事業におけるエコノミクスの整理", "繁忙期を含む四半期の原価・広告ROAS・直接固定費と、Value UPプラン"),
+    ("2", "今後の事業におけるエコノミクスの整理", "原価・広告ROAS・直接固定費、LTV/CAC、損益分岐の月商と、Value UPプラン"),
     ("3", "倉庫としての収益性の試算", "川崎拠点の坪効率（単純3PL／高付加価値3PL／AP・AF）"),
 ]
 y = 200
 for n, label, sub in items:
-    text(s, 96, y, 80, 104, n, size=64, color=LIGHT, bold=True, en=True, anchor=MSO_ANCHOR.MIDDLE,
+    # 番号とタイトルは同じ高さの箱に入れて上下中央でそろえる（説明はタイトルの下）
+    text(s, 96, y + 16, 80, 64, n, size=60, color=LIGHT, bold=True, en=True, anchor=MSO_ANCHOR.MIDDLE,
          spacing=1.0)
-    text(s, 200, y + 8, 860, 50, label, size=34, bold=True, anchor=MSO_ANCHOR.MIDDLE, spacing=1.0)
-    text(s, 200, y + 64, 860, 32, sub, size=20, color=SECONDARY, anchor=MSO_ANCHOR.MIDDLE, spacing=1.0)
+    text(s, 190, y + 16, 870, 64, label, size=34, bold=True, anchor=MSO_ANCHOR.MIDDLE, spacing=1.0)
+    text(s, 190, y + 84, 870, 30, sub, size=20, color=SECONDARY, anchor=MSO_ANCHOR.MIDDLE, spacing=1.0)
     if n != "3":
         hline(s, 96, y + 128, 936)
     y += 160
@@ -646,6 +647,101 @@ text(s, 56, y + 6, 1016, 70,
      spacing=1.45)
 footnote(s, "※ 損益分岐＝直接固定費÷広告費込み限界利益率。固定費が売上に比例して増えない前提の概算。ハナイチの直接固定費は確認中")
 
+# ---- LTV/CAC：自社EC（Shopify）の受注を顧客単位で集計（BigQuery and-plants.datawarehouse.sales_profit_by_items）
+# LTV = 初回購入から12か月の限界利益（広告費控除前）の1人あたり平均。初回購入が25年9月期の顧客（12か月を追える最新の年度）。
+# CAC = その年度の広告費 ÷ 新規顧客数（広告費はすべて新規獲得にかかったとみなす。APは25年6月以降モール広告費を含むため高め）
+LTV = {  # 25年9月期に初回購入した顧客の12か月
+    "AP": dict(new25=28625, aov=11156, orders=1.39, sales12=14802, mp12=7186, rep12=22.0, rep3=14.3),
+    "AF": dict(new25=17438, aov=7479, orders=1.24, sales12=8955, mp12=4182, rep12=14.1, rep3=7.7),
+}
+NEW26 = {"AP": 24472, "AF": 16864}
+REPEAT_SHARE = {"AP": (29.5, 34.7), "AF": (19.2, 27.3)}  # リピート顧客の売上比率（25年9月期, 26年9月期）
+AD26 = {"AP": ap_fy_ad[3], "AF": af_fy_ad[3]}
+AD25 = {"AP": ap_fy_ad[2], "AF": af_fy_ad[2]}
+
+s = content_slide("LTV/CAC：観葉植物と花", "自社ECの新規顧客1人あたり　※税抜")
+for k, (b_, name, col) in enumerate([("AP", "アンドプランツ（観葉植物）", MOSS), ("AF", "アンドフラワー（花）", FLOWER)]):
+    x = 56 + k * 528
+    w = 488
+    L = LTV[b_]
+    cac26 = AD26[b_] * 1e6 / NEW26[b_]
+    cac25 = AD25[b_] * 1e6 / L["new25"]
+    ratio = L["mp12"] / cac26
+    rect(s, x, 156, w, 6, AP_GREEN if b_ == "AP" else FLOWER)
+    text(s, x, 172, w, 34, name, size=23, bold=True, color=col)
+    text(s, x, 216, 200, 24, "LTV/CAC", size=16, color=SECONDARY, bold=True)
+    tb = text(s, x, 238, 220, 70, f"{ratio:.1f}", size=60, bold=True, color=col, en=True, spacing=1.0)
+    r = tb.text_frame.paragraphs[0].add_run()
+    r.text = "倍"
+    _set_font(r, 24, col, True, en=False)
+    text(s, x + 210, 238, w - 210, 70, [f"LTV {L['mp12']:,}円 ÷ CAC {cac26:,.0f}円", "LTV＝12か月の限界利益"],
+         size=15, color=SECONDARY, spacing=1.5, anchor=MSO_ANCHOR.MIDDLE)
+    rows_ = [
+        ("新規顧客数（年）", f"{L['new25']:,}人", f"{NEW26[b_]:,}人"),
+        ("CAC（広告費÷新規顧客数）", f"{cac25:,.0f}円", f"{cac26:,.0f}円"),
+        ("初回の購入単価", f"{L['aov']:,}円", "—"),
+        ("12か月の購入回数", f"{L['orders']:.2f}回", "—"),
+        ("12か月の売上（LTV・売上）", f"{L['sales12']:,}円", "—"),
+        ("12か月の限界利益（LTV）", f"{L['mp12']:,}円", "—"),
+        ("リピート率（3か月以内）", f"{L['rep3']:.1f}%", "—"),
+        ("リピート率（12か月以内）", f"{L['rep12']:.1f}%", "—"),
+        ("売上に占めるリピート顧客", f"{REPEAT_SHARE[b_][0]:.1f}%", f"{REPEAT_SHARE[b_][1]:.1f}%"),
+    ]
+    yy = 326
+    text(s, x + w - 250, yy, 120, 24, "25年9月期", size=14, color=SECONDARY, bold=True, align=PP_ALIGN.RIGHT)
+    text(s, x + w - 120, yy, 120, 24, "26年9月期", size=14, color=SECONDARY, bold=True, align=PP_ALIGN.RIGHT)
+    hline(s, x, yy + 30, w, MOSS, 1.5)
+    yy += 38
+    for lab, v1, v2 in rows_:
+        bold_ = lab.startswith("12か月の限界利益") or lab.startswith("CAC")
+        text(s, x, yy, w - 250, 30, lab, size=15, bold=bold_)
+        text(s, x + w - 250, yy, 120, 30, v1, size=16, bold=bold_, align=PP_ALIGN.RIGHT,
+             color=MUTED if v1 == "—" else MOSS)
+        text(s, x + w - 120, yy, 120, 30, v2, size=16, bold=bold_, align=PP_ALIGN.RIGHT,
+             color=MUTED if v2 == "—" else MOSS)
+        yy += 36
+        hline(s, x, yy - 6, w)
+vline(s, 564, 156, 560)
+footnote(s, "※ 自社EC（Shopify）を顧客単位で集計。LTVは25年9月期に初回購入した顧客の初回から12か月の平均。CACは広告費をすべて"
+            "新規獲得にかかったとみなした値（APはモール広告費を含むため高め）。LTV/CACは26年9月期のCACで計算")
+
+# ---- 月次でいくら売り上げればよいか
+s = content_slide("損益分岐に必要な月商", "貢献利益が0になる月商と、26年9月期の月平均の売上　単位：百万円/月")
+need = {}
+for b_, e in (("AP", ap), ("AF", af)):
+    fixed_m = e["LABOR"] + e["OTHER"]
+    need[b_] = (fixed_m, e["NET"] / e["S"], fixed_m / (e["NET"] / e["S"]))
+act = {"AP": ap_fy_s[3] / 12, "AF": af_fy_s[3] / 12}
+peak = {"AP": max(AP_S[36:48]), "AF": max(AF_S[36:48])}
+bx0, bwid = 300, 620
+vmax_ = 70
+for k, (b_, name, col) in enumerate([("AP", "アンドプランツ", AP_GREEN), ("AF", "アンドフラワー", FLOWER)]):
+    y0 = 168 + k * 214
+    fixed_m, m_, be = need[b_]
+    text(s, 56, y0, 300, 36, name, size=24, bold=True, color=MOSS if b_ == "AP" else FLOWER, anchor=MSO_ANCHOR.MIDDLE)
+    text(s, 330, y0, 742, 36, f"直接固定費 {fixed_m:.1f}百万円/月　広告費込み限界利益率 {m_ * 100:.1f}%", size=15,
+         color=SECONDARY, anchor=MSO_ANCHOR.MIDDLE)
+    for j, (lab, v, c_) in enumerate([("損益分岐の月商", be, MOSS), ("26年9月期の月平均", act[b_], col),
+                                      ("26年9月期の最高月", peak[b_], BG_GRAY)]):
+        yy = y0 + 48 + j * 44
+        text(s, 56, yy, 230, 36, lab, size=16, color=SECONDARY, bold=(j == 0), anchor=MSO_ANCHOR.MIDDLE)
+        rect(s, bx0, yy + 6, bwid * v / vmax_, 24, c_)
+        text(s, bx0 + bwid * v / vmax_ + 10, yy, 120, 36, f"{v:.1f}", size=17, bold=True, en=True,
+             anchor=MSO_ANCHOR.MIDDLE)
+    hline(s, 56, y0 + 192, 1016)
+ap_new_need = None
+af_fixed, af_m, af_need = need["AF"]
+rs = REPEAT_SHARE["AF"][1] / 100
+new_need = af_need * 1e6 * (1 - rs) / LTV["AF"]["aov"]
+text(s, 56, 618, 1016, 120,
+     [f"アンドプランツは月平均{act['AP']:.0f}百万円で、損益分岐（{need['AP'][2]:.0f}百万円）を[[大きく上回っている]]。",
+      f"アンドフラワーの損益分岐は月商 約{af_need:.0f}百万円で、母の日の4〜5月に届く水準。",
+      f"平常月に届かせるには、リピート売上比率{rs * 100:.0f}%のままなら新規顧客 月約{new_need:,.0f}人が必要"
+      f"（26年9月期は月平均{NEW26['AF'] / 12:,.0f}人）"],
+     size=18, bold=True, spacing=1.5)
+footnote(s, "※ 損益分岐＝直接固定費（人件費＋倉庫・光熱費、26年4〜6月の月平均）÷ 広告費込み限界利益率（同期間）。"
+            "必要な新規顧客数＝損益分岐の月商×（1−リピート売上比率）÷初回の購入単価。売上はモールを含む")
+
 # ---- Value UP プラン
 s = content_slide("今後のValue UPプラン", "数量が増えたときに打てる手 ── 卸と輸入で原価を下げ、売価を下げる")
 cols3 = [("アンドプランツ", MOSS,
@@ -885,21 +981,24 @@ SUM = [
     ("2", "今後のエコノミクス", [
         f"26年4〜6月の貢献利益は、アンドプランツ{qa['CONTRIB']:.1f}百万円。アンドフラワーは{yen(qf['CONTRIB'])}百万円で、"
         f"前年同期の{yen(PREV_Q['af']['CONTRIB'])}百万円から大きく改善。5月単月は損益分岐",
+        f"LTV/CAC（12か月の限界利益÷CAC）は観葉植物{LTV['AP']['mp12'] / (AD26['AP'] * 1e6 / NEW26['AP']):.1f}倍、"
+        f"花{LTV['AF']['mp12'] / (AD26['AF'] * 1e6 / NEW26['AF']):.1f}倍。12か月のリピート率は{LTV['AP']['rep12']:.0f}%・{LTV['AF']['rep12']:.0f}%",
         f"アンドフラワーの損益分岐は月商 約{af_be:.0f}百万円。卸・輸入で原価率を5pt下げると年+{tot5:.0f}百万円（3事業計）"]),
     ("3", "倉庫の収益性", [
         "川崎拠点の坪あたり限界利益は、平常月で家賃の約4〜5倍、母の日の月は約17〜19倍",
         "ピークに合わせた面積が平常月に余っている。用途別に面積を割り、空き坪を坪あたり利益の高い用途で埋める"]),
 ]
-y = 146
+y = 140
 for n, head, lines_ in SUM:
-    text(s, 56, y, 60, 50, n, size=44, color=LIGHT, bold=True, en=True)
-    text(s, 120, y + 6, 940, 36, head, size=27, bold=True)
-    y += 52
+    text(s, 56, y, 60, 50, n, size=42, color=LIGHT, bold=True, en=True, anchor=MSO_ANCHOR.MIDDLE, spacing=1.0)
+    text(s, 120, y, 940, 50, head, size=27, bold=True, anchor=MSO_ANCHOR.MIDDLE, spacing=1.0)
+    y += 58
     for ln_ in lines_:
-        rect(s, 124, y + 16, 8, 8, LIGHT)  # 行間の余白は文字の上に付くので、1行目の文字の中心に合わせて下げる
-        text(s, 142, y, 920, 64, ln_, size=19, spacing=1.45)
-        y += 62 if len(ln_) > 46 else 36
-    y += 26
+        rect(s, 124, y + 15, 8, 8, LIGHT)  # 行間の余白は文字の上に付くので、1行目の文字の中心に合わせて下げる
+        text(s, 142, y, 920, 64, ln_, size=18, spacing=1.45)
+        vis = sum(1.0 if ord(ch) > 0x7F else 0.55 for ch in ln_)  # 全角1・半角0.55で幅を見積もる
+        y += 58 if vis > 50 else 34
+    y += 18
 footnote(s, "※ 数値は税抜。用語の定義と集計の前提は次のページ")
 
 prs.save("giftee_economics_2026-10.pptx")  # PDF は soffice で書き出す
