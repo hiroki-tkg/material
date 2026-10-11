@@ -936,13 +936,21 @@ for k, (b_, name, col) in enumerate([("AP", "アンドプランツ（観葉植�
     ratio = L["mp12"] / cac26
     rect(s, x, 150, w, 6, AP_GREEN if b_ == "AP" else FLOWER)
     text(s, x, 172, w, 34, name, size=23, bold=True, color=col)
-    text(s, x, 216, 200, 24, "LTV/CAC", size=16, color=SECONDARY, bold=True)
-    tb = text(s, x, 238, 220, 70, f"{ratio:.1f}", size=60, bold=True, color=col, en=True, spacing=1.0)
+    ratio_s = L["sales12"] / cac26
+    # 左：限界利益ベース（主）、右：売上ベース（参考）を横に並べる
+    text(s, x, 214, 230, 22, "LTV/CAC（限界利益ベース）", size=13, color=SECONDARY, bold=True)
+    tb = text(s, x, 236, 230, 66, f"{ratio:.1f}", size=56, bold=True, color=col, en=True, spacing=1.0)
     r = tb.text_frame.paragraphs[0].add_run()
     r.text = "倍"
-    _set_font(r, 24, col, True, en=False)
-    text(s, x + 210, 238, w - 210, 70, [f"LTV {L['mp12']:,}円 ÷ CAC {cac26:,.0f}円", "LTV＝12か月の限界利益"],
-         size=15, color=SECONDARY, spacing=1.5, anchor=MSO_ANCHOR.MIDDLE)
+    _set_font(r, 22, col, True, en=False)
+    text(s, x + 236, 214, w - 236, 22, "売上ベース", size=13, color=SECONDARY, bold=True)
+    tb = text(s, x + 236, 236, w - 236, 66, f"{ratio_s:.1f}", size=40, bold=True, color=SECONDARY, en=True,
+              spacing=1.0)
+    r = tb.text_frame.paragraphs[0].add_run()
+    r.text = "倍"
+    _set_font(r, 18, SECONDARY, True, en=False)
+    text(s, x, 300, w, 22, f"LTV {L['mp12']:,}円 ÷ CAC {cac26:,.0f}円　／　売上ベースは12か月の売上{L['sales12']:,}円 ÷ CAC",
+         size=12, color=SECONDARY)
     rows_ = [
         ("CAC（広告費÷新規顧客数）", f"{cac25:,.0f}円", f"{cac26:,.0f}円"),
         ("初回の購入単価", f"{L['aov']:,}円", f"{AOV26[b_]:,}円"),
@@ -953,7 +961,7 @@ for k, (b_, name, col) in enumerate([("AP", "アンドプランツ（観葉植�
         ("リピート率（12か月以内）", f"{L['rep12']:.1f}%", "—"),
         ("売上に占めるリピート顧客", f"{REPEAT_SHARE[b_][0]:.1f}%", f"{REPEAT_SHARE[b_][1]:.1f}%"),
     ]
-    yy = 324
+    yy = 334
     text(s, x + w - 250, yy, 120, 24, "25年9月期", size=14, color=SECONDARY, bold=True, align=PP_ALIGN.RIGHT)
     text(s, x + w - 120, yy, 120, 24, "26年9月期", size=14, color=SECONDARY, bold=True, align=PP_ALIGN.RIGHT)
     hline(s, x, yy + 30, w, MOSS, 1.5)
@@ -965,7 +973,7 @@ for k, (b_, name, col) in enumerate([("AP", "アンドプランツ（観葉植�
              color=MUTED if v1 == "—" else MOSS)
         text(s, x + w - 120, yy, 120, 30, v2, size=16, bold=bold_, align=PP_ALIGN.RIGHT,
              color=MUTED if v2 == "—" else MOSS)
-        yy += 38
+        yy += 37
         hline(s, x, yy - 8, w)
 vline(s, 564, 150, 550)
 cac_ap = AD26["AP"] * 1e6 / NEW26["AP"]
