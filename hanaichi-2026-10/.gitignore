@@ -1,0 +1,6 @@
+*.pptx
+*.pdf
+*.html
+preview/
+assets/
+__pycache__/
