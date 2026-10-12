@@ -262,8 +262,8 @@ for n, label, sub in items:
     y += 160
 footnote(s, "※ 用語と集計の前提は最終ページにまとめています")
 
-summary_slide = content_slide("要約①：アンドプランツ")
-summary_slide2 = content_slide("要約②：アンドフラワー")
+summary_slide = content_slide("アンドプランツ")
+summary_slide2 = content_slide("アンドフラワー")
 
 # =====================================================================
 # 章 01
@@ -448,8 +448,9 @@ def waterfall(s, x, name, steps, end_label, end_val, sales, color, lo=-40, unit=
          align=PP_ALIGN.CENTER, en=True)
     labels.append((bx, end_label, MOSS, True))
     hline(s, x - 6, yv(0), bx + bw + 12 - x, MUTED)
+    ly_ = yv(min(0.0, endp)) + 10 + (0 if endp >= 0 else 20)  # 0の線（赤字なら棒の下）のすぐ下に項目名
     for lx, lab, c, b in labels:
-        text(s, lx - 10, bot + 8, bw + 20, 44, lab, size=12, color=c, bold=b, align=PP_ALIGN.CENTER, spacing=1.2)
+        text(s, lx - 10, ly_, bw + 20, 44, lab, size=12, color=c, bold=b, align=PP_ALIGN.CENTER, spacing=1.2)
     return s
 
 
@@ -725,7 +726,7 @@ cac_ap = AD26["AP"] * 1e6 / NEW26["AP"]
 cac_af = AD26["AF"] * 1e6 / NEW26["AF"]
 text(s, 56, 694, 1016, 60,
      [f"アンドプランツは初回購入の限界利益（{MP_FIRST26['AP']:,}円）でCAC（{cac_ap:,.0f}円）を[[初回で回収済み]]。",
-      f"アンドフラワーも初回の限界利益{MP_FIRST26['AF']:,}円 ＞ CAC{cac_af:,.0f}円。2回目以降の購入はすべて上乗せ"],
+      f"アンドフラワーも初回の限界利益{MP_FIRST26['AF']:,}円 ＞ CAC{cac_af:,.0f}円"],
      size=16, bold=True, spacing=1.45)
 footnote(s, "※ 自社EC（Shopify）を顧客単位で集計。LTVは25年9月期に初回購入した顧客の初回から12か月の平均。CACは広告費をすべて"
             "新規獲得にかかったとみなした値（自社ECのWeb広告費で、モール広告費は除く）。LTV/CACは26年9月期のCACで計算")
@@ -751,7 +752,7 @@ for k, (b_, name, col) in enumerate([("AP", "アンドプランツ", AP_GREEN), 
                                       ("26年9月期の最高月", peak[b_], BG_GRAY)]):
         yy = y0 + 48 + j * 44
         text(s, 56, yy, 230, 36, lab, size=16, color=SECONDARY, bold=(j == 0), anchor=MSO_ANCHOR.MIDDLE)
-        rect(s, bx0, yy + 6, bwid * v / vmax_, 24, c_)
+        rect(s, bx0, yy + 10, bwid * v / vmax_, 24, c_)
         text(s, bx0 + bwid * v / vmax_ + 10, yy, 120, 36, f"{v:.1f}", size=17, bold=True, en=True,
              anchor=MSO_ANCHOR.MIDDLE)
     hline(s, 56, y0 + 192, 1016)
@@ -771,13 +772,13 @@ footnote(s, "※ 損益分岐＝直接固定費（人件費＋倉庫・光熱費
 AF_MPR26 = fy_sum(AF_MP)[3] / af_fy_s[3]
 
 # ---- 要約（本資料の主張。数字が出そろってから、前に作っておいたページに描く）
-def draw_claims(s, claims, y=140):
+def draw_claims(s, claims, y=140, color=LIGHT):
     for n, head, lines_ in claims:
-        text(s, 56, y, 60, 50, n, size=42, color=LIGHT, bold=True, en=True, anchor=MSO_ANCHOR.MIDDLE, spacing=1.0)
+        text(s, 56, y, 60, 50, n, size=42, color=color, bold=True, en=True, anchor=MSO_ANCHOR.MIDDLE, spacing=1.0)
         text(s, 120, y, 952, 50, head, size=24, bold=True, anchor=MSO_ANCHOR.MIDDLE, spacing=1.2)
         y += 62
         for ln_ in lines_:
-            rect(s, 124, y + 16, 8, 8, LIGHT)  # 行間の余白は文字の上に付くので、1行目の文字の中心に合わせて下げる
+            rect(s, 124, y + 16, 8, 8, color)  # 行間の余白は文字の上に付くので、1行目の文字の中心に合わせて下げる
             text(s, 142, y, 930, 70, ln_, size=19, spacing=1.45)
             vis = sum(1.0 if ord(ch) > 0x7F else 0.55 for ch in ln_)  # 全角1・半角0.55で幅を見積もる
             y += 64 if vis > 47 else 38
@@ -807,29 +808,30 @@ y_ = draw_claims(summary_slide2, [
         f"限界利益率{AF_MPR26 * 100:.1f}%、LTV/CAC {LTV['AF']['mp12'] / cac_af:.1f}倍と、1人あたりの採算は成立",
         f"損益分岐は月商{need['AF'][2]:.0f}百万円（貢献利益ベース）。26年9月期の平均は{act['AF']:.1f}百万円（母の日の月は{peak['AF']:.0f}百万円超）",
         "今後、複数の売上・トップライン向上施策により、この分岐を超える販売数を担保する"]),
-])
+], color=FLOWER)
 footnote(summary_slide2, "※ 数値は税抜。用語の定義と集計の前提は最終ページ")
 
 # ---- 用語と集計の前提（最終ページ）
 terms = content_slide("用語と集計の前提")
 TERMS = [
     ("期", "9月決算。「26年9月期」＝2025年10月〜2026年9月"),
-    ("売上", "税抜・注文日ベース。アンドプランツ/アンドフラワーは自社EC＋モール（楽天・Amazon・Yahoo!）"),
+    ("売上", "税抜・注文日ベース。自社EC＋モール（楽天・Amazon・Yahoo!）"),
     ("限界利益", "売上 − 原価・送料・資材・決済手数料"),
     ("広告費", "Web広告（Google・Meta・Yahoo!など）＋モール広告（Amazon・楽天）。母の日の広告は花に計上し、そのほかの共通広告（指名検索など）は自社ECの売上比で配賦。モール広告費は社内集計のない月は推計"),
     ("広告費込み限界利益", "限界利益 − 広告費"),
     ("全体ROAS", "売上 ÷ 広告費（モールを含む）。LTV/CACのCACは自社ECのWeb広告費で計算"),
     ("直接固定費", "事業に直接かかる人件費（社員・アルバイト・スポット・CS按分・外部加工）と、倉庫・光熱費（倉庫の賃借料・家賃、水道光熱費）"),
-    ("貢献利益", "広告費込み限界利益 − 直接固定費。車両・修繕・消耗品・通信費と、本社の人件費・共通費は含まない"),
-    ("出典", "受注データ（BigQuery）、社内の貢献利益集計（月次速報値を含む）。試算表とは集計基準が異なる"),
+    ("貢献利益", "広告費込み限界利益 − 直接固定費。車両・修繕・消耗品・通信費、本社の人件費・共通費は含まない"),
+    ("出典", "受注データ（BigQuery）と社内の貢献利益集計（速報値を含む）。試算表とは集計基準が異なる"),
 ]
 y = 150
 hline(terms, 56, y, 1016)
 for k_, v_ in TERMS:
-    # 行の高さをそろえ、項目名と説明（1〜2行）を上下中央に置く
-    text(terms, 56, y, 236, 72, k_, size=19, bold=True, anchor=MSO_ANCHOR.MIDDLE, spacing=1.0)
-    text(terms, 300, y, 772, 72, v_, size=17, color=SECONDARY, spacing=1.35, anchor=MSO_ANCHOR.MIDDLE)
-    y += 72
+    # 説明が3行になる行（広告費）だけ高くし、項目名と説明を上下中央に置く
+    rh_ = 96 if k_ == "広告費" else 68
+    text(terms, 56, y, 236, rh_, k_, size=19, bold=True, anchor=MSO_ANCHOR.MIDDLE, spacing=1.0)
+    text(terms, 300, y, 772, rh_, v_, size=17, color=SECONDARY, spacing=1.35, anchor=MSO_ANCHOR.MIDDLE)
+    y += rh_
     hline(terms, 56, y, 1016)
 
 prs.save("giftee_economics_2026-10.pptx")  # PDF は soffice で書き出す
