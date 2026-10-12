@@ -10,9 +10,18 @@ sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 from deck_lib import *  # noqa
 from deck_lib import _set_font  # noqa
 from data_hanaichi import (YM, FY, mi, S, GP, AD, NET, ORDERS, FIXED, FIXED_IS_PLACEHOLDER, LTV25, NEW26, AOV26,
-                           GP_RATE26, REPEAT_SHARE, REPEAT_CUSTOMERS, REPEAT_AOV, BIZ_CATEGORIES, fy_sum)
+                           GP_RATE26, REPEAT_RATE, REPEAT_SHARE, REPEAT_CUSTOMERS, REPEAT_AOV, BIZ_CATEGORIES, fy_sum)
 
 N = len(S)
+HANA = RGBColor(0xF5, 0xB7, 0x00)  # ハナイチの色（黄）
+HANA_LIGHT = RGBColor(0xFB, 0xE3, 0x8C)
+_content_slide = content_slide
+
+
+def content_slide(title=None, sub=None):
+    return _content_slide(title, sub, accent=HANA)
+
+
 fy_s, fy_gp, fy_ad, fy_net = fy_sum(S), fy_sum(GP), fy_sum(AD), fy_sum(NET)
 FY_NAMES = [f[0] for f in FY]
 
@@ -20,10 +29,10 @@ FY_NAMES = [f[0] for f in FY]
 # 1. 表紙
 # =====================================================================
 s = new_slide()
-rect(s, 0, 0, 8, H_PX, LIGHT)
-text(s, 96, 250, 960, 40, "株式会社ギフティ様　ご参考資料", size=26, color=SECONDARY)
-text(s, 96, 330, 980, 100, "ハナイチ：事業エコノミクスの整理とまとめ", size=56, bold=True, spacing=1.3)
-text(s, 96, 450, 960, 40, "売上・粗利・広告費の推移と、今後のエコノミクス", size=24, color=SECONDARY)
+rect(s, 0, 0, 8, H_PX, HANA)
+text(s, 96, 220, 960, 40, "株式会社ギフティ様　ご参考資料", size=26, color=SECONDARY)
+text(s, 96, 290, 980, 180, ["ハナイチ", "事業エコノミクスの整理とまとめ"], size=56, bold=True, spacing=1.3)
+text(s, 96, 480, 960, 40, "売上・粗利・広告費の推移と、今後のエコノミクス", size=24, color=SECONDARY)
 text(s, 96, 640, 900, 120, ["2026年10月", "株式会社DOMUZ", "髙木 弘貴"], size=22, color=SECONDARY, spacing=1.5)
 
 # =====================================================================
@@ -36,7 +45,7 @@ items = [
 ]
 y = 260
 for n, label, sub in items:
-    text(s, 96, y + 16, 80, 64, n, size=60, color=LIGHT, bold=True, en=True, anchor=MSO_ANCHOR.MIDDLE, spacing=1.0)
+    text(s, 96, y + 16, 80, 64, n, size=60, color=HANA, bold=True, en=True, anchor=MSO_ANCHOR.MIDDLE, spacing=1.0)
     text(s, 190, y + 16, 870, 64, label, size=34, bold=True, anchor=MSO_ANCHOR.MIDDLE, spacing=1.0)
     text(s, 190, y + 84, 870, 30, sub, size=20, color=SECONDARY, anchor=MSO_ANCHOR.MIDDLE, spacing=1.0)
     if n != items[-1][0]:
@@ -70,7 +79,7 @@ for k, (name, a, b) in enumerate(FY):
         if S[i] <= 0.01:
             continue
         bx = x0 + i * slot + (slot - bw) / 2
-        rect(s, bx, sy(S[i]), bw, base - sy(S[i]), LIGHT)
+        rect(s, bx, sy(S[i]), bw, base - sy(S[i]), HANA)
         if i == peak:
             text(s, bx - 20, sy(S[i]) - 26, bw + 40, 22, f"{S[i]:.1f}", size=15, bold=True, align=PP_ALIGN.CENTER, en=True)
     gx = x0 + a * slot
@@ -79,6 +88,9 @@ for k, (name, a, b) in enumerate(FY):
     text(s, gx, base + 12, (b - a) * slot, 26, name, size=17, bold=True, align=PP_ALIGN.CENTER)
     text(s, gx, base + 40, (b - a) * slot, 24, f"{fy_s[k]:.0f}", size=16, color=SECONDARY, align=PP_ALIGN.CENTER, en=True)
 hline(s, x0 - 4, base, x1 - x0 + 8, BORDER_LIGHT, 1.5)
+xl = x0 + mi("2025-07") * slot
+vline(s, xl, top - 24, base - top + 24, STRONG, 2.0)
+text(s, xl + 6, top - 30, 300, 22, "25年7月〜 生花のSKUを本格的に拡充", size=14, bold=True, color=STRONG)
 hdr = ["期", "売上", "粗利", "粗利率", "広告費", "全体ROAS", "広告費込み粗利", "同率"]
 cxs = [56, 190, 290, 410, 520, 620, 740, 950]
 cws = [130, 100, 120, 110, 100, 120, 210, 122]
@@ -119,7 +131,7 @@ for v in range(0, vmax_ + 1):
     text(s, 60, sy(v) - 11, 50, 22, str(v), size=12, color=MUTED, align=PP_ALIGN.RIGHT, en=True)
 for i in range(i0, N):
     bw_ = slot * 0.62
-    rect(s, cx(i) - bw_ / 2, sy(S[i]), bw_, base - sy(S[i]), LIGHT)
+    rect(s, cx(i) - bw_ / 2, sy(S[i]), bw_, base - sy(S[i]), HANA)
 polyline(s, [(cx(i), sy(AD[i])) for i in range(i0, N)], STRONG, 3.0)
 for i in range(i0, N):
     rect(s, cx(i) - 4, sy(AD[i]) - 4, 8, 8, STRONG, shape=MSO_SHAPE.OVAL)
@@ -138,7 +150,7 @@ for i in range(i0, N):
 for lab, i in (("25年9月期", 8), ("26年9月期", 20)):
     text(s, cx(i) - slot / 2, rb + 22, 12 * slot, 20, lab, size=13, color=SECONDARY, bold=True, align=PP_ALIGN.CENTER)
 vline(s, cx(20) - slot / 2, top - 10, rb - top + 36, BORDER_LIGHT, 1.0, dash=True)
-rect(s, 120, 150, 16, 16, LIGHT)
+rect(s, 120, 150, 16, 16, HANA)
 text(s, 142, 146, 80, 24, "売上", size=14, color=SECONDARY)
 rect(s, 206, 156, 28, 4, STRONG)
 text(s, 240, 146, 80, 24, "広告費", size=14, color=SECONDARY)
@@ -169,6 +181,7 @@ def econ(months):
     e["CONTRIB"] = e["NET"] - e["LABOR"] - e["OTHER"]
     e["ROAS"] = e["S"] / e["AD"] * 100
     e["N"] = len(idx)
+    e["ORDERS"] = sum(ORDERS[i] for i in idx)
     return e
 
 
@@ -176,9 +189,9 @@ Q3 = ["2026-07", "2026-08", "2026-09"]
 FY26 = [f"{y_}-{m_:02d}" for y_, m_ in YM[20:32]]
 FY25 = [f"{y_}-{m_:02d}" for y_, m_ in YM[8:20]]
 PERIODS = {
-    "q": dict(label="26年7〜9月（直近四半期）", short="26年7〜9月", e=econ(Q3)),
-    "fy": dict(label="26年9月期（通年）", short="26年9月期", e=econ(FY26)),
-    "fy25": dict(label="前期（25年9月期）", short="25年9月期", e=econ(FY25)),
+    "q": dict(label="26年7〜9月（直近四半期）", short="26年7〜9月", e=econ(Q3), rep=REPEAT_RATE["q"]),
+    "fy": dict(label="26年9月期（通年）", short="26年9月期", e=econ(FY26), rep=REPEAT_RATE["fy"]),
+    "fy25": dict(label="前期（25年9月期）", short="25年9月期", e=econ(FY25), rep=REPEAT_RATE["fy25"]),
 }
 PH = "（直接固定費は仮置き）" if FIXED_IS_PLACEHOLDER else ""
 
@@ -186,7 +199,7 @@ s = content_slide("エコノミクス：直近の四半期と通年", "棒の数
 for k, (key, x) in enumerate((("q", 150), ("fy", 640))):
     e = PERIODS[key]["e"]
     waterfall(s, x, PERIODS[key]["label"], [("原価等", e["COGS"]), ("広告費", e["AD"]), ("人件費", e["LABOR"]), ("拠点費", e["OTHER"])],
-              "貢献\n利益", e["CONTRIB"], e["S"], MOSS, lo=-60, unit=f"（{e['N']}か月計）", bar=LIGHT)
+              "貢献\n利益", e["CONTRIB"], e["S"], MOSS, lo=-60, unit=f"（{e['N']}か月計）", bar=HANA)
 vline(s, 564, 160, 500)
 eq, ef = PERIODS["q"]["e"], PERIODS["fy"]["e"]
 text(s, 56, 678, 1016, 60,
@@ -206,7 +219,7 @@ for j, key in enumerate(cols):
     text(s, cx2[1 + j], y, CW2, 28, PERIODS[key]["short"], size=17, bold=True, align=PP_ALIGN.RIGHT)
 hline(s, 56, y + 40, 1016, MOSS, 1.5)
 y += 40
-RH = 60
+RH = 50
 
 
 def r2(label, fn, sub=None, bold=False):
@@ -220,19 +233,21 @@ def r2(label, fn, sub=None, bold=False):
         r_.text = sub
         _set_font(r_, 12, SECONDARY, False)
     for j, key in enumerate(cols):
-        v = fn(PERIODS[key]["e"])
+        v = fn(PERIODS[key]["e"], PERIODS[key])
         text(s, cx2[1 + j], y, CW2, RH, v, size=18, bold=bold, align=PP_ALIGN.RIGHT, anchor=MSO_ANCHOR.MIDDLE,
              spacing=1.0, color=STRONG if v.startswith("▲") else MOSS)
     y += RH
     hline(s, 56, y, 1016)
 
 
-r2("売上（百万円）", lambda e: f"{e['S']:.1f}", "期間の合計")
-r2("原価率", lambda e: f"{e['COGS'] / e['S'] * 100:.0f}%", "商品原価・送料・資材・決済手数料を含む")
-r2("全体ROAS", lambda e: f"{e['ROAS']:.0f}%", "売上÷広告費（広告は生花のみ）")
-r2("広告費込み粗利率", lambda e: f"{e['NET'] / e['S'] * 100:.1f}%", bold=True)
-r2("直接固定費（百万円）", lambda e: f"{e['LABOR'] + e['OTHER']:.1f}", "人件費＋拠点費（仮置き）" if FIXED_IS_PLACEHOLDER else "人件費＋拠点費")
-r2("貢献利益（百万円）", lambda e: yen(e["CONTRIB"]), bold=True)
+r2("売上（百万円）", lambda e, P: f"{e['S']:.1f}", "期間の合計")
+r2("購入数（注文数）", lambda e, P: f"{e['ORDERS']:,}件")
+r2("リピート購入率", lambda e, P: f"{P['rep']:.1f}%", "2回目以降の購入が注文に占める割合")
+r2("原価率", lambda e, P: f"{e['COGS'] / e['S'] * 100:.0f}%", "商品原価・送料・資材・決済手数料を含む")
+r2("全体ROAS", lambda e, P: f"{e['ROAS']:.0f}%", "売上÷広告費（広告は生花のみ）")
+r2("広告費込み粗利率", lambda e, P: f"{e['NET'] / e['S'] * 100:.1f}%", bold=True)
+r2("直接固定費（百万円）", lambda e, P: f"{e['LABOR'] + e['OTHER']:.1f}", "人件費＋拠点費（仮置き）" if FIXED_IS_PLACEHOLDER else "人件費＋拠点費")
+r2("貢献利益（百万円）", lambda e, P: yen(e["CONTRIB"]), bold=True)
 be_q = (eq["LABOR"] + eq["OTHER"]) / eq["N"] / (eq["NET"] / eq["S"])
 be_fy = (ef["LABOR"] + ef["OTHER"]) / ef["N"] / (ef["NET"] / ef["S"])
 text(s, 56, y + 16, 1016, 70,
@@ -250,7 +265,7 @@ ratio = gp12 / cac26
 ratio_s = LTV25["sales12"] / cac26
 s = content_slide("LTV/CAC：ハナイチ", "自社サイトの新規顧客1人あたり　※税抜")
 x, w = 56, 488
-rect(s, x, 150, w, 6, LIGHT)
+rect(s, x, 150, w, 6, HANA)
 text(s, x, 172, w, 34, "新規顧客1人あたりの採算", size=23, bold=True)
 text(s, x, 214, 230, 22, "LTV/CAC（粗利ベース）", size=13, color=SECONDARY, bold=True)
 tb = text(s, x, 236, 230, 66, f"{ratio:.1f}", size=56, bold=True, color=MOSS, en=True, spacing=1.0, anchor=MSO_ANCHOR.BOTTOM)
@@ -334,7 +349,7 @@ for lab, m_, be in rows3:
     rect(s, bx0, yy + 10, bwid * be / vmax_, 24, MOSS)
     text(s, bx0 + bwid * be / vmax_ + 10, yy, 120, 36, f"{be:.1f}", size=17, bold=True, en=True, anchor=MSO_ANCHOR.MIDDLE)
     yy += 56
-for lab, v, c_ in (("26年9月期の月平均", act, LIGHT), ("26年9月期の最高月", peak, BG_GRAY)):
+for lab, v, c_ in (("26年9月期の月平均", act, HANA), ("26年9月期の最高月", peak, BG_GRAY)):
     text(s, 56, yy, 270, 36, lab, size=16, color=SECONDARY, anchor=MSO_ANCHOR.MIDDLE)
     rect(s, bx0, yy + 10, bwid * v / vmax_, 24, c_)
     text(s, bx0 + bwid * v / vmax_ + 10, yy, 120, 36, f"{v:.1f}", size=17, bold=True, en=True, anchor=MSO_ANCHOR.MIDDLE)
@@ -363,7 +378,7 @@ draw_claims(summary_slide, [
     ("3", "収益化の鍵は、リピート顧客（事業者）の積み上げと広告費込み粗利率の改善", [
         f"売上の{REPEAT_SHARE[1]:.0f}%はリピート顧客で、客単価は初回の約{REPEAT_AOV[1] / AOV26:.0f}倍。法人・店舗・個人事業主の大口が利益の源泉",
         f"損益分岐の月商は約{be_fy:.0f}百万円（直接固定費は仮置き）で、26年9月期の月平均{act:.1f}百万円の約{mult:.1f}倍"]),
-])
+], color=HANA)
 footnote(summary_slide, "※ 数値は税抜。用語の定義と集計の前提は最終ページ。直接固定費は仮置きで、社内の集計に差し替える")
 
 # ---- 用語と集計の前提
