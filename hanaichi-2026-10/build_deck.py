@@ -15,6 +15,14 @@ from data_hanaichi import (YM, FY, mi, S, GP, AD, NET, ORDERS, FIXED, FIXED_IS_P
 N = len(S)
 HANA = RGBColor(0xF5, 0xB7, 0x00)  # ハナイチの色（黄）
 HANA_LIGHT = RGBColor(0xFB, 0xE3, 0x8C)
+HANA_DARK = RGBColor(0xA6, 0x7C, 0x00)  # 線・強調用の濃い黄
+_divider = divider
+
+
+def divider(num, en_label, title, sub=""):
+    return _divider(num, en_label, title, sub, bg=HANA, fg=MOSS)
+
+
 _content_slide = content_slide
 
 
@@ -42,15 +50,16 @@ s = content_slide("本資料の構成")
 items = [
     ("1", "ハナイチのエコノミクスの整理と経年推移", "24年9月期（2024年2月の開始）〜26年9月期"),
     ("2", "今後の事業におけるエコノミクスの整理", "原価・全体ROAS・直接固定費、LTV/CAC、損益分岐の月商"),
+    ("3", "中長期の可能性とグループ内のシナジー", "卸仕入れサイトからの広がり、アンドフラワー／アンドプランツとの連携"),
 ]
-y = 260
+y = 220
 for n, label, sub in items:
     text(s, 96, y + 16, 80, 64, n, size=60, color=HANA, bold=True, en=True, anchor=MSO_ANCHOR.MIDDLE, spacing=1.0)
     text(s, 190, y + 16, 870, 64, label, size=34, bold=True, anchor=MSO_ANCHOR.MIDDLE, spacing=1.0)
     text(s, 190, y + 84, 870, 30, sub, size=20, color=SECONDARY, anchor=MSO_ANCHOR.MIDDLE, spacing=1.0)
     if n != items[-1][0]:
         hline(s, 96, y + 128, 936)
-    y += 160
+    y += 150
 footnote(s, "※ 用語と集計の前提は最終ページにまとめています")
 
 summary_slide = content_slide("ハナイチ")
@@ -89,8 +98,8 @@ for k, (name, a, b) in enumerate(FY):
     text(s, gx, base + 40, (b - a) * slot, 24, f"{fy_s[k]:.0f}", size=16, color=SECONDARY, align=PP_ALIGN.CENTER, en=True)
 hline(s, x0 - 4, base, x1 - x0 + 8, BORDER_LIGHT, 1.5)
 xl = x0 + mi("2025-07") * slot
-vline(s, xl, top - 24, base - top + 24, STRONG, 2.0)
-text(s, xl + 6, top - 30, 300, 22, "25年7月〜 生花のSKUを本格的に拡充", size=14, bold=True, color=STRONG)
+vline(s, xl, top - 24, base - top + 24, HANA_DARK, 2.0)
+text(s, xl + 6, top - 30, 300, 22, "25年7月〜 生花のSKUを本格的に拡充", size=14, bold=True, color=HANA_DARK)
 hdr = ["期", "売上", "粗利", "粗利率", "広告費", "全体ROAS", "広告費込み粗利", "同率"]
 cxs = [56, 190, 290, 410, 520, 620, 740, 950]
 cws = [130, 100, 120, 110, 100, 120, 210, 122]
@@ -132,9 +141,9 @@ for v in range(0, vmax_ + 1):
 for i in range(i0, N):
     bw_ = slot * 0.62
     rect(s, cx(i) - bw_ / 2, sy(S[i]), bw_, base - sy(S[i]), HANA)
-polyline(s, [(cx(i), sy(AD[i])) for i in range(i0, N)], STRONG, 3.0)
+polyline(s, [(cx(i), sy(AD[i])) for i in range(i0, N)], HANA_DARK, 3.0)
 for i in range(i0, N):
-    rect(s, cx(i) - 4, sy(AD[i]) - 4, 8, 8, STRONG, shape=MSO_SHAPE.OVAL)
+    rect(s, cx(i) - 4, sy(AD[i]) - 4, 8, 8, HANA_DARK, shape=MSO_SHAPE.OVAL)
 rt, rb = 492, 600
 rmax = 1600
 ry = lambda v: rb - (rb - rt) * min(v, rmax) / rmax
@@ -152,7 +161,7 @@ for lab, i in (("25年9月期", 8), ("26年9月期", 20)):
 vline(s, cx(20) - slot / 2, top - 10, rb - top + 36, BORDER_LIGHT, 1.0, dash=True)
 rect(s, 120, 150, 16, 16, HANA)
 text(s, 142, 146, 80, 24, "売上", size=14, color=SECONDARY)
-rect(s, 206, 156, 28, 4, STRONG)
+rect(s, 206, 156, 28, 4, HANA_DARK)
 text(s, 240, 146, 80, 24, "広告費", size=14, color=SECONDARY)
 rect(s, 310, 156, 28, 4, MOSS)
 text(s, 344, 146, 80, 24, "ROAS", size=14, color=SECONDARY)
@@ -380,6 +389,77 @@ draw_claims(summary_slide, [
         f"損益分岐の月商は約{be_fy:.0f}百万円（直接固定費は仮置き）で、26年9月期の月平均{act:.1f}百万円の約{mult:.1f}倍"]),
 ], color=HANA)
 footnote(summary_slide, "※ 数値は税抜。用語の定義と集計の前提は最終ページ。直接固定費は仮置きで、社内の集計に差し替える")
+
+# =====================================================================
+# 章 03：中長期の可能性とシナジー
+# =====================================================================
+divider("03", "GROWTH & SYNERGY", "中長期の可能性とグループ内のシナジー", "卸仕入れサイトからの広がり、アンドフラワー／アンドプランツとの連携")
+
+# ---- 中長期の可能性：卸仕入れサイトを起点に、花屋・植物屋向けのサービスを広げる
+s = content_slide("中長期の可能性：卸仕入れサイトを起点に広げる", "花屋・植物屋・事業者との取引接点を持つことで、仕入れ以外のサービスに展開できる")
+STEPS = [
+    ("01", "卸仕入れサイト", "現在", ["花・植物・資材の仕入れEC", "生花SKUの拡充、法人・店舗の\nリピート顧客の積み上げ"], HANA),
+    ("02", "情報サービス", "次の一歩", ["売れ筋・相場・産地の情報提供", "小売・卸の販売情報を生産側に\nつなぐ"], HANA_LIGHT),
+    ("03", "人材紹介", "中期", ["花屋・植物屋・生産者の\n採用支援", "取引先ネットワークを活かした\nマッチング"], WATERMARK),
+    ("04", "決済関連", "中長期", ["請求書払い・後払いの提供", "取引データをもとにした\n与信・資金繰り支援"], WATERMARK),
+]
+bx, bw_, gap = 56, 238, 21
+y0, bh = 170, 330
+for k, (num, name, when, lines_, col) in enumerate(STEPS):
+    x = bx + k * (bw_ + gap)
+    rect(s, x, y0, bw_, 8, col)
+    text(s, x, y0 + 24, bw_, 40, num, size=34, color=HANA_DARK if k else HANA_DARK, bold=True, en=True, spacing=1.0)
+    text(s, x, y0 + 70, bw_, 36, name, size=24, bold=True)
+    text(s, x, y0 + 108, bw_, 24, when, size=14, color=SECONDARY, bold=True)
+    yy = y0 + 148
+    for ln_ in lines_:
+        rect(s, x + 2, yy + 11, 7, 7, HANA_DARK)
+        text(s, x + 16, yy, bw_ - 16, 60, ln_, size=14, color=SECONDARY, spacing=1.35)
+        yy += 64
+    if k < len(STEPS) - 1:
+        text(s, x + bw_ - 2, y0 + 60, gap + 4, 40, "›", size=30, color=MUTED, align=PP_ALIGN.CENTER, en=True)
+hline(s, 56, y0 + bh + 20, 1016)
+text(s, 56, y0 + bh + 44, 1016, 120,
+     ["仕入れで日常的に使われる接点を持つほど、同じ顧客に対して情報・人材・決済のサービスを重ねやすくなる。",
+      "Domuzの花卉産業DXプラットフォームでは、ハナイチは花屋・植物屋とのB向けの接点にあたり、",
+      "生花イネイブラー（異業種への花の販売機能）や生産者ロールアップへの送客・販売情報の起点になる"],
+     size=17, bold=True, spacing=1.5)
+footnote(s, "※ 02〜04は構想段階。いずれも仕入れサイトの取引先と取引データを前提にしたサービスで、順序や時期は今後の検討による")
+
+# ---- グループ内のシナジー
+s = content_slide("グループ内のシナジー", "アンドフラワー・アンドプランツとの連携。現在すでに動いているものと、これから広げられるもの")
+COLS = [
+    ("アンドフラワー", FLOWER, [
+        ("生花の仕入れ", "アンドフラワーの生花の仕入れを、ハナイチの仕入れ機能（市場・産地との取引）で担い、仕入れ量をまとめて仕入れ力を高める"),
+        ("余剰在庫の販売", "アンドフラワー拠点の生花の余りを、ハナイチで「サンキューフラワー」（タイムセール）として事業者に販売し、ロスを減らす"),
+        ("拠点・スタッフの共有", "川崎の花拠点とスタッフを共有し、生花の仕入れ・加工・発送の固定費を2事業で分け合う"),
+    ]),
+    ("アンドプランツ", LIGHT, [
+        ("植木鉢・資材の仕入れ", "観葉植物に合わせる植木鉢・資材を、ハナイチの卸の仕入れルートで共通化し、原価を下げる"),
+        ("商品・顧客の相互送客", "アンドプランツの法人・店舗の顧客にハナイチの仕入れを、ハナイチの事業者にアンドプランツの観葉植物を案内する"),
+        ("販売情報の共有", "小売（アンドプランツ）で売れている商品の情報を、ハナイチの品揃えと生産側の企画に活かす"),
+    ]),
+]
+for k, (name, col, items_) in enumerate(COLS):
+    x = 56 + k * 528
+    w = 488
+    rect(s, x, 150, w, 6, col)
+    text(s, x, 172, w, 34, f"ハナイチ × {name}", size=23, bold=True, color=MOSS)
+    yy = 220
+    for j, (head, body) in enumerate(items_):
+        tag = "現在" if (k == 0 and j < 2) else ("現在" if (k == 1 and j == 0) else "今後")
+        rect(s, x, yy, 56, 24, HANA if tag == "現在" else WATERMARK)
+        text(s, x, yy, 56, 24, tag, size=12, bold=True, color=MOSS, align=PP_ALIGN.CENTER, anchor=MSO_ANCHOR.MIDDLE)
+        text(s, x + 68, yy - 2, w - 68, 28, head, size=17, bold=True)
+        text(s, x, yy + 32, w, 80, body, size=14, color=SECONDARY, spacing=1.4)
+        yy += 118
+        if j < len(items_) - 1:
+            hline(s, x, yy - 14, w)
+vline(s, 564, 150, 520)
+text(s, 56, 690, 1016, 60,
+     ["生花の仕入れと余剰在庫の販売はすでに運用中。拠点・仕入れ・顧客を共有することで、",
+      "ハナイチ単体では吸収しにくい固定費を、グループ全体で薄められる"], size=17, bold=True, spacing=1.45)
+footnote(s, "※ 「現在」は運用中の連携、「今後」は構想。アンドフラワーの余剰在庫の販売は2026年5月末に開始")
 
 # ---- 用語と集計の前提
 terms = content_slide("用語と集計の前提")

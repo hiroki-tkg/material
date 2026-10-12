@@ -183,27 +183,27 @@ def footnote(s, body):
     text(s, 56, H_PX - 84, 960, 40, body, size=13, color=SECONDARY, spacing=1.3)
 
 
-def divider(num, en_label, title, sub=""):
-    """P-3 章扉: Moss 全面＋アウトライン章番号＋英字 ALL CAPS＋和文タイトル。"""
+def divider(num, en_label, title, sub="", bg=MOSS, fg=WHITE):
+    """P-3 章扉: 全面色＋アウトライン章番号＋英字 ALL CAPS＋和文タイトル（既定は Moss 地に白）。"""
     global page_no
     page_no += 1
     s = prs.slides.add_slide(BLANK)
     s.background.fill.solid()
-    s.background.fill.fore_color.rgb = MOSS
-    tb = text(s, 80, 240, 400, 150, num, size=120, color=WHITE, en=True, spacing=1.0)
+    s.background.fill.fore_color.rgb = bg
+    tb = text(s, 80, 240, 400, 150, num, size=120, color=fg, en=True, spacing=1.0)
     rpr = tb.text_frame.paragraphs[0].runs[0].font._rPr
     for el in rpr.findall(qn("a:solidFill")):
         rpr.remove(el)
     ln = rpr.makeelement(qn("a:ln"), {"w": "19050"})
     sf = ln.makeelement(qn("a:solidFill"), {})
-    sf.append(sf.makeelement(qn("a:srgbClr"), {"val": "FFFFFF"}))
+    sf.append(sf.makeelement(qn("a:srgbClr"), {"val": str(fg)}))
     ln.append(sf)
     rpr.insert(0, ln)
     rpr.insert(1, rpr.makeelement(qn("a:noFill"), {}))
-    text(s, 80, 416, 900, 32, en_label, size=22, color=WHITE, en=True, letter=6)
-    text(s, 80, 460, 960, 64, title, size=46, color=WHITE, bold=True)
+    text(s, 80, 416, 900, 32, en_label, size=22, color=fg, en=True, letter=6)
+    text(s, 80, 460, 960, 64, title, size=46, color=fg, bold=True)
     if sub:
-        text(s, 80, 544, 960, 36, sub, size=22, color=WHITE)
+        text(s, 80, 544, 960, 36, sub, size=22, color=fg)
     return s
 
 
