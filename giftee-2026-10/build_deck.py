@@ -28,7 +28,8 @@ def fy_sum(series):
 # =====================================================================
 s = new_slide()
 rect(s, 0, 0, 8, H_PX, LIGHT)
-text(s, 96, 250, 960, 40, "株式会社ギフティ様　ご参考資料", size=26, color=SECONDARY)
+INTERNAL = os.environ.get("INTERNAL") == "1"  # INTERNAL=1 で社内向け版（宛先の表記を消し、ファイル名を変える）
+text(s, 96, 250, 960, 40, "社内向け資料" if INTERNAL else "株式会社ギフティ様　ご参考資料", size=26, color=SECONDARY)
 text(s, 96, 330, 980, 100, "事業エコノミクスの整理とまとめ", size=60, bold=True, spacing=1.3)
 text(s, 96, 450, 960, 40, "アンドプランツ/アンドフラワーの推移と、今後のエコノミクス", size=24,
      color=SECONDARY)
@@ -574,7 +575,8 @@ for k_, v_ in TERMS:
     y += rh_
     hline(terms, 56, y, 1016)
 
-prs.save("giftee_economics_2026-10.pptx")  # PDF は soffice で書き出す
+OUT = "internal_economics_2026-10" if INTERNAL else "giftee_economics_2026-10"
+prs.save(OUT + ".pptx")  # PDF は soffice で書き出す
 print("saved", len(prs.slides._sldIdLst), "slides")
 for name, fs, fa, fn in [("AP", ap_fy_s, ap_fy_ad, ap_fy_net), ("AF", af_fy_s, af_fy_ad, af_fy_net)]:
     print(name, [round(v, 1) for v in fs], [round(v, 1) for v in fa], [round(v, 1) for v in fn])

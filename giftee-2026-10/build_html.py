@@ -8,8 +8,11 @@ import os
 import re
 
 HERE = os.path.dirname(os.path.abspath(__file__))
+INTERNAL = os.environ.get("INTERNAL") == "1"
+SVG_DIR = "preview/svg_internal" if INTERNAL else "preview/svg22"
+OUT = "internal_economics_2026-10" if INTERNAL else "giftee_economics_2026-10"
 slides = []
-for k, path in enumerate(sorted(glob.glob(os.path.join(HERE, "preview/svg22/s*.svg"))), 1):
+for k, path in enumerate(sorted(glob.glob(os.path.join(HERE, SVG_DIR, "s*.svg"))), 1):
     svg = open(path, encoding="utf-8").read()
     svg = re.sub(r"<\?xml[^>]*\?>\s*", "", svg)
     # ページごとに id が重なるので接頭辞を付ける
@@ -24,7 +27,7 @@ html = f"""<!doctype html>
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>事業エコノミクスと倉庫の収益性</title>
+<title>事業エコノミクスの整理とまとめ</title>
 <style>
 :root {{ --bg: #eef1f1; --fg: #004347; --muted: #626262; }}
 * {{ box-sizing: border-box; }}
@@ -45,7 +48,7 @@ main {{ max-width: 1040px; margin: 0 auto; padding: 8px 16px 48px; display: grid
 </head>
 <body>
 <header>
-<h1>株式会社ギフティ様　ご説明資料　事業エコノミクスの整理と倉庫の収益性</h1>
+<h1>{"社内向け資料" if INTERNAL else "株式会社ギフティ様　ご参考資料"}　事業エコノミクスの整理とまとめ</h1>
 <p>2026.10　株式会社Domuz　全{len(slides)}ページ</p>
 </header>
 <main>
@@ -54,6 +57,6 @@ main {{ max-width: 1040px; margin: 0 auto; padding: 8px 16px 48px; display: grid
 </body>
 </html>
 """
-out = os.path.join(HERE, "giftee_economics_2026-10.html")
+out = os.path.join(HERE, OUT + ".html")
 open(out, "w", encoding="utf-8").write(html)
 print(out, len(html) // 1024, "KB")
