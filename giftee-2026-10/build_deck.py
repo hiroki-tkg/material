@@ -173,12 +173,12 @@ def badge(slide, x, y, n, color=MOSS, d=22):
          align=PP_ALIGN.CENTER, anchor=MSO_ANCHOR.MIDDLE, spacing=1.0)
 
 
-def content_slide(title=None, sub=None):
+def content_slide(title=None, sub=None, accent=None):
     """白背景＋左端ライトグリーン縦帯8px＋左上タイトル＋右下ページ番号。"""
     global page_no
     page_no += 1
     s = prs.slides.add_slide(BLANK)
-    rect(s, 0, 0, 8, H_PX, LIGHT)
+    rect(s, 0, 0, 8, H_PX, accent or LIGHT)
     if title:
         text(s, 56, 44, 1000, 56, title, size=38, bold=True)
     if sub:
@@ -263,7 +263,7 @@ for n, label, sub in items:
 footnote(s, "※ 用語と集計の前提は最終ページにまとめています")
 
 summary_slide = content_slide("アンドプランツ")
-summary_slide2 = content_slide("アンドフラワー")
+summary_slide2 = content_slide("アンドフラワー", accent=FLOWER)
 
 # =====================================================================
 # 章 01
@@ -274,7 +274,7 @@ divider("01", "ECONOMICS TREND", "各事業のエコノミクスの推移", "23�
 def trend_slide(title, sales, mp, ad, net, color, ymax, note, msg, fy0=0, mp_label="限界利益",
                 net_label="広告費込み限界利益", fy_names=None):
     """月次売上の棒（事業の色）＋期別の収益性の表。棒の上は各期の最高月、期名の下は期合計。"""
-    s = content_slide(title)
+    s = content_slide(title, accent=color if color == FLOWER else None)
     if msg:
         text(s, 56, 104, 1016, 36, msg, size=21, bold=True)
     fy_names = fy_names or FY_NAMES
