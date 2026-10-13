@@ -246,7 +246,7 @@ page(f'''
   <div class="kpis" style="margin-top:14px">
     <div class="kpi"><div class="l">母の日前日の発送数（過去実績の最大）</div><div class="v">{CAP_MAX:,}<small>件／日</small></div><div class="d">26 年 5 月 9 日（土）、花拠点からの発送。床を AND FLOWER に振り切った状態。オペレーションの改善等で、1.3 倍目安で最大数を増やすことが可能</div></div>
     <div class="kpi"><div class="l">オペレーション改善後の想定（1.3 倍）</div><div class="v">{CAP_MAX*1.3:,.0f}<small>件／日</small></div><div class="d">{CAP_MAX:,} 件 × 1.3。床は現状のまま</div></div>
-    <div class="kpi"><div class="l">母の日の週の合計（5/4〜5/10）</div><div class="v">{sum(CAP_V[WEEK]):,}<small>件</small></div><div class="d">花拠点からの発送。翌週（5/11〜5/15）は 1 日 {min(CAP_V[7:]):,}〜{max(CAP_V[7:]):,} 件、合計 {sum(CAP_V[7:]):,} 件</div></div>
+    <div class="kpi"><div class="l">母の日の週の合計（5/4〜5/10）</div><div class="v">{sum(CAP_V[WEEK]):,}<small>件</small></div><div class="d">花拠点からの発送</div></div>
   </div>
   <p class="st">ピークの 5 月 9 日は <b class="hl pk">花拠点だけで {CAP_MAX:,} 件</b>。これが現状の床と体制での最大発送実績</p>
   <p class="note">※ 社内の発送実績（発送日ベース）。母の日前日の発送数は、オペレーション等の改善により 1.3 倍目安で最大発送数が任意で実現可能な想定</p>
