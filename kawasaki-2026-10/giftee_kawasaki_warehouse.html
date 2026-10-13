@@ -1,3 +1,8 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <title>川崎倉庫 収益性試算</title>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;500;700&display=swap">
 <style>
@@ -48,6 +53,8 @@ th{color:var(--muted);font-weight:500;font-size:.75rem} td.pos{color:var(--pos)}
  *{-webkit-print-color-adjust:exact;print-color-adjust:exact}
 }
 </style>
+</head>
+<body>
 
 <div class="deck" id="deck">
 
@@ -376,3 +383,6 @@ const go=i=>{i=Math.max(0,Math.min(slides.length-1,i));slides[i].scrollIntoView(
 $('prev').addEventListener('click',()=>go(cur()-1));$('next').addEventListener('click',()=>go(cur()+1));
 document.addEventListener('keydown',e=>{if(['ArrowDown','ArrowRight','PageDown',' '].includes(e.key)){e.preventDefault();go(cur()+1);}if(['ArrowUp','ArrowLeft','PageUp'].includes(e.key)){e.preventDefault();go(cur()-1);}});
 </script>
+
+</body>
+</html>
