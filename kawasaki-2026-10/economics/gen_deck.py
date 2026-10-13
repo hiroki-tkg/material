@@ -11,7 +11,7 @@ PLAN = json.load(open(os.path.join(ROOT, '..', 'assets', 'images.json')))['plan'
 import base64, io
 from PIL import Image
 _im = Image.open(io.BytesIO(base64.b64decode(PLAN.split(',',1)[1])))
-CROP = (30, 455, 600, 790)  # 元画像 1722×790 のうち x30–600, y455–790
+CROP = (30, 455, 282, 790)  # 元画像 1722×790 のうち 2I とエレベーター（x30–282, y455–790）
 _buf = io.BytesIO(); _im.crop(CROP).save(_buf, 'WEBP', quality=88)
 PLAN_2I = 'data:image/webp;base64,' + base64.b64encode(_buf.getvalue()).decode()
 CROP_W, CROP_H = CROP[2]-CROP[0], CROP[3]-CROP[1]
@@ -180,35 +180,38 @@ page(f'''
   <div class="cols" style="margin-top:10px">
     <div style="flex:1">
       <table class="tb compact">
-        <thead><tr><th>区画</th><th class="r">坪</th><th class="r">坪単価</th><th class="r">月額</th></tr></thead>
+        <thead><tr><th>区画</th><th class="r">坪</th><th class="r">坪単価（円／坪／月）</th><th class="r">月額（円）</th><th class="r">年額（円）</th></tr></thead>
         <tbody>
-          <tr><td>2I（当社・現在）</td><td class="r">128.84</td><td class="r">7,296</td><td class="r">{fmt(RENT)}</td></tr>
-          <tr><td class="in">うち冷蔵庫（キーパー）59.52㎡　6.4m × 9.3m</td><td class="r">18.00</td><td class="r">7,296</td><td class="r">{fmt(UNIT*COLD)}</td></tr>
-          <tr><td>2G（交渉中・仮置き）</td><td class="r">243.82</td><td class="r">7,296</td><td class="r">{fmt(GRENT)}</td></tr>
-          <tr class="tot"><td>2I ＋ 2G</td><td class="r">372.66</td><td class="r">7,296</td><td class="r">{fmt(RENT+GRENT)}</td></tr>
-          <tr><td>2D の一部（ギフティ社）</td><td class="r">要確認</td><td class="r">—</td><td class="r">—</td></tr>
+          <tr><td>2I（当社・現在）</td><td class="r">128.84</td><td class="r">7,296</td><td class="r">{fmt(RENT)}</td><td class="r">{fmt(RENT*12)}</td></tr>
+          <tr><td class="in">うち冷蔵庫（キーパー）59.52㎡　6.4m × 9.3m</td><td class="r">18.00</td><td class="r">7,296</td><td class="r">{fmt(UNIT*COLD)}</td><td class="r">{fmt(UNIT*COLD*12)}</td></tr>
+          <tr><td>2G（交渉中）</td><td class="r">243.82</td><td class="r">7,296（仮置き）</td><td class="r">{fmt(GRENT)}</td><td class="r">{fmt(GRENT*12)}</td></tr>
+          <tr class="tot"><td>2I ＋ 2G</td><td class="r">372.66</td><td class="r">7,296（仮置き）</td><td class="r">{fmt(RENT+GRENT)}</td><td class="r">{fmt((RENT+GRENT)*12)}</td></tr>
+          <tr><td>2D の一部（ギフティ社）</td><td class="r">要確認</td><td class="r">—</td><td class="r">—</td><td class="r">—</td></tr>
         </tbody>
       </table>
-      <p class="unit">単位：円／月</p>
+      <p class="unit">※税抜</p>
     </div>
   </div>
-  <p class="st" style="padding-top:8px">2I と 2G は同じフロアの左側で隣接し、2G は 2I の約 1.9 倍。年額は 2I 11.3 百万円、2G 21.3 百万円</p>
-  <p class="note">※ 2G の坪単価・契約条件は提示待ちで、確定したら置き換える。2D（384.27 坪）のうちギフティ社が使う部分の坪数は要確認</p>
+  <p class="note">※ 2I と 2G は同じフロアの左側で隣接し、2G は 2I の約 1.9 倍。2G の坪単価・契約条件は提示待ちで、確定したら置き換える。2D（384.27 坪）のうちギフティ社が使う部分の坪数は要確認</p>
 ''')
 
 # 6 2I の使い方
 now=[('冷蔵庫（キーパー）',COLD,MOSS,'生花の鮮度保持（固定設備。59.52㎡、6.4m × 9.3m）'),('ハナイチ',HA_T,YEL,'生花の在庫・出荷（2I の 20% を上限）'),('AND FLOWER',AF_T,PINK,'ブーケ制作、梱包、資材、出荷待ち、イネイブラー同梱')]
 seg="".join(f'<div class="seg" style="flex:{v};background:{c}"><span>{n.split("（")[0]} {v:.0f}坪</span></div>' for n,v,c,_ in now)
+area="".join(f'<div class="ab"><div class="ab-l">{n}</div><div class="ab-t"><div class="ab-f" style="width:{v/T2I*100:.1f}%;background:{c}"></div></div><div class="ab-v">{v:.2f}<small>坪</small><span>{v/T2I*100:.0f}%</span></div></div>' for n,v,c,_ in now)
 rows="".join(f'<tr><td><i class="sw" style="background:{c}"></i>{n}</td><td class="r">{v:.2f}</td><td class="r">{v/T2I*100:.0f}%</td><td class="r">{fmt(v*UNIT)}</td><td class="g">{d}</td></tr>' for n,v,c,d in now)
 page(f'''
   <h1>2I の使い方</h1>
   <p class="sub">128.84 坪を、冷蔵庫・ハナイチ（上限 20%）・AND FLOWER で使っている</p>
   <p class="cap">配分ルール：冷蔵庫（キーパー）18 坪は固定設備、ハナイチは 2I 全体の 20% まで、残りは AND FLOWER（制作・梱包・資材・出荷待ち）</p>
-  <div class="plan plan-2i" style="background-image:url({PLAN_2I})">
-    <div class="ov solid" style="{pct(58,475,205,780)}"><span class="tag">2I　128.84坪 ・ 当社利用中</span></div>
+  <div class="cols" style="gap:40px;align-items:center">
+    <div class="plan plan-2i" style="background-image:url({PLAN_2I})"></div>
+    <div style="flex:1">
+      <div class="hbt">面積の内訳（2I 全体 {T2I:.2f} 坪）</div>
+      {area}
+    </div>
   </div>
-  <div class="stack" style="margin-top:14px">{seg}</div>
-  <table class="tb compact" style="margin-top:12px">
+  <table class="tb compact" style="margin-top:16px">
     <thead><tr><th>用途</th><th class="r">坪</th><th class="r">比率</th><th class="r">家賃相当／月（円）</th><th>主な中身</th></tr></thead>
     <tbody>{rows}<tr class="tot"><td>合計</td><td class="r">{T2I:.2f}</td><td class="r">100%</td><td class="r">{fmt(RENT)}</td><td></td></tr></tbody>
   </table>
@@ -464,14 +467,15 @@ table.tb{width:100%;border-collapse:collapse;font-size:14.5px} .tb th,.tb td{pad
 .stack{display:flex;width:100%;height:52px;border-radius:4px;overflow:hidden} .stack .seg{display:flex;align-items:center;justify-content:center;min-width:0;overflow:hidden;white-space:nowrap;font-size:14px;font-weight:700;color:#fff} .stack .seg+.seg{border-left:2px solid #fff}
 .stack .seg[style*="--line"],.stack .seg[style*="--light"],.stack .seg[style*="--yellow"]{color:var(--moss)}
 .sw{display:inline-block;width:11px;height:11px;border-radius:2px;margin-right:8px;vertical-align:-1px}
-.tb.compact th,.tb.compact td{padding:5px 10px}
+.tb.compact th,.tb.compact td{padding:4px 10px}
 .plan{position:relative;width:100%;aspect-ratio:1722/790;background-size:contain;background-repeat:no-repeat;background-position:center;background-color:#fff;border:1px solid var(--line2);border-radius:4px}
 .ov{position:absolute;border-radius:3px} .ov.solid{border:2.5px solid var(--pink);background:rgba(239,102,125,.16)} .ov.dash{border:2px dashed var(--mint);background:rgba(0,215,156,.08)} .ov.fill{border:2px solid var(--gray);background:rgba(201,207,207,.55)}
 .ov>.tag{position:absolute;left:-2px;top:-2px;transform:translateY(-100%);white-space:nowrap;font-size:12px;font-weight:700;padding:2px 8px;border-radius:3px;background:var(--pink);color:#fff}
 .tag.alt{background:#fff;color:var(--moss);border:1px solid var(--mint)} .tag.gray{background:#fff;color:var(--gray);border:1px solid var(--gray)}
 .hbt{font-size:15px;font-weight:700;margin-bottom:14px} .hb{display:flex;align-items:center;gap:14px;margin-bottom:18px} .hb-l{width:170px;font-size:15px;font-weight:700;line-height:1.35} .hb-l span{display:block;font-size:11.5px;color:var(--gray);font-weight:400;margin-top:2px}
 .hb-t{flex:1;display:flex;align-items:center;gap:10px} .hb-f{height:24px;border-radius:2px;min-width:3px} .hb-t b{font-size:16px;white-space:nowrap}
-.plan.plan-wide{width:56%;margin:0 auto} .plan.plan-2i{width:48%;aspect-ratio:570/335;margin:0 auto}
+.plan.plan-wide{width:75%;margin:0 auto} .plan.plan-2i{flex:none;width:248px;aspect-ratio:252/335;margin:0}
+.ab{display:flex;align-items:center;gap:14px;margin-bottom:22px} .ab-l{width:150px;font-size:15px;font-weight:700} .ab-t{flex:1;height:26px;background:var(--light);border-radius:2px;overflow:hidden} .ab-f{height:100%} .ab-v{width:150px;font-size:22px;font-weight:700;white-space:nowrap} .ab-v small{font-size:13px;margin-left:3px} .ab-v span{font-size:13px;color:var(--gray);font-weight:400;margin-left:10px}
 @page{size:1040px 780px;margin:0}
 @media print{body{background:#fff}header{display:none}main{padding:0;gap:0;max-width:none;display:block}.slide{box-shadow:none;border-radius:0;page-break-after:always;break-after:page;max-width:none}.slide:last-child{page-break-after:auto;break-after:auto}*{-webkit-print-color-adjust:exact;print-color-adjust:exact}}
 '''
