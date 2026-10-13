@@ -35,7 +35,7 @@ afm, hag, lab, afs, has_ = avg(AF_M), avg(HA_G), avg(LAB), avg(AF_S), avg(HA_S)
 cp = afm+hag-lab-RENT
 MP = [a+b for a,b in zip(AF_M,HA_G)]; CPm = [m-l-RENT for m,l in zip(MP,LAB)]
 labHV = 260000/(24*22); labS = 260000/(60*22)
-SC = [dict(n='単純3PL', rev=6600+20*250, lab=20*labS, d='保管 6,600円＋出荷作業料 5,000円（20件）'),
+SC = [dict(n='汎用3PL', rev=6600+20*250, lab=20*labS, d='保管 6,600円＋出荷作業料 5,000円（20件）'),
       dict(n='高付加価値3PL', rev=60*800, lab=60*labHV, d='60件 × 800円（花オプション・同梱）'),
       dict(n='自社EC（AP&AF）', rev=afm/AF_T, lab=lab/AF_T, d=f'AND FLOWER 実績 ÷ {AF_T:.2f}坪')]
 for s in SC: s['cp'] = s['rev']-s['lab']-UNIT
@@ -123,6 +123,7 @@ c_cap = stacked(600, 380, L, AF_O, slack, PINK, 'var(--light)', lambda v: f"{rou
 
 INCLUDE_SUMMARY = False    # サマリー（結論の先出し）を入れるか
 INCLUDE_ANALYSIS = False   # 第2章「現状の分析」（AF・ハナイチ月次、貢献利益）を入れるか
+INCLUDE_DECISION = False   # 「効率化」「2G の判断」のページを入れるか
 pages=[]
 def page(body, cls='', accent=None, id=None, skip=False):
     if skip: return
@@ -136,7 +137,7 @@ page('''
   <div class="cover">
     <div class="eyebrow">株式会社ギフティ様　ご参考資料</div>
     <h1>川崎拠点の現状と収益性</h1>
-    <div class="sub">2I 区画の現状と、単純3PL／高付加価値3PL／自社EC（AP&AF）の坪効率</div>
+    <div class="sub">2I 区画の現状と、汎用3PL／高付加価値3PL／自社EC（AP&AF）の坪効率</div>
     <div class="meta">2026 年 10 月<br>株式会社 DOMUZ<br>髙木 弘貴</div>
   </div>
 ''','cover')
@@ -144,7 +145,7 @@ page('''
 # 2 構成
 toc=[('現状の整理','2階フロアで借りている床（2I）、その使い方とキャパシティ')]
 if INCLUDE_ANALYSIS: toc.append(('現状の分析','AND FLOWER・ハナイチの FY2026 実績と、2I の貢献利益'))
-toc+=[('収益性の試算','単純3PL／高付加価値3PL／自社EC（AP&AF）を 1 坪あたりで比べる'),('今後の使い方','運用方針、閑散月を埋める効率化、2G を借りる判断')]
+toc+=[('収益性の試算','汎用3PL／高付加価値3PL／自社EC（AP&AF）を 1 坪あたりで比べる'),('今後の使い方','運用方針と、スケールした後の拠点の考え方')]
 page('<h1>本資料の構成</h1><div class="toc">'+"".join(f'<div class="toc-i"><div class="n">{i}</div><div><div class="t">a</div><div class="s">{s}</div></div></div>'.replace('>a<',f'>{n}<') for i,(n,s) in enumerate(toc,1))+'</div><p class="note">※ 用語と集計の前提は最終ページにまとめています</p>')
 
 # 3 サマリー
@@ -155,8 +156,8 @@ page(f'''
       <ul><li>FY2026（25 年 10 月〜 26 年 9 月）の貢献利益は月 {cp/1e4:,.0f} 万円（年 {cp*12/1e6:,.1f} 百万円）。家賃 0.94 百万円の {cp/RENT:.1f} 倍</li>
       <li>ただし母の日の 2 か月に偏り、閑散月（6〜7 月、1〜2 月）は 100 万円を割る。繁閑差は限界利益で {max(MP)/min(MP):.1f} 倍</li></ul></div></div>
     <div class="sum-i"><div class="n">2</div><div><div class="t">同じ 1 坪でも、用途で貢献利益は大きく変わる</div>
-      <ul><li>単純3PL +{fmt(SC[0]['cp'])} 円／坪／月、高付加価値3PL +{fmt(SC[1]['cp'])} 円、自社EC（AP&AF）+{fmt(SC[2]['cp'])} 円</li>
-      <li>単純3PL は家賃をようやく賄う水準。<b class="hl">単純3PL に床は使わない</b></li></ul></div></div>
+      <ul><li>汎用3PL +{fmt(SC[0]['cp'])} 円／坪／月、高付加価値3PL +{fmt(SC[1]['cp'])} 円、自社EC（AP&AF）+{fmt(SC[2]['cp'])} 円</li>
+      <li>汎用3PL は家賃をようやく賄う水準。<b class="hl">汎用3PL に床は使わない</b></li></ul></div></div>
     <div class="sum-i"><div class="n">3</div><div><div class="t">今後は「閑散月を埋める」と「2G で床を増やす」の 2 段</div>
       <ul><li>閑散月の空き能力（月 {fmt(slackAvg)} 件）を高付加価値3PL で埋め、ハナイチを直近水準にすると、2I のままで月 {eff/1e4:,.0f} 万円</li>
       <li>2G（243.82 坪）は高付加価値3PL と AF の繁忙期増産で埋めれば、追加家賃 {man(GRENT)} を引いて <b class="hl">月 +{net/1e4:,.0f} 万円</b>。高付加価値3PL だけなら損益分岐 {fmt(be1)} 件／月</li></ul></div></div>
@@ -218,7 +219,7 @@ page(f'''
     <thead><tr><th>用途</th><th class="r">坪</th><th class="r">比率</th><th class="r">家賃相当／月（円）</th><th>主な中身</th></tr></thead>
     <tbody>{rows}<tr class="tot"><td>合計</td><td class="r">{T2I:.2f}</td><td class="r">100%</td><td class="r">{fmt(RENT)}</td><td></td></tr></tbody>
   </table>
-  <p class="note">※ 床を使う主体は AND FLOWER の発送（ブーケ制作、梱包、資材、出荷待ち）。イネイブラー案件（パパブブレ等の同梱）も同じ作業スペースを使う。冷蔵庫だけが固定設備で、ほかは繁閑で入れ替わる（母の日の 2 か月は資材と出荷待ちが通路まで広がり、閑散期は作業台が空く）</p>
+  <p class="note">※ 床を使う主体は AND FLOWER の発送（ブーケ制作、梱包、資材、出荷待ち）。イネイブラー案件（キャンディ、コーヒー、ギフトカード等の保管と同梱）も AND FLOWER と同じ作業スペースを利用する。冷蔵庫だけが固定設備で、ほかは繁閑で入れ替わる。母の日前後の 2 か月間は、資材等の準備で一部隣の倉庫を借りる場合もある</p>
   <p class="note" style="margin-top:4px">※ イネイブラー案件（ギフトカード、コーヒー、スイーツ等）は実施時期によって変動するが、床の使い方は AND FLOWER と同等とみなす</p>
 ''', id='usage')
 
@@ -231,16 +232,16 @@ HA_QUOTA = 800   # ハナイチ 出荷枠の上限（本／日）。管理画面
 FREE_T = T2I - COLD  # 冷蔵庫を除く床
 c_cap_day = bars(920, 290, CAP_L, [('発送商品数',CAP_V,PINK)], lambda v: f"{round(v):,}", lambda v: f"{round(v):,}")
 page(f'''
-  <h1>現状のキャパシティ</h1>
-  <p class="sub">最大は母の日前日（26 年 5 月 9 日）の {CAP_MAX:,} 点／日。これを現状の床と体制の上限と仮定する</p>
+  <h1>現状のキャパシティ（AND FLOWER に振り切った場合）</h1>
+  <p class="sub">過去実績の最大は母の日前日（26 年 5 月 9 日）の {CAP_MAX:,} 点／日。この密度で床を広げた場合の発送数を出す</p>
   <p class="cap">AND FLOWER の日次発送商品数（全チャネル、発送日ベース）　26 年 4 月 27 日〜 5 月 15 日　単位：点／日</p>
   {c_cap_day}
   <div class="kpis" style="margin-top:14px">
-    <div class="kpi"><div class="l">1 日の最大発送数（AND FLOWER）</div><div class="v">{CAP_MAX:,}<small>点／日</small></div><div class="d">26 年 5 月 9 日（土）。うち Shopify 3,892 点、法人 45 点、楽天 49 点、Amazon 53 点</div></div>
-    <div class="kpi"><div class="l">坪あたり（AND FLOWER の床 {AF_T:.2f} 坪）</div><div class="v">{CAP_MAX/AF_T:,.1f}<small>点／坪／日</small></div><div class="d">冷蔵庫（キーパー）は共用のため除いて計算</div></div>
-    <div class="kpi"><div class="l">ハナイチの出荷枠（上限）</div><div class="v">{HA_QUOTA:,}<small>本／日</small></div><div class="d">管理画面の出荷枠の最大値（26 年 10 月）。{HA_QUOTA/HA_T:,.1f} 本／坪／日（{HA_T:.2f} 坪）</div></div>
+    <div class="kpi"><div class="l">母の日前日の発送数（過去実績の最大）</div><div class="v">{CAP_MAX:,}<small>点／日</small></div><div class="d">26 年 5 月 9 日（土）。うち Shopify 3,892 点、法人 45 点、楽天 49 点、Amazon 53 点</div></div>
+    <div class="kpi"><div class="l">坪あたり（{AF_T:.2f} 坪）</div><div class="v">{CAP_MAX/AF_T:,.1f}<small>点／坪／日</small></div><div class="d">AND FLOWER の床で割った値。冷蔵庫（キーパー）は共用のため除く</div></div>
+    <div class="kpi"><div class="l">{FREE_T:.2f} 坪に振り切った場合</div><div class="v">{CAP_MAX/AF_T*FREE_T:,.0f}<small>点／日</small></div><div class="d">冷蔵庫を除く床をすべて AND FLOWER に使った場合（同じ密度）</div></div>
   </div>
-  <p class="st">母の日前日は平常日（約 500 点）の <b class="hl pk">約 8 倍</b>。この日を回せた床と体制が、現状の上限</p>
+  <p class="st">母の日前日は平常日（約 500 点）の <b class="hl pk">約 8 倍</b>。これが現状の最大発送実績</p>
   <p class="note">※ 受注管理システムの「チャネル別 発送商品数」（発送日ベース。Amazon のみ注文日）。Shopify には AND PLANTS の商品が一部含まれる。ハナイチの出荷枠は仕入と人員で日ごとに設定しており、床だけの制約ではない</p>
 ''', 'af', id='cap')
 
@@ -325,18 +326,18 @@ page(f'''
 ''', skip=not INCLUDE_ANALYSIS)
 
 # 11 章扉
-page(f'<div class="num">{{SEC}}</div><div class="lab">SCENARIOS</div><div class="t">収益性の試算</div><div class="s">単純3PL／高付加価値3PL／自社EC（AP&AF）を 1 坪あたりで比べる</div>','divider')
+page(f'<div class="num">{{SEC}}</div><div class="lab">SCENARIOS</div><div class="t">収益性の試算</div><div class="s">汎用3PL／高付加価値3PL／自社EC（AP&AF）を 1 坪あたりで比べる</div>','divider')
 
 # 12 3用途
 hb = hbars([(s['n'], s['cp'], c, s['d']) for s,c in zip(SC,[GRAY,MOSS,MINT])])
 page(f'''
   <h1>坪効率：3 つの用途の比較</h1>
-  <p class="sub">同じ 1 坪でも、単純3PL +{fmt(SC[0]['cp'])} 円、高付加価値3PL +{fmt(SC[1]['cp'])} 円、自社EC +{fmt(SC[2]['cp'])} 円</p>
+  <p class="sub">同じ 1 坪でも、汎用3PL +{fmt(SC[0]['cp'])} 円、高付加価値3PL +{fmt(SC[1]['cp'])} 円、自社EC +{fmt(SC[2]['cp'])} 円</p>
   <p class="cap">3 つの用途を「1 坪・1 か月の貢献利益」で比べる　単位：円／坪／月　※税抜</p>
   <div class="cols">
     <div style="flex:1.2">
       <table class="tb">
-        <thead><tr><th></th><th class="r">単純3PL</th><th class="r">高付加価値3PL</th><th class="r">自社EC（AP&AF）</th></tr></thead>
+        <thead><tr><th></th><th class="r">汎用3PL</th><th class="r">高付加価値3PL</th><th class="r">自社EC（AP&AF）</th></tr></thead>
         <tbody>
           <tr><td>限界利益</td>{"".join(f'<td class="r">{fmt(s["rev"])}</td>' for s in SC)}</tr>
           <tr><td>拠点人件費</td>{"".join(f'<td class="r rd">▲{fmt(s["lab"])}</td>' for s in SC)}</tr>
@@ -348,8 +349,8 @@ page(f'''
     </div>
     <div style="flex:1"><div class="hbt">貢献利益（円／坪／月）</div>{hb}</div>
   </div>
-  <p class="st">単純3PL は家賃をようやく賄う水準で、保管単価が 1 割下がれば赤字。<b class="hl">作業が付く高付加価値3PL</b> と、商品の粗利を含む自社EC が床を活かす</p>
-  <p class="note">※ 単純3PL：保管 3,300 円／パレット／月 × 2 パレット／坪、出荷作業料 250 円／件 × 20 件／坪／月、作業 60 件／人／日（アルバイト 26 万円／人月・22 日 → 197 円／件）。高付加価値3PL：ギフト同梱・花オプション付き、限界利益 800 円／件（保冷実費除く）× 60 件／坪／月、作業 24 件／人／日（→ 492 円／件）。自社EC（AP&AF）：AND FLOWER の限界利益・人件費を {AF_T:.2f} 坪で割った実績値で、商品の粗利を含むためサービス料だけの 3PL とは性質が異なる</p>
+  <p class="st">汎用3PL は家賃をようやく賄う水準で、保管単価が 1 割下がれば赤字。<b class="hl">作業が付く高付加価値3PL</b> と、商品の粗利を含む自社EC が床を活かす</p>
+  <p class="note">※ 汎用3PL：保管 3,300 円／パレット／月 × 2 パレット／坪、出荷作業料 250 円／件 × 20 件／坪／月、作業 60 件／人／日（アルバイト 26 万円／人月・22 日 → 197 円／件）。高付加価値3PL：ギフト同梱・花オプション付き、限界利益 800 円／件（保冷実費除く）× 60 件／坪／月、作業 24 件／人／日（→ 492 円／件）。自社EC（AP&AF）：AND FLOWER の限界利益・人件費を {AF_T:.2f} 坪で割った実績値で、商品の粗利を含むためサービス料だけの 3PL とは性質が異なる</p>
 ''', id='tsubo')
 
 # 13 2Gに当てはめた
@@ -365,29 +366,30 @@ page(f'''
     <thead><tr><th>用途</th><th class="r">月額（円）</th><th class="r">年額（円）</th><th>成立条件</th></tr></thead>
     <tbody>{"".join(f'<tr><td>{s["n"]}</td><td class="r">{sg(s["cp"]*T2G)}</td><td class="r">{sg(s["cp"]*T2G*12)}</td><td class="g">{c}</td></tr>' for s,c in zip(SC,cond))}</tbody>
   </table>
-  <p class="st">2G を単一用途で埋める前提は現実的ではなく、<b class="hl">高付加価値3PL と AF の繁忙期増産の組み合わせ</b>で判断する（P.{{P:g2}}）</p>
+  <p class="st">2G を単一用途で埋める前提は現実的ではなく、<b class="hl">高付加価値3PL と AF の繁忙期増産の組み合わせ</b>で判断する</p>
   <p class="note">※ 2G の家賃は 7,296 円／坪で仮置き。設備・什器・原状回復は含まない</p>
 ''')
 
 # 14 章扉
-page(f'<div class="num">{{SEC}}</div><div class="lab">NEXT STEPS</div><div class="t">今後の使い方</div><div class="s">運用方針、閑散月を埋める効率化、2G を借りる判断</div>','divider')
+page(f'<div class="num">{{SEC}}</div><div class="lab">NEXT STEPS</div><div class="t">今後の使い方</div><div class="s">運用方針と、スケールした後の拠点の考え方</div>','divider')
 
 # 15 運用方針
 page(f'''
   <h1>今後の使い方：運用方針</h1>
-  <p class="sub">現状の配分を基本に、当社の倉庫は「高付加価値な部分だけ」を担う</p>
-  <p class="cap">床の使い方の基本方針。数字の裏付けは次ページ以降（効率化、2G の判断）</p>
-  <div class="sum" style="margin-top:20px">
+  <p class="sub">現状の配分を基本に、当社の倉庫は「高付加価値な部分のみ」を担う</p>
+  <div class="sum tight" style="margin-top:14px">
     <div class="sum-i"><div class="n">1</div><div><div class="t">現状の配分を基本にする</div>
       <ul><li>冷蔵庫（キーパー）18 坪は固定。ハナイチは全体の 20% までを上限に運用し、残りは AND FLOWER の水揚げ・製作・梱包・資材管理・出荷待ち商品に使う</li></ul></div></div>
-    <div class="sum-i"><div class="n">2</div><div><div class="t">イネイブラーは高付加価値な部分だけを当社の倉庫でやる</div>
+    <div class="sum-i"><div class="n">2</div><div><div class="t">イネイブラーは高付加価値な部分のみを当社の倉庫でやる</div>
       <ul><li>現状はカードやスイーツなど在庫がそれほど多くないものが中心のため、AND FLOWER の一部として運用中</li>
-      <li>汎用的な倉庫業務（保管して出すだけの仕事）は、基本的に <b class="hl">佐川急便（SGL）に委託する前提</b>。当社の倉庫でやるのは、花の扱いや製作作業が付く高付加価値な部分だけ</li>
+      <li>汎用的な倉庫業務（保管して出すだけの仕事）は、基本的に <b class="hl">佐川急便（SGL）に委託する前提</b>。当社の倉庫でやるのは、花の扱いや製作作業が付く高付加価値な部分のみ</li>
       <li>坪単価 7,200〜7,300 円前後の倉庫を借りている理由は、<b class="hl">クオリティの高い花の制作と発送を実現するため</b>。汎用3PL は坪あたり貢献利益が家賃をようやく賄う水準で、この床を使う理由にならない（P.{{P:tsubo}}）</li></ul></div></div>
     <div class="sum-i"><div class="n">3</div><div><div class="t">空いた床は高付加価値3PL で埋め、足りなくなったら 2G を借りる</div>
-      <ul><li>閑散月の空き能力（月 {fmt(slackAvg)} 件）を高付加価値3PL で埋める。それでも足りない段階で、高付加価値3PL と AND FLOWER の繁忙期増産を前提に 2G を借りる</li></ul></div></div>
+      <ul><li>閑散月の空き能力（月 {fmt(slackAvg)} 件）を高付加価値3PL で埋め、それでも足りない段階で 2G を借りる</li></ul></div></div>
+    <div class="sum-i"><div class="n">4</div><div><div class="t">川崎エリアよりスケールしたら、より広く坪単価の安いエリアで運用する</div>
+      <ul><li>例えば埼玉県・栃木県・群馬県など、大都市圏の東京に近いエリアで <b class="hl">坪単価 5,000 円以下</b> の場所を探して運用していく想定</li></ul></div></div>
   </div>
-  <p class="st"><b class="hl">保管して出すだけの仕事は外に出し、花の扱いと製作が付く仕事だけを川崎でやる。</b>それが坪効率をいちばん高く保つ使い方</p>
+  <p class="st"><b class="hl">保管して出すだけの仕事は外に出し、花の扱いや高付加価値な同梱・梱包作業がつく仕事だけを川崎でやる。</b>それが坪効率をいちばん高く保つ使い方</p>
 ''')
 
 # 16 効率化
@@ -416,7 +418,7 @@ page(f'''
   </div>
   <p class="st">閑散月を埋めるだけで貢献利益は <b class="hl">月 {cp/1e4:,.0f} → {eff/1e4:,.0f} 万円（+{(eff-cp)/cp*100:.0f}%）</b>。2G を借りる前に、まず 2I の空きを埋める</p>
   <p class="note">※ 1 件あたり貢献＝限界利益 800 円 − 人件費 492 円（24 件／人／日）。ハナイチの直近水準は 26 年 8〜9 月の平均</p>
-''')
+''', skip=not INCLUDE_DECISION)
 
 # 16 2G
 nx=[('冷蔵',30,MOSS),('保管',110,'var(--line)'),('AF 制作・梱包',80,PINK),('高付加価値3PL',90,MINT),('通路・撮影・事務',62.66,'var(--light)')]
@@ -427,7 +429,7 @@ page(f'''
   <p class="sub">高付加価値3PL と AF の繁忙期増産で埋めれば、追加家賃を引いても月 +{net/1e4:,.0f} 万円</p>
   <p class="cap">判断基準はひとつ。2G を借りて増える貢献利益が、2G の追加家賃（{M(GRENT)} 百万円／月）を上回るか　単位：円　※税抜</p>
   <div class="stack">{seg2}</div>
-  <p class="note" style="margin-top:4px">2I＋2G の用途内訳（372.66 坪・配置案）。単純3PL には床を使わない</p>
+  <p class="note" style="margin-top:4px">2I＋2G の用途内訳（372.66 坪・配置案）。汎用3PL には床を使わない</p>
   <div class="cols" style="margin-top:20px">
     <div style="flex:1.3">
       <table class="tb">
@@ -451,7 +453,7 @@ page(f'''
     </div>
   </div>
   <p class="st"><b class="hl">「埋め方」が決まれば借りてよい。</b>2I の効率化と合わせると拠点全体で月 {(eff+net)/1e4:,.0f} 万円（年 {(eff+net)*12/1e6:,.1f} 百万円）</p>
-''', id='g2')
+''', id='g2', skip=not INCLUDE_DECISION)
 
 # 17 まとめ
 page(f'''
@@ -461,9 +463,9 @@ page(f'''
       <div class="h2">結論</div>
       <ul class="pts">
         <li><b>現状。</b>2I の貢献利益は 26 年 9 月期で月 {cp/1e4:,.0f} 万円（年 {cp*12/1e6:,.1f} 百万円）、家賃の {cp/RENT:.1f} 倍。AND FLOWER が床の 7 割で月 {M(afm)} 百万円の限界利益、ハナイチが 2 割で月 {M(hag)} 百万円の粗利</li>
-        <li><b>用途の選び方。</b>1 坪あたり貢献利益は 単純3PL +{fmt(SC[0]['cp'])} 円 ＜ 高付加価値3PL +{fmt(SC[1]['cp'])} 円 ＜ 自社EC +{fmt(SC[2]['cp'])} 円。単純3PL に床は使わない</li>
-        <li><b>効率化。</b>閑散月の空き能力（月 {fmt(slackAvg)} 件）を高付加価値3PL で埋め、ハナイチを直近水準にすると、2I のままで月 {eff/1e4:,.0f} 万円</li>
-        <li><b>2G。</b>高付加価値3PL 6,000 件／月、母の日の増産、預かり在庫 40 パレットで埋めれば追加家賃を引いて月 +{net/1e4:,.0f} 万円。高付加価値3PL だけなら {fmt(be1)} 件／月が分岐点</li>
+        <li><b>用途の選び方。</b>1 坪あたり貢献利益は 汎用3PL +{fmt(SC[0]['cp'])} 円 ＜ 高付加価値3PL +{fmt(SC[1]['cp'])} 円 ＜ 自社EC +{fmt(SC[2]['cp'])} 円。汎用3PL に床は使わない</li>
+        <li><b>運用方針。</b>当社の倉庫でやるのは花の扱いや高付加価値な同梱・梱包作業がつく仕事のみ。汎用的な倉庫業務は佐川急便（SGL）に委託する</li>
+        <li><b>スケール後。</b>川崎より広く坪単価の安いエリア（埼玉・栃木・群馬など、坪単価 5,000 円以下）で運用する想定</li>
       </ul>
     </div>
     <div style="flex:1">
@@ -516,7 +518,7 @@ h1{font-size:32px;font-weight:700;letter-spacing:.03em;line-height:1.35;margin:0
 .toc{margin-top:56px;padding:0 24px} .toc-i{display:flex;gap:28px;align-items:flex-start;padding:22px 0;border-bottom:1px solid var(--line2)} .toc-i:last-child{border-bottom:0}
 .toc .n{font-size:42px;font-weight:700;color:var(--accent);line-height:1;width:44px} .toc .t{font-size:30px;font-weight:700;letter-spacing:.04em;margin-bottom:6px} .toc .s{font-size:18px;color:var(--gray)}
 .sum{margin-top:10px} .sum-i{display:flex;gap:18px;align-items:flex-start;margin-bottom:18px} .sum .n{font-size:29px;font-weight:700;color:var(--accent);line-height:1.3;width:32px;flex:none}
-.sum .t{font-size:21px;font-weight:700;margin-bottom:8px;line-height:1.5} .sum ul{margin:0;padding:0;list-style:none} .sum li{font-size:16.5px;line-height:1.7;padding-left:18px;position:relative;margin-bottom:3px}
+.sum .t{font-size:21px;font-weight:700;margin-bottom:8px;line-height:1.5} .sum.tight .sum-i{margin-bottom:10px} .sum.tight .t{margin-bottom:4px} .sum.tight li{line-height:1.6} .sum ul{margin:0;padding:0;list-style:none} .sum li{font-size:16.5px;line-height:1.7;padding-left:18px;position:relative;margin-bottom:3px}
 .sum li::before,.pts li::before{content:"";position:absolute;left:0;top:.62em;width:7px;height:7px;background:var(--accent)}
 .hl{color:var(--mint)} .hl.pk{color:var(--pink)} .hl.yl{color:var(--yellow)} .hl.rd{color:var(--red)}
 .st{font-size:19px;font-weight:700;line-height:1.65;margin:auto 0 0;padding-top:16px}
