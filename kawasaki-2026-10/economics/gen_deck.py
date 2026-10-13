@@ -27,7 +27,7 @@ HA_O = [199,205,165,114,168,257,248,224,203,221,430,431]
 HA_S = [2297039,2427537,2716297,1880102,2337877,5638734,5789935,4418621,3643481,4193694,5941892,5531016]
 HA_G = [568464,625740,759663,597509,761409,2059485,2169501,1641793,1281343,1389861,1705170,1506719]
 LAB  = [3450000]*5 + [4200000,5407500,6798000] + [3553500]*4
-UNIT, T2I, T2G, COLD = 7296, 128.84, 243.82, 10.0
+UNIT, T2I, T2G, COLD = 7296, 128.84, 243.82, 18.0  # 冷蔵庫（キーパー）59.52㎡ ＝ 6.4m × 9.3m ≒ 18 坪
 RENT, GRENT = UNIT*T2I, UNIT*T2G
 HA_T = T2I*0.2; AF_T = T2I-COLD-HA_T
 avg = lambda a: sum(a)/len(a)
@@ -37,7 +37,7 @@ MP = [a+b for a,b in zip(AF_M,HA_G)]; CPm = [m-l-RENT for m,l in zip(MP,LAB)]
 labHV = 260000/(24*22); labS = 260000/(60*22)
 SC = [dict(n='単純3PL', rev=6600+20*250, lab=20*labS, d='保管 6,600円＋出荷作業料 5,000円（20件）'),
       dict(n='高付加価値3PL', rev=60*800, lab=60*labHV, d='60件 × 800円（花オプション・同梱）'),
-      dict(n='自社EC（AP&AF）', rev=afm/AF_T, lab=lab/AF_T, d='AND FLOWER 実績 ÷ 93.07坪')]
+      dict(n='自社EC（AP&AF）', rev=afm/AF_T, lab=lab/AF_T, d=f'AND FLOWER 実績 ÷ {AF_T:.2f}坪')]
 for s in SC: s['cp'] = s['rev']-s['lab']-UNIT
 peak = max(AF_O); slack = [peak-o for o in AF_O]; slackAvg = avg(slack)
 e1 = slackAvg*(800-labHV); haRun = avg(HA_G[-2:]); e2 = haRun-hag; eff = cp+e1+e2
@@ -161,7 +161,7 @@ page(f'''
       <ul><li>閑散月の空き能力（月 {fmt(slackAvg)} 件）を高付加価値3PL で埋め、ハナイチを直近水準にすると、2I のままで月 {eff/1e4:,.0f} 万円</li>
       <li>2G（243.82 坪）は高付加価値3PL と AF の繁忙期増産で埋めれば、追加家賃 {man(GRENT)} を引いて <b class="hl">月 +{net/1e4:,.0f} 万円</b>。高付加価値3PL だけなら損益分岐 {fmt(be1)} 件／月</li></ul></div></div>
   </div>
-  <p class="note">※ 数値は税抜、月次。限界利益＝売上−花材・資材・送料、粗利＝売上−仕入、貢献利益＝限界利益（粗利）−拠点人件費−家賃。冷蔵庫の坪数・3PL の単価と件数は仮置き</p>
+  <p class="note">※ 数値は税抜、月次。限界利益＝売上−花材・資材・送料、粗利＝売上−仕入、貢献利益＝限界利益（粗利）−拠点人件費−家賃。3PL の単価と件数は仮置き</p>
 ''')
 
 # 4 章扉
@@ -183,7 +183,7 @@ page(f'''
         <thead><tr><th>区画</th><th class="r">坪</th><th class="r">坪単価</th><th class="r">月額</th></tr></thead>
         <tbody>
           <tr><td>2I（当社・現在）</td><td class="r">128.84</td><td class="r">7,296</td><td class="r">{fmt(RENT)}</td></tr>
-          <tr><td class="in">うち冷蔵庫（坪数は要確認）</td><td class="r">10.00</td><td class="r">7,296</td><td class="r">{fmt(UNIT*COLD)}</td></tr>
+          <tr><td class="in">うち冷蔵庫（キーパー）59.52㎡　6.4m × 9.3m</td><td class="r">18.00</td><td class="r">7,296</td><td class="r">{fmt(UNIT*COLD)}</td></tr>
           <tr><td>2G（交渉中・仮置き）</td><td class="r">243.82</td><td class="r">7,296</td><td class="r">{fmt(GRENT)}</td></tr>
           <tr class="tot"><td>2I ＋ 2G</td><td class="r">372.66</td><td class="r">7,296</td><td class="r">{fmt(RENT+GRENT)}</td></tr>
           <tr><td>2D の一部（ギフティ社）</td><td class="r">要確認</td><td class="r">—</td><td class="r">—</td></tr>
@@ -197,13 +197,13 @@ page(f'''
 ''')
 
 # 6 2I の使い方
-now=[('冷蔵庫',COLD,MOSS,'生花の鮮度保持（固定設備、坪数は要確認）'),('ハナイチ',HA_T,YEL,'生花の在庫・出荷（2I の 20% を上限）'),('AND FLOWER',AF_T,PINK,'ブーケ制作、梱包、資材、出荷待ち、イネイブラー同梱')]
+now=[('冷蔵庫（キーパー）',COLD,MOSS,'生花の鮮度保持（固定設備。59.52㎡、6.4m × 9.3m）'),('ハナイチ',HA_T,YEL,'生花の在庫・出荷（2I の 20% を上限）'),('AND FLOWER',AF_T,PINK,'ブーケ制作、梱包、資材、出荷待ち、イネイブラー同梱')]
 seg="".join(f'<div class="seg" style="flex:{v};background:{c}"><span>{n if v/T2I<0.1 else f"{n} {v:.0f}坪"}</span></div>' for n,v,c,_ in now)
 rows="".join(f'<tr><td><i class="sw" style="background:{c}"></i>{n}</td><td class="r">{v:.2f}</td><td class="r">{v/T2I*100:.0f}%</td><td class="r">{fmt(v*UNIT)}</td><td class="g">{d}</td></tr>' for n,v,c,d in now)
 page(f'''
   <h1>2I の使い方</h1>
   <p class="sub">128.84 坪を、冷蔵庫・ハナイチ（上限 20%）・AND FLOWER で使っている</p>
-  <p class="cap">配分ルール：冷蔵庫 10 坪は固定設備、ハナイチは 2I 全体の 20% まで、残りは AND FLOWER（制作・梱包・資材・出荷待ち）</p>
+  <p class="cap">配分ルール：冷蔵庫（キーパー）18 坪は固定設備、ハナイチは 2I 全体の 20% まで、残りは AND FLOWER（制作・梱包・資材・出荷待ち）</p>
   <div class="plan plan-2i" style="background-image:url({PLAN_2I})">
     <div class="ov solid" style="{pct(58,475,205,780)}"><span class="tag">2I　128.84坪 ・ 当社利用中</span></div>
   </div>
@@ -273,7 +273,7 @@ page(f'''
     </div>
   </div>
   <p class="st">4〜5 月は貢献利益が月 11 百万円。閑散月（6〜7 月、1〜2 月）は 1 百万円を割り、<b class="hl rd">家賃と人件費をまかなう程度</b></p>
-  <p class="note">※ AND FLOWER は 93.07 坪、ハナイチは 25.77 坪で割った値。2I 全体は冷蔵庫を含む 128.84 坪。ハナイチは拠点人件費が未反映のため上振れ。家賃は川崎 2I の 0.94 百万円のみ。26 年 9 月期の平均</p>
+  <p class="note">※ AND FLOWER は {AF_T:.2f} 坪、ハナイチは 25.77 坪で割った値。2I 全体は冷蔵庫を含む 128.84 坪。ハナイチは拠点人件費が未反映のため上振れ。家賃は川崎 2I の 0.94 百万円のみ。26 年 9 月期の平均</p>
 ''')
 
 # 11 章扉
@@ -301,7 +301,7 @@ page(f'''
     <div style="flex:1"><div class="hbt">貢献利益（円／坪／月）</div>{hb}</div>
   </div>
   <p class="st">単純3PL は家賃をようやく賄う水準で、保管単価が 1 割下がれば赤字。<b class="hl">作業が付く高付加価値3PL</b> と、商品の粗利を含む自社EC が床を活かす</p>
-  <p class="note">※ 単純3PL：保管 3,300 円／パレット／月 × 2 パレット／坪、出荷作業料 250 円／件 × 20 件／坪／月、作業 60 件／人／日（アルバイト 26 万円／人月・22 日 → 197 円／件）。高付加価値3PL：ギフト同梱・花オプション付き、限界利益 800 円／件（保冷実費除く）× 60 件／坪／月、作業 24 件／人／日（→ 492 円／件）。自社EC（AP&AF）：AND FLOWER の限界利益・人件費を 93.07 坪で割った実績値で、商品の粗利を含むためサービス料だけの 3PL とは性質が異なる</p>
+  <p class="note">※ 単純3PL：保管 3,300 円／パレット／月 × 2 パレット／坪、出荷作業料 250 円／件 × 20 件／坪／月、作業 60 件／人／日（アルバイト 26 万円／人月・22 日 → 197 円／件）。高付加価値3PL：ギフト同梱・花オプション付き、限界利益 800 円／件（保冷実費除く）× 60 件／坪／月、作業 24 件／人／日（→ 492 円／件）。自社EC（AP&AF）：AND FLOWER の限界利益・人件費を {AF_T:.2f} 坪で割った実績値で、商品の粗利を含むためサービス料だけの 3PL とは性質が異なる</p>
 ''')
 
 # 13 2Gに当てはめた
@@ -403,7 +403,7 @@ page(f'''
     <div style="flex:1">
       <div class="h2">次に確定する数字</div>
       <ul class="pts">
-        <li>冷蔵庫と各用途の実測坪数（P.6 の配分を置き換える）</li>
+        <li>ハナイチ・AND FLOWER の実測坪数（P.6 の配分を置き換える。冷蔵庫は 18 坪で確定）</li>
         <li>2G の提示坪単価・契約期間・原状回復条件</li>
         <li>2D のうちギフティ社が利用する坪数と、共同で使える設備（冷蔵・作業台）の有無</li>
         <li>高付加価値3PL の受注見込み件数（平常月ベース）と 1 件あたり単価</li>
