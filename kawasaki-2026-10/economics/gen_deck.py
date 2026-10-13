@@ -125,6 +125,9 @@ INCLUDE_SUMMARY = False    # サマリー（結論の先出し）を入れるか
 INCLUDE_ANALYSIS = False   # 第2章「現状の分析」（AF・ハナイチ月次、貢献利益）を入れるか
 INCLUDE_DECISION = False   # 「効率化」「2G の判断」のページを入れるか
 INCLUDE_SCENARIOS = False  # 第2章「収益性の試算」（坪効率、2G に当てはめた場合）を入れるか
+INCLUDE_TOC = False        # 「本資料の構成」を入れるか
+INCLUDE_DIVIDERS = False   # 章扉を入れるか
+INCLUDE_CLOSING = False    # 「まとめ」「用語と集計の前提」を入れるか
 pages=[]
 def page(body, cls='', accent=None, id=None, skip=False):
     if skip: return
@@ -137,7 +140,7 @@ def sec():
 page('''
   <div class="cover">
     <div class="eyebrow">株式会社ギフティ様　ご参考資料</div>
-    <h1>川崎拠点の現状と収益性</h1>
+    <h1>川崎拠点の現状と今後の使い方</h1>
     <div class="sub">2I 区画の現状とキャパシティ、今後の使い方</div>
     <div class="meta">2026 年 10 月<br>株式会社 DOMUZ<br>髙木 弘貴</div>
   </div>
@@ -148,7 +151,7 @@ toc=[('現状の整理','2階フロアで借りている床（2I）、その使�
 if INCLUDE_ANALYSIS: toc.append(('現状の分析','AND FLOWER・ハナイチの FY2026 実績と、2I の貢献利益'))
 if INCLUDE_SCENARIOS: toc.append(('収益性の試算','汎用3PL／高付加価値3PL／自社EC（AP&AF）を 1 坪あたりで比べる'))
 toc+=[('今後の使い方','運用方針、スケール後の拠点と体制')]
-page('<h1>本資料の構成</h1><div class="toc">'+"".join(f'<div class="toc-i"><div class="n">{i}</div><div><div class="t">a</div><div class="s">{s}</div></div></div>'.replace('>a<',f'>{n}<') for i,(n,s) in enumerate(toc,1))+'</div><p class="note">※ 用語と集計の前提は最終ページにまとめています</p>')
+page('<h1>本資料の構成</h1><div class="toc">'+"".join(f'<div class="toc-i"><div class="n">{i}</div><div><div class="t">a</div><div class="s">{s}</div></div></div>'.replace('>a<',f'>{n}<') for i,(n,s) in enumerate(toc,1))+'</div><p class="note">※ 用語と集計の前提は最終ページにまとめています</p>', skip=not INCLUDE_TOC)
 
 # 3 サマリー
 page(f'''
@@ -168,7 +171,7 @@ page(f'''
 ''', skip=not INCLUDE_SUMMARY)
 
 # 4 章扉
-page(f'<div class="num">{{SEC}}</div><div class="lab">CURRENT STATE</div><div class="t">現状の整理</div><div class="s">2階フロアで借りている床（2I）と、その使い方</div>','divider')
+page(f'<div class="num">{{SEC}}</div><div class="lab">CURRENT STATE</div><div class="t">現状の整理</div><div class="s">2階フロアで借りている床（2I）と、その使い方</div>','divider', skip=not INCLUDE_DIVIDERS)
 
 # 5 区画図
 page(f'''
@@ -241,12 +244,12 @@ page(f'''
   {legend([('全社の発送数合計','var(--line)'),('花拠点からの発送',PINK)])}
   {c_cap_day}
   <div class="kpis" style="margin-top:14px">
-    <div class="kpi"><div class="l">母の日前日の発送数（過去実績の最大）</div><div class="v">{CAP_MAX:,}<small>件／日</small></div><div class="d">26 年 5 月 9 日（土）、花拠点からの発送。床を AND FLOWER に振り切った状態</div></div>
-    <div class="kpi"><div class="l">同日の全社の発送数合計</div><div class="v">{CAP_ALL_MAX:,}<small>件／日</small></div><div class="d">花拠点 {CAP_MAX:,} 件 ＋ AND PLANTS など他拠点 {CAP_ALL_MAX-CAP_MAX:,} 件</div></div>
+    <div class="kpi"><div class="l">母の日前日の発送数（過去実績の最大）</div><div class="v">{CAP_MAX:,}<small>件／日</small></div><div class="d">26 年 5 月 9 日（土）、花拠点からの発送。床を AND FLOWER に振り切った状態。オペレーションの改善等で、1.3 倍目安で最大数を増やすことが可能</div></div>
+    <div class="kpi"><div class="l">オペレーション改善後の想定（1.3 倍）</div><div class="v">{CAP_MAX*1.3:,.0f}<small>件／日</small></div><div class="d">{CAP_MAX:,} 件 × 1.3。床は現状のまま</div></div>
     <div class="kpi"><div class="l">母の日の週の合計（5/4〜5/10）</div><div class="v">{sum(CAP_V):,}<small>件</small></div><div class="d">花拠点からの発送。全社の発送数合計は {sum(CAP_ALL):,} 件</div></div>
   </div>
   <p class="st">ピークの 5 月 9 日は <b class="hl pk">花拠点だけで {CAP_MAX:,} 件</b>。これが現状の床と体制での最大発送実績</p>
-  <p class="note">※ 社内の発送実績（発送日ベース）。花拠点からの発送＝川崎 2I での AND FLOWER の制作・発送。全社の発送数合計には AND PLANTS など他拠点からの発送を含む</p>
+  <p class="note">※ 社内の発送実績（発送日ベース）。母の日前日の発送数は、オペレーション等の改善により 1.3 倍目安で最大発送数が任意で実現可能な想定</p>
 ''', 'af', id='cap')
 
 # 振り切った場合のシミュレーション
@@ -254,17 +257,16 @@ AF_FULL = CAP_MAX; HA_FULL = HA_QUOTA/HA_T*FREE_T
 sim = hbars([('AND FLOWER のみ', AF_FULL, PINK, '26 年 5 月 9 日の実績（振り切った状態）'),('ハナイチのみ', HA_FULL, YEL, f'{HA_QUOTA/HA_T:,.1f} 本／坪／日 × {FREE_T:.2f} 坪')]).replace('+','')
 page(f'''
   <h1>キャパシティのシミュレーション</h1>
-  <p class="sub">床を 1 つの事業に振り切ると、AND FLOWER なら {AF_FULL:,.0f} 件／日（実績）、ハナイチなら {HA_FULL:,.0f} 本／日（試算）</p>
-  <p class="cap">AND FLOWER は母の日前日の実績そのもの。ハナイチは現状の坪あたり出荷枠に、冷蔵庫を除く床 {FREE_T:.2f} 坪を掛けた試算　単位：件（本）／日</p>
+  <p class="sub">床を 1 つの事業に振り切ると、AND FLOWER なら {AF_FULL:,.0f} 件／日（実績）、オペレーション改善後は {AF_FULL*1.3:,.0f} 件／日（想定）。ハナイチなら {HA_FULL:,.0f} 本／日（試算）</p>
+  <p class="cap">AND FLOWER は母の日前日の実績と、その 1.3 倍の想定。ハナイチは現状の坪あたり出荷枠に、冷蔵庫を除く床 {FREE_T:.2f} 坪を掛けた試算　単位：件（本）／日</p>
   <table class="tb" style="margin-top:6px">
-    <thead><tr><th></th><th class="r">発送可能数（／日）</th><th>根拠</th></tr></thead>
+    <thead><tr><th></th><th class="r">発送可能数（／日）</th><th class="r">改善後の想定（1.3 倍）</th><th>根拠</th></tr></thead>
     <tbody>
-      <tr><td><i class="sw" style="background:{PINK}"></i>AND FLOWER のみ</td><td class="r"><b>{AF_FULL:,.0f} 件</b></td><td class="g">26 年 5 月 9 日（母の日前日）の花拠点からの発送実績。この日は床を AND FLOWER に振り切っている</td></tr>
-      <tr><td><i class="sw" style="background:{YEL}"></i>ハナイチのみ</td><td class="r"><b>{HA_FULL:,.0f} 本</b></td><td class="g">現状 {HA_T:.2f} 坪で出荷枠 {HA_QUOTA:,} 本／日（{HA_QUOTA/HA_T:,.1f} 本／坪／日）× 冷蔵庫を除く床 {FREE_T:.2f} 坪</td></tr>
+      <tr><td><i class="sw" style="background:{PINK}"></i>AND FLOWER のみ</td><td class="r"><b>{AF_FULL:,.0f} 件</b>（実績）</td><td class="r"><b>{AF_FULL*1.3:,.0f} 件</b>（想定）</td><td class="g">26 年 5 月 9 日（母の日前日）の花拠点からの発送実績。この日は床を AND FLOWER に振り切っている。改善後はオペレーション等の改善による 1.3 倍目安</td></tr>
+      <tr><td><i class="sw" style="background:{YEL}"></i>ハナイチのみ</td><td class="r"><b>{HA_FULL:,.0f} 本</b>（試算）</td><td class="r">—</td><td class="g">現状 {HA_T:.2f} 坪で出荷枠 {HA_QUOTA:,} 本／日（{HA_QUOTA/HA_T:,.1f} 本／坪／日）× 冷蔵庫を除く床 {FREE_T:.2f} 坪</td></tr>
     </tbody>
   </table>
-  <div style="margin-top:28px"><div class="hbt">振り切った場合の 1 日あたり発送可能数</div>{sim}</div>
-  <p class="st">AND FLOWER は {AF_FULL:,.0f} 件／日が実績の上限。ハナイチは床を広げれば本数は伸びるが、<b class="hl">床よりも先に、人員と仕入（花材）が上限になる</b></p>
+  <p class="st">AND FLOWER は実績 {AF_FULL:,.0f} 件／日、オペレーション改善後は {AF_FULL*1.3:,.0f} 件／日が目安。ハナイチは床を広げれば本数は伸びるが、<b class="hl">床よりも先に、人員と仕入（花材）が上限になる</b></p>
   <p class="note">※ ハナイチは坪あたりの密度が床の広さに比例して保てる前提の試算。人員・作業台・冷蔵庫（共用 18 坪）は振り切った側に合わせて増やす必要がある。本数ベース（1 注文あたり平均 20〜30 本）</p>
 ''', 'ha', id='sim')
 
@@ -330,7 +332,7 @@ page(f'''
 ''', skip=not INCLUDE_ANALYSIS)
 
 # 11 章扉
-page(f'<div class="num">{{SEC}}</div><div class="lab">SCENARIOS</div><div class="t">収益性の試算</div><div class="s">汎用3PL／高付加価値3PL／自社EC（AP&AF）を 1 坪あたりで比べる</div>','divider', skip=not INCLUDE_SCENARIOS)
+page(f'<div class="num">{{SEC}}</div><div class="lab">SCENARIOS</div><div class="t">収益性の試算</div><div class="s">汎用3PL／高付加価値3PL／自社EC（AP&AF）を 1 坪あたりで比べる</div>','divider', skip=not (INCLUDE_SCENARIOS and INCLUDE_DIVIDERS))
 
 # 12 3用途
 hb = hbars([(s['n'], s['cp'], c, s['d']) for s,c in zip(SC,[GRAY,MOSS,MINT])])
@@ -375,7 +377,7 @@ page(f'''
 ''', skip=not INCLUDE_SCENARIOS)
 
 # 14 章扉
-page(f'<div class="num">{{SEC}}</div><div class="lab">NEXT STEPS</div><div class="t">今後の使い方</div><div class="s">運用方針、スケール後の拠点と体制</div>','divider')
+page(f'<div class="num">{{SEC}}</div><div class="lab">NEXT STEPS</div><div class="t">今後の使い方</div><div class="s">運用方針、スケール後の拠点と体制</div>','divider', skip=not INCLUDE_DIVIDERS)
 
 # 15 運用方針（1/2）
 page(f'''
@@ -495,11 +497,11 @@ page(f'''
       </ul>
     </div>
   </div>
-''')
+''', skip=not INCLUDE_CLOSING)
 
 # 18 用語
 terms=[('期','9 月決算。「26 年 9 月期」＝ 2025 年 10 月〜 2026 年 9 月'),('売上','税抜・注文日ベース。AND FLOWER は受注管理システムの売上サマリー（ブランド合計）、ハナイチは管理画面の売上推移'),('限界利益','売上 − 花材・資材・送料（AND FLOWER）'),('粗利','売上 − 仕入（ハナイチ）。送料・資材・決済手数料は含まない'),('拠点人件費','AND FLOWER 発送アルバイトの月次計画値（事業計画 AP/AF 202610）。26 年 9 月は 8 月と同額で仮置き。ハナイチの拠点人件費は未反映'),('家賃','川崎 2I の 0.94 百万円／月（7,296 円／坪 × 128.84 坪）。2G は同単価で仮置き'),('貢献利益','限界利益（粗利）− 拠点人件費 − 家賃。本社人件費・光熱費・設備償却は含まない'),('空き能力','26 年 5 月の AND FLOWER 注文数（4,480 件）− 各月の注文数。作業能力の空きを件数で表したもの')]
-page('<h1>用語と集計の前提</h1><table class="tb terms"><tbody>'+"".join(f'<tr><th>{k}</th><td>{v}</td></tr>' for k,v in terms)+'</tbody></table>')
+page('<h1>用語と集計の前提</h1><table class="tb terms"><tbody>'+"".join(f'<tr><th>{k}</th><td>{v}</td></tr>' for k,v in terms)+'</tbody></table>', skip=not INCLUDE_CLOSING)
 
 # ---------------- HTML ----------------
 N=len(pages); secs=[]
@@ -569,13 +571,13 @@ html=f'''<!doctype html>
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>川崎拠点の現状と収益性</title>
+<title>川崎拠点の現状と今後の使い方</title>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;700&family=Noto+Sans+JP:wght@400;700&display=swap">
 <style>{CSS}</style>
 </head>
 <body>
 <header>
-<h1>株式会社ギフティ様　ご参考資料　川崎拠点の現状と収益性</h1>
+<h1>株式会社ギフティ様　ご参考資料　川崎拠点の現状と今後の使い方</h1>
 <p>2026.10　株式会社Domuz　全{N}ページ</p>
 </header>
 <main>
