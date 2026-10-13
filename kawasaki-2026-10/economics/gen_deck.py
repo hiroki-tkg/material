@@ -198,7 +198,7 @@ page(f'''
 
 # 6 2I の使い方
 now=[('冷蔵庫（キーパー）',COLD,MOSS,'生花の鮮度保持（固定設備。59.52㎡、6.4m × 9.3m）'),('ハナイチ',HA_T,YEL,'生花の在庫・出荷（2I の 20% を上限）'),('AND FLOWER',AF_T,PINK,'ブーケ制作、梱包、資材、出荷待ち、イネイブラー同梱')]
-seg="".join(f'<div class="seg" style="flex:{v};background:{c}"><span>{n if v/T2I<0.1 else f"{n} {v:.0f}坪"}</span></div>' for n,v,c,_ in now)
+seg="".join(f'<div class="seg" style="flex:{v};background:{c}"><span>{n.split("（")[0]} {v:.0f}坪</span></div>' for n,v,c,_ in now)
 rows="".join(f'<tr><td><i class="sw" style="background:{c}"></i>{n}</td><td class="r">{v:.2f}</td><td class="r">{v/T2I*100:.0f}%</td><td class="r">{fmt(v*UNIT)}</td><td class="g">{d}</td></tr>' for n,v,c,d in now)
 page(f'''
   <h1>2I の使い方</h1>
