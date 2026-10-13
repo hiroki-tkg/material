@@ -230,23 +230,23 @@ page(f'''
 
 
 # 現状のキャパシティ（発送チーム別の日次発送件数、母の日の週 26年5月4日〜5月10日）
-CAP_L = ['5/4（月）','5/5（火）','5/6（水）','5/7（木）','5/8（金）','5/9（土）','5/10（日）']
-CAP_ALL = [139,499,1115,1912,2278,3910,34]   # 全発送チーム合計
-CAP_V   = [0,354,797,1431,1571,2406,0]       # 花チーム
+CAP_L = ['5/4','5/5','5/6','5/7','5/8','5/9','5/10','5/11','5/12','5/13','5/14','5/15']
+CAP_ALL = [139,499,1115,1912,2278,3910,34,327,172,393,584,123]   # 全社の発送数合計
+CAP_V   = [0,354,797,1431,1571,2406,0,277,151,383,557,122]       # 花拠点からの発送
+WEEK = slice(0,7)   # 母の日の週（5/4〜5/10）
 CAP_MAX = max(CAP_V); CAP_DAY = CAP_L[CAP_V.index(CAP_MAX)]; CAP_ALL_MAX = CAP_ALL[CAP_V.index(CAP_MAX)]
 HA_QUOTA = 800   # ハナイチ 出荷枠の上限（本／日）。管理画面の出荷枠（26年10月）の最大値
 FREE_T = T2I - COLD  # 冷蔵庫を除く床
-c_cap_day = bars(920, 290, CAP_L, [('全社の発送数合計',CAP_ALL,'var(--line)'),('花拠点からの発送',CAP_V,PINK)], lambda v: f"{round(v):,}", lambda v: f"{round(v):,}")
+c_cap_day = bars(640, 270, CAP_L, [('花拠点からの発送',CAP_V,PINK)], lambda v: f"{round(v):,}", lambda v: f"{round(v):,}")
 page(f'''
   <h1>現状のキャパシティ（AND FLOWER に振り切った場合）</h1>
   <p class="sub">過去実績の最大は母の日前日（26 年 5 月 9 日）の {CAP_MAX:,} 件／日。床を AND FLOWER に振り切った状態での上限</p>
-  <p class="cap">花拠点からの日次発送件数と全社の発送数合計　母の日の週（26 年 5 月 4 日〜 5 月 10 日）　単位：件／日</p>
-  {legend([('全社の発送数合計','var(--line)'),('花拠点からの発送',PINK)])}
-  {c_cap_day}
+  <p class="cap">花拠点からの日次発送件数　母の日の週とその翌週（26 年 5 月 4 日〜 5 月 15 日、母の日は 5 月 10 日）　単位：件／日</p>
+  <div style="width:640px">{c_cap_day}</div>
   <div class="kpis" style="margin-top:14px">
     <div class="kpi"><div class="l">母の日前日の発送数（過去実績の最大）</div><div class="v">{CAP_MAX:,}<small>件／日</small></div><div class="d">26 年 5 月 9 日（土）、花拠点からの発送。床を AND FLOWER に振り切った状態。オペレーションの改善等で、1.3 倍目安で最大数を増やすことが可能</div></div>
     <div class="kpi"><div class="l">オペレーション改善後の想定（1.3 倍）</div><div class="v">{CAP_MAX*1.3:,.0f}<small>件／日</small></div><div class="d">{CAP_MAX:,} 件 × 1.3。床は現状のまま</div></div>
-    <div class="kpi"><div class="l">母の日の週の合計（5/4〜5/10）</div><div class="v">{sum(CAP_V):,}<small>件</small></div><div class="d">花拠点からの発送。全社の発送数合計は {sum(CAP_ALL):,} 件</div></div>
+    <div class="kpi"><div class="l">母の日の週の合計（5/4〜5/10）</div><div class="v">{sum(CAP_V[WEEK]):,}<small>件</small></div><div class="d">花拠点からの発送。翌週（5/11〜5/15）は 1 日 {min(CAP_V[7:]):,}〜{max(CAP_V[7:]):,} 件、合計 {sum(CAP_V[7:]):,} 件</div></div>
   </div>
   <p class="st">ピークの 5 月 9 日は <b class="hl pk">花拠点だけで {CAP_MAX:,} 件</b>。これが現状の床と体制での最大発送実績</p>
   <p class="note">※ 社内の発送実績（発送日ベース）。母の日前日の発送数は、オペレーション等の改善により 1.3 倍目安で最大発送数が任意で実現可能な想定</p>
