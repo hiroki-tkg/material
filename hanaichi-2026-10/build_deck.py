@@ -69,47 +69,58 @@ summary_slide = content_slide("ハナイチ")
 # =====================================================================
 divider("01", "ECONOMICS TREND", "ハナイチのエコノミクスの推移", "24年9月期（2024年2月）〜 26年9月期（2026年9月）")
 
-s = content_slide("ハナイチ：月次売上と期別の収益性")
+# ---- 四半期の区切り（2024年2月〜：最初の四半期は2〜3月の2か月）
+QTR = []  # (ラベル, 開始位置, 終了位置, 期の番号)
+_q_bounds = [(0, 2)] + [(2 + 3 * k, 5 + 3 * k) for k in range(10)]
+_q_labels = ["2〜3月", "4〜6月", "7〜9月"] + ["10〜12月", "1〜3月", "4〜6月", "7〜9月"] * 2
+for (a_, b_), lab in zip(_q_bounds, _q_labels):
+    QTR.append((lab, a_, b_, 0 if b_ <= 8 else (1 if b_ <= 20 else 2)))
+q_s = [sum(S[a_:b_]) for _, a_, b_, _ in QTR]
+q_gp = [sum(GP[a_:b_]) for _, a_, b_, _ in QTR]
+q_ad = [sum(AD[a_:b_]) for _, a_, b_, _ in QTR]
+q_net = [sum(NET[a_:b_]) for _, a_, b_, _ in QTR]
+q_orders = [sum(ORDERS[a_:b_]) for _, a_, b_, _ in QTR]
+NQ = len(QTR)
+
+s = content_slide("ハナイチ：四半期の売上と期別の収益性")
 msg = (f"売上は{fy_s[1]:.0f}→{fy_s[2]:.0f}百万円（前期比 +{(fy_s[2] / fy_s[1] - 1) * 100:.0f}%）。"
        f"粗利率{fy_gp[2] / fy_s[2] * 100:.0f}%を保ち、広告費込み粗利は{fy_net[1]:.1f}→{fy_net[2]:.1f}百万円に")
 text(s, 56, 104, 1016, 36, msg, size=21, bold=True)
 x0, x1 = 214, 914
-text(s, x0, 154, 900, 24, "24年9月期（2024年2月）〜26年9月期（2026年9月）　単位：百万円　棒の上は各期の最高月、期名の下は期合計",
+text(s, x0, 154, 900, 24, "24年9月期（2024年2月）〜26年9月期（2026年9月）の四半期　単位：百万円　棒の上は四半期の売上、期名の下は期合計",
      size=14, color=SECONDARY)
 top, base = 206, 434
-slot = (x1 - x0) / N
-bw = slot * 0.66
-vmax = max(S)
+slot = (x1 - x0) / NQ
+bw = slot * 0.6
+vmax = max(q_s)
 sy = lambda v: base - (base - top) * v / vmax
-for k, (name, a, b) in enumerate(FY):
-    idx = range(a, b)
-    peak = max(idx, key=lambda i: S[i])
-    for i in idx:
-        if S[i] <= 0.01:
-            continue
-        bx = x0 + i * slot + (slot - bw) / 2
-        rect(s, bx, sy(S[i]), bw, base - sy(S[i]), HANA)
-        if i == peak:
-            text(s, bx - 20, sy(S[i]) - 26, bw + 40, 22, f"{S[i]:.1f}", size=15, bold=True, align=PP_ALIGN.CENTER, en=True)
-    gx = x0 + a * slot
+for qi, (lab, a_, b_, k) in enumerate(QTR):
+    bx = x0 + qi * slot + (slot - bw) / 2
+    rect(s, bx, sy(q_s[qi]), bw, base - sy(q_s[qi]), HANA)
+    text(s, bx - 20, sy(q_s[qi]) - 24, bw + 40, 22, f"{q_s[qi]:.1f}", size=14, bold=True, align=PP_ALIGN.CENTER, en=True)
+    text(s, bx - 16, base + 6, bw + 32, 20, lab, size=11, color=MUTED, align=PP_ALIGN.CENTER)
+for k, (name, a_, b_) in enumerate(FY):
+    qa = [qi for qi, q in enumerate(QTR) if q[3] == k]
+    gx = x0 + qa[0] * slot
+    gw = len(qa) * slot
     if k > 0:
-        vline(s, gx, 190, base - 190 + 70, BORDER_LIGHT, 1.0, dash=True)
-    text(s, gx, base + 12, (b - a) * slot, 26, name, size=17, bold=True, align=PP_ALIGN.CENTER)
-    text(s, gx, base + 40, (b - a) * slot, 24, f"{fy_s[k]:.0f}", size=16, color=SECONDARY, align=PP_ALIGN.CENTER, en=True)
+        vline(s, gx, 190, base - 190 + 84, BORDER_LIGHT, 1.0, dash=True)
+    text(s, gx, base + 30, gw, 26, name, size=17, bold=True, align=PP_ALIGN.CENTER)
+    text(s, gx, base + 56, gw, 24, f"{fy_s[k]:.0f}", size=16, color=SECONDARY, align=PP_ALIGN.CENTER, en=True)
 hline(s, x0 - 4, base, x1 - x0 + 8, BORDER_LIGHT, 1.5)
-xl = x0 + mi("2025-07") * slot
+xl = x0 + 6 * slot  # 25年7〜9月の四半期の左端
 vline(s, xl, top - 24, base - top + 24, HANA_DARK, 2.0)
 text(s, xl + 6, top - 30, 300, 22, "25年7月〜 生花のSKUを本格的に拡充", size=14, bold=True, color=HANA_DARK)
 hdr = ["期", "売上", "粗利", "粗利率", "広告費", "全体ROAS", "広告費込み粗利", "同率"]
 cxs = [56, 190, 290, 410, 520, 620, 740, 950]
 cws = [130, 100, 120, 110, 100, 120, 210, 122]
-ty = 512
+ty = 526
 rect(s, 56, ty, 1016, 40, MOSS)
 for j, h in enumerate(hdr):
     text(s, cxs[j] + (12 if j == 0 else 0), ty, cws[j] - (0 if j == 0 else 12), 40, h, size=16, color=WHITE, bold=True,
          anchor=MSO_ANCHOR.MIDDLE, align=PP_ALIGN.LEFT if j == 0 else PP_ALIGN.RIGHT)
 y = ty + 40
-rh = 56
+rh = 52
 for k in range(3):
     if k == 2:
         rect(s, 56, y, 1016, rh, WATERMARK)
@@ -123,56 +134,58 @@ for k in range(3):
     y += rh
     hline(s, 56, y, 1016, BORDER_LIGHT)
 footnote(s, "※ 税抜・注文日ベース。ハナイチ管理画面の純売上と粗利（粗利＝売上−商品原価・送料・資材・決済手数料。AP/AFの限界利益に相当）。"
-            "広告費はMarketing Master（生花の広告のみ）。24年9月期は2024年2月〜9月の8か月")
+            "広告費はMarketing Master（生花の広告のみ）。24年9月期は2024年2月〜9月の8か月（最初の四半期は2〜3月の2か月）")
 
-# ---- 広告投資：月次の広告費・売上・ROAS（24年10月〜26年9月）
-s = content_slide("広告投資：生花の新規獲得に広告を投下", "ハナイチの月次の売上・広告費・ROAS（24年10月〜26年9月）　単位：百万円")
-i0 = 8
-n_ = N - i0
+# ---- 広告投資：四半期の広告費・売上・ROAS（24年10〜12月〜26年7〜9月）
+s = content_slide("広告投資：生花の新規獲得に広告を投下", "ハナイチの四半期の売上・広告費・ROAS（24年10月〜26年9月）　単位：百万円")
+Q0 = 3  # 25年9月期の最初の四半期
+nq = NQ - Q0
 x0, x1 = 120, 1040
-slot = (x1 - x0) / n_
-cx = lambda i: x0 + (i - i0) * slot + slot / 2
+slot = (x1 - x0) / nq
+cx = lambda qi: x0 + (qi - Q0) * slot + slot / 2
 top, base = 190, 440
-vmax_ = 7
+vmax_ = 20
 sy = lambda v: base - (base - top) * v / vmax_
-for v in range(0, vmax_ + 1):
+for v in range(0, vmax_ + 1, 5):
     hline(s, x0 - 4, sy(v), x1 - x0 + 4, BORDER_LIGHT if v == 0 else WATERMARK)
     text(s, 60, sy(v) - 11, 50, 22, str(v), size=12, color=MUTED, align=PP_ALIGN.RIGHT, en=True)
-for i in range(i0, N):
-    bw_ = slot * 0.62
-    rect(s, cx(i) - bw_ / 2, sy(S[i]), bw_, base - sy(S[i]), HANA)
-polyline(s, [(cx(i), sy(AD[i])) for i in range(i0, N)], HANA_DARK, 3.0)
-for i in range(i0, N):
-    rect(s, cx(i) - 4, sy(AD[i]) - 4, 8, 8, HANA_DARK, shape=MSO_SHAPE.OVAL)
+for qi in range(Q0, NQ):
+    bw_ = slot * 0.5
+    rect(s, cx(qi) - bw_ / 2, sy(q_s[qi]), bw_, base - sy(q_s[qi]), HANA)
+    text(s, cx(qi) - 40, sy(q_s[qi]) - 24, 80, 22, f"{q_s[qi]:.1f}", size=13, bold=True, align=PP_ALIGN.CENTER, en=True)
+polyline(s, [(cx(qi), sy(q_ad[qi])) for qi in range(Q0, NQ)], HANA_DARK, 3.0)
+for qi in range(Q0, NQ):
+    rect(s, cx(qi) - 4, sy(q_ad[qi]) - 4, 8, 8, HANA_DARK, shape=MSO_SHAPE.OVAL)
+    text(s, cx(qi) - 40, sy(q_ad[qi]) + 6, 80, 20, f"{q_ad[qi]:.1f}", size=12, bold=True, color=HANA_DARK, align=PP_ALIGN.CENTER, en=True)
 rt, rb = 492, 600
-rmax = 1600
+rmax = 1200
 ry = lambda v: rb - (rb - rt) * min(v, rmax) / rmax
 text(s, 56, rt - 30, 300, 22, "ROAS（売上÷広告費）", size=13, color=SECONDARY, bold=True)
-for v in (0, 500, 1000, 1500):
+for v in (0, 400, 800, 1200):
     hline(s, x0 - 4, ry(v), x1 - x0 + 4, BORDER_LIGHT if v == 0 else WATERMARK)
     text(s, 50, ry(v) - 10, 60, 20, f"{v}%", size=11, color=MUTED, align=PP_ALIGN.RIGHT, en=True)
-roas_ = [S[i] / AD[i] * 100 if AD[i] > 0 else None for i in range(N)]
-pts = [(cx(i), ry(roas_[i])) for i in range(i0, N) if roas_[i] is not None and i >= 11]  # 広告が本格化した25年1月から
-polyline(s, pts, MOSS, 2.5)
-for i in range(i0, N):
-    text(s, cx(i) - 20, rb + 4, 40, 18, f"{YM[i][1]}", size=11, color=MUTED, align=PP_ALIGN.CENTER, en=True)
-for lab, i in (("25年9月期", 8), ("26年9月期", 20)):
-    text(s, cx(i) - slot / 2, rb + 22, 12 * slot, 20, lab, size=13, color=SECONDARY, bold=True, align=PP_ALIGN.CENTER)
-vline(s, cx(20) - slot / 2, top - 10, rb - top + 36, BORDER_LIGHT, 1.0, dash=True)
+q_roas = [q_s[qi] / q_ad[qi] * 100 if q_ad[qi] > 0 else None for qi in range(NQ)]
+polyline(s, [(cx(qi), ry(q_roas[qi])) for qi in range(Q0 + 1, NQ)], MOSS, 2.5)  # 広告が本格化した25年1〜3月から
+for qi in range(Q0, NQ):
+    if qi > Q0:
+        text(s, cx(qi) - 40, ry(q_roas[qi]) - 22, 80, 18, f"{q_roas[qi]:,.0f}%", size=11, bold=True, align=PP_ALIGN.CENTER, en=True)
+    text(s, cx(qi) - 50, rb + 4, 100, 18, QTR[qi][0], size=11, color=MUTED, align=PP_ALIGN.CENTER)
+for lab, qi in (("25年9月期", 3), ("26年9月期", 7)):
+    text(s, cx(qi) - slot / 2, rb + 22, 4 * slot, 20, lab, size=13, color=SECONDARY, bold=True, align=PP_ALIGN.CENTER)
+vline(s, cx(7) - slot / 2, top - 10, rb - top + 36, BORDER_LIGHT, 1.0, dash=True)
 rect(s, 120, 150, 16, 16, HANA)
 text(s, 142, 146, 80, 24, "売上", size=14, color=SECONDARY)
 rect(s, 206, 156, 28, 4, HANA_DARK)
 text(s, 240, 146, 80, 24, "広告費", size=14, color=SECONDARY)
 rect(s, 310, 156, 28, 4, MOSS)
 text(s, 344, 146, 80, 24, "ROAS", size=14, color=SECONDARY)
-q_ad = (sum(AD[17:20]), sum(AD[29:32]))
-q_s = (sum(S[17:20]), sum(S[29:32]))
+qa_ = (q_ad[6], q_ad[10])
+qs_ = (q_s[6], q_s[10])
 text(s, 56, 660, 1016, 70,
-     [f"26年8〜9月は広告費を月{AD[30]:.1f}〜{AD[31]:.1f}百万円に増やし、注文数は月{ORDERS[30]}件超（前年同月の約{ORDERS[30] / ORDERS[18]:.1f}倍）。",
-      f"7〜9月の広告費は前年同期の{q_ad[0]:.1f}→{q_ad[1]:.1f}百万円、売上は{q_s[0]:.1f}→{q_s[1]:.1f}百万円（{(q_s[1] / q_s[0] - 1) * 100:+.0f}%）。"
-      f"全体ROASは{q_s[0] / q_ad[0] * 100:.0f}→{q_s[1] / q_ad[1] * 100:.0f}%"],
+     [f"26年7〜9月は広告費を{qa_[1]:.1f}百万円（前年同期{qa_[0]:.1f}）に増やし、注文数は{q_orders[10]:,}件（前年同期の約{q_orders[10] / q_orders[6]:.1f}倍）。",
+      f"売上は{qs_[0]:.1f}→{qs_[1]:.1f}百万円（{(qs_[1] / qs_[0] - 1) * 100:+.0f}%）、全体ROASは{qs_[0] / qa_[0] * 100:.0f}→{qs_[1] / qa_[1] * 100:.0f}%"],
      size=18, bold=True, spacing=1.45)
-footnote(s, "※ 広告は生花のみ（植木鉢・資材は広告なし）。ROASは生花以外も含むサイト全体の売上÷広告費。24年10〜12月は広告費が小さいためROASの線は25年1月から")
+footnote(s, "※ 広告は生花のみ（植木鉢・資材は広告なし）。ROASは生花以外も含むサイト全体の売上÷広告費。24年10〜12月は広告費が小さいためROASの線は25年1〜3月から")
 
 # =====================================================================
 # 章 02：今後のエコノミクス
