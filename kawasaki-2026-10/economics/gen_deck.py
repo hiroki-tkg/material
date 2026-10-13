@@ -7,6 +7,16 @@ import os, json, math
 ROOT = os.path.dirname(os.path.abspath(__file__))
 OUT = os.path.join(ROOT, 'giftee_kawasaki_economics_2026-10.html')
 PLAN = json.load(open(os.path.join(ROOT, '..', 'assets', 'images.json')))['plan']
+# 2I 周辺（左端〜2H あたり、2G の下〜下端）を切り抜く
+import base64, io
+from PIL import Image
+_im = Image.open(io.BytesIO(base64.b64decode(PLAN.split(',',1)[1])))
+CROP = (30, 455, 600, 790)  # 元画像 1722×790 のうち x30–600, y455–790
+_buf = io.BytesIO(); _im.crop(CROP).save(_buf, 'WEBP', quality=88)
+PLAN_2I = 'data:image/webp;base64,' + base64.b64encode(_buf.getvalue()).decode()
+CROP_W, CROP_H = CROP[2]-CROP[0], CROP[3]-CROP[1]
+def pct(x0,y0,x1,y1):
+    return f"left:{(x0-CROP[0])/CROP_W*100:.1f}%;top:{(y0-CROP[1])/CROP_H*100:.1f}%;width:{(x1-x0)/CROP_W*100:.1f}%;height:{(y1-y0)/CROP_H*100:.1f}%"
 
 # ---------------- 数字（FY2026 = 2025/10〜2026/9） ----------------
 L = ['10','11','12','1','2','3','4','5','6','7','8','9']
@@ -54,7 +64,7 @@ def bars(w, h, labels, series, lab_fmt, ylab, grid=4, line=None, label_all=True)
     ymin = min(0, min(allv))
     y = lambda v: mt + ph - (v-ymin)/(ymax-ymin)*ph
     n=len(labels); gw=pw/n; k=len(series); bw=gw*0.7/k
-    o=[f'<svg viewBox="0 0 {w} {h}" style="width:100%;height:auto;display:block" font-family="Montserrat, sans-serif" font-size="10">']
+    o=[f'<svg viewBox="0 0 {w} {h}" style="width:100%;height:auto;display:block" font-family="Montserrat, sans-serif" font-size="11.5">']
     for i in range(int(round(ymax/step))+1):
         v=i*step
         o.append(f'<line x1="{ml}" x2="{w-mr}" y1="{y(v):.1f}" y2="{y(v):.1f}" stroke="var(--line2)" stroke-width="1"/>')
@@ -71,19 +81,19 @@ def bars(w, h, labels, series, lab_fmt, ylab, grid=4, line=None, label_all=True)
             if label_all and (mode=='all' or i in peaks):
                 ty = y0-4 if v>=0 else y1+11
                 col = 'var(--red)' if v<0 else 'var(--moss)'
-                o.append(f'<text x="{x+(bw-3)/2:.1f}" y="{ty:.1f}" text-anchor="middle" fill="{col}" font-weight="700" font-size="9.5">{lab_fmt(v)}</text>')
+                o.append(f'<text x="{x+(bw-3)/2:.1f}" y="{ty:.1f}" text-anchor="middle" fill="{col}" font-weight="700" font-size="12">{lab_fmt(v)}</text>')
     if line:
         name, vals, lf, col = line
         pts=" ".join(f"{ml+gw*(i+.5):.1f},{y(v):.1f}" for i,v in enumerate(vals))
         o.append(f'<polyline points="{pts}" fill="none" stroke="{col}" stroke-width="2.5" stroke-linejoin="round"/>')
-        o.append(f'<text x="{ml+gw*(n-.5)+8:.1f}" y="{y(vals[-1])+3.5:.1f}" fill="{col}" font-weight="700" font-size="10">{lf(vals[-1])}</text>')
+        o.append(f'<text x="{ml+gw*(n-.5)+8:.1f}" y="{y(vals[-1])+3.5:.1f}" fill="{col}" font-weight="700" font-size="12">{lf(vals[-1])}</text>')
     o.append('</svg>'); return "\n".join(o)
 
 def stacked(w, h, labels, base, top, fb, ft, ylab):
     ml, mr, mt, mb = 44, 10, 26, 26; pw, ph = w-ml-mr, h-mt-mb
     tot=max(a+b for a,b in zip(base,top)); step=nice(tot*1.12/4); ymax=math.ceil(tot*1.12/step)*step
     y=lambda v: mt+ph-v/ymax*ph; n=len(labels); gw=pw/n; bw=gw*0.56
-    o=[f'<svg viewBox="0 0 {w} {h}" style="width:100%;height:auto;display:block" font-family="Montserrat, sans-serif" font-size="10">']
+    o=[f'<svg viewBox="0 0 {w} {h}" style="width:100%;height:auto;display:block" font-family="Montserrat, sans-serif" font-size="11.5">']
     for i in range(int(round(ymax/step))+1):
         v=i*step
         o.append(f'<line x1="{ml}" x2="{w-mr}" y1="{y(v):.1f}" y2="{y(v):.1f}" stroke="var(--line2)" stroke-width="1"/>')
@@ -94,8 +104,8 @@ def stacked(w, h, labels, base, top, fb, ft, ylab):
         x=ml+gw*i+(gw-bw)/2; cx=x+bw/2
         o.append(f'<rect x="{x:.1f}" y="{y(a):.1f}" width="{bw:.1f}" height="{y(0)-y(a):.1f}" fill="{fb}" rx="1"/>')
         if b>0: o.append(f'<rect x="{x:.1f}" y="{y(a+b):.1f}" width="{bw:.1f}" height="{y(a)-y(a+b)-1.5:.1f}" fill="{ft}" rx="1"/>')
-        o.append(f'<text x="{cx:.1f}" y="{y(a)-4:.1f}" text-anchor="middle" fill="var(--moss)" font-weight="700" font-size="9.5">{a:,}</text>')
-        if b>0: o.append(f'<text x="{cx:.1f}" y="{y(a+b)-4:.1f}" text-anchor="middle" fill="var(--gray)" font-size="9.5">+{b:,}</text>')
+        o.append(f'<text x="{cx:.1f}" y="{y(a)-4:.1f}" text-anchor="middle" fill="var(--moss)" font-weight="700" font-size="12">{a:,}</text>')
+        if b>0: o.append(f'<text x="{cx:.1f}" y="{y(a+b)-4:.1f}" text-anchor="middle" fill="var(--gray)" font-size="11.5">+{b:,}</text>')
     o.append('</svg>'); return "\n".join(o)
 
 def legend(items):
@@ -159,51 +169,50 @@ page('<div class="num">01</div><div class="lab">CURRENT STATE</div><div class="t
 
 # 5 区画図
 page(f'''
-  <h1>区画：2階フロアで 2I を借りている。2D の一部をギフティ様が利用予定、2G は交渉中</h1>
-  <p class="sub">坪数は図面の専有面積　坪単価は 2I の契約値 7,296 円／坪／月（2G は同単価で仮置き）　※税抜</p>
-  <div class="cols">
-    <div style="flex:1.5">
-      <div class="plan" style="background-image:url({PLAN})">
-        <div class="ov dash" style="left:3.6%;top:36%;width:30.8%;height:14.6%"><span class="tag alt">2G　243.82坪 ・ 交渉中</span></div>
-        <div class="ov solid" style="left:3.4%;top:60%;width:8.5%;height:38.5%"><span class="tag">2I　128.84坪 ・ 当社利用中</span></div>
-        <div class="ov fill" style="left:57.2%;top:83.5%;width:8.4%;height:12.7%"><span class="tag gray">2D の一部 ・ ギフティ様 利用予定</span></div>
-      </div>
-    </div>
+  <h1>現状の整理</h1>
+  <p class="sub">2I を当社が借りており、2D の一部をギフティ社が利用中。2G は交渉中</p>
+  <p class="cap">坪数は図面の専有面積　坪単価は 2I の契約値 7,296 円／坪／月（2G は同単価で仮置き）　※税抜</p>
+  <div class="plan plan-wide" style="background-image:url({PLAN})">
+    <div class="ov dash" style="left:3.6%;top:36%;width:30.8%;height:14.6%"><span class="tag alt">2G　243.82坪 ・ 交渉中</span></div>
+    <div class="ov solid" style="left:3.4%;top:60%;width:8.5%;height:38.5%"><span class="tag">2I　128.84坪 ・ 当社利用中</span></div>
+    <div class="ov fill" style="left:57.2%;top:83.5%;width:8.4%;height:12.7%"><span class="tag gray">2D の一部 ・ ギフティ社 利用中</span></div>
+  </div>
+  <div class="cols" style="margin-top:10px">
     <div style="flex:1">
-      <table class="tb">
+      <table class="tb compact">
         <thead><tr><th>区画</th><th class="r">坪</th><th class="r">坪単価</th><th class="r">月額</th></tr></thead>
         <tbody>
           <tr><td>2I（当社・現在）</td><td class="r">128.84</td><td class="r">7,296</td><td class="r">{fmt(RENT)}</td></tr>
           <tr><td class="in">うち冷蔵庫（坪数は要確認）</td><td class="r">10.00</td><td class="r">7,296</td><td class="r">{fmt(UNIT*COLD)}</td></tr>
           <tr><td>2G（交渉中・仮置き）</td><td class="r">243.82</td><td class="r">7,296</td><td class="r">{fmt(GRENT)}</td></tr>
           <tr class="tot"><td>2I ＋ 2G</td><td class="r">372.66</td><td class="r">7,296</td><td class="r">{fmt(RENT+GRENT)}</td></tr>
-          <tr><td>2D の一部（ギフティ様）</td><td class="r">要確認</td><td class="r">—</td><td class="r">—</td></tr>
+          <tr><td>2D の一部（ギフティ社）</td><td class="r">要確認</td><td class="r">—</td><td class="r">—</td></tr>
         </tbody>
       </table>
       <p class="unit">単位：円／月</p>
     </div>
   </div>
-  <p class="st">2I と 2G は同じフロアの左側で隣接し、2G は 2I の約 1.9 倍。年額は 2I 11.3 百万円、2G 21.3 百万円</p>
-  <p class="note">※ 2G の坪単価・契約条件は提示待ちで、確定したら置き換える。2D（384.27 坪）のうちギフティ様が使う部分の坪数は要確認</p>
+  <p class="st" style="padding-top:8px">2I と 2G は同じフロアの左側で隣接し、2G は 2I の約 1.9 倍。年額は 2I 11.3 百万円、2G 21.3 百万円</p>
+  <p class="note">※ 2G の坪単価・契約条件は提示待ちで、確定したら置き換える。2D（384.27 坪）のうちギフティ社が使う部分の坪数は要確認</p>
 ''')
 
 # 6 2I の使い方
 now=[('冷蔵庫',COLD,MOSS,'生花の鮮度保持（固定設備、坪数は要確認）'),('ハナイチ',HA_T,YEL,'生花の在庫・出荷（2I の 20% を上限）'),('AND FLOWER',AF_T,PINK,'ブーケ制作、梱包、資材、出荷待ち、イネイブラー同梱')]
-seg="".join(f'<div class="seg" style="flex:{v};background:{c}"><span>{n} {v:.0f}坪</span></div>' for n,v,c,_ in now)
+seg="".join(f'<div class="seg" style="flex:{v};background:{c}"><span>{n if v/T2I<0.1 else f"{n} {v:.0f}坪"}</span></div>' for n,v,c,_ in now)
 rows="".join(f'<tr><td><i class="sw" style="background:{c}"></i>{n}</td><td class="r">{v:.2f}</td><td class="r">{v/T2I*100:.0f}%</td><td class="r">{fmt(v*UNIT)}</td><td class="g">{d}</td></tr>' for n,v,c,d in now)
 page(f'''
-  <h1>2I の使い方：128.84 坪を、冷蔵庫・ハナイチ（上限 20%）・AND FLOWER で使っている</h1>
-  <p class="sub">面積の配分ルール：冷蔵庫 10 坪は固定設備、ハナイチは 2I 全体の 20% まで、残りは AND FLOWER（制作・梱包・資材・出荷待ち）</p>
-  <div class="stack">{seg}</div>
-  <table class="tb" style="margin-top:24px">
+  <h1>2I の使い方</h1>
+  <p class="sub">128.84 坪を、冷蔵庫・ハナイチ（上限 20%）・AND FLOWER で使っている</p>
+  <p class="cap">配分ルール：冷蔵庫 10 坪は固定設備、ハナイチは 2I 全体の 20% まで、残りは AND FLOWER（制作・梱包・資材・出荷待ち）</p>
+  <div class="plan plan-2i" style="background-image:url({PLAN_2I})">
+    <div class="ov solid" style="{pct(58,475,205,780)}"><span class="tag">2I　128.84坪 ・ 当社利用中</span></div>
+  </div>
+  <div class="stack" style="margin-top:14px">{seg}</div>
+  <table class="tb compact" style="margin-top:12px">
     <thead><tr><th>用途</th><th class="r">坪</th><th class="r">比率</th><th class="r">家賃相当／月（円）</th><th>主な中身</th></tr></thead>
     <tbody>{rows}<tr class="tot"><td>合計</td><td class="r">{T2I:.2f}</td><td class="r">100%</td><td class="r">{fmt(RENT)}</td><td></td></tr></tbody>
   </table>
-  <ul class="pts" style="margin-top:28px">
-    <li>床を使う主体は AND FLOWER の発送（ブーケ制作、梱包、資材、出荷待ち）。イネイブラー案件（パパブブレ等の同梱）も同じ作業スペースを使う</li>
-    <li>ハナイチは生花の在庫と出荷で、2I 全体の 20% を上限に使う。超える分は AND FLOWER の床を圧迫するため、この上限で運用する</li>
-    <li>冷蔵庫だけが固定設備で、ほかは繁閑で入れ替わる。母の日の 2 か月は資材と出荷待ちが通路まで広がり、閑散期は作業台が空く</li>
-  </ul>
+  <p class="note">※ 床を使う主体は AND FLOWER の発送（ブーケ制作、梱包、資材、出荷待ち）。イネイブラー案件（パパブブレ等の同梱）も同じ作業スペースを使う。冷蔵庫だけが固定設備で、ほかは繁閑で入れ替わる（母の日の 2 か月は資材と出荷待ちが通路まで広がり、閑散期は作業台が空く）</p>
 ''')
 
 # 7 章扉
@@ -211,8 +220,9 @@ page('<div class="num">02</div><div class="lab">CURRENT PERFORMANCE</div><div cl
 
 # 8 AF
 page(f'''
-  <h1>アンドフラワー：2I から年 {sum(AF_S)/1e6:,.0f} 百万円を出荷。限界利益は年 {sum(AF_M)/1e6:,.0f} 百万円（率 {sum(AF_M)/sum(AF_S)*100:.0f}%）</h1>
-  <p class="sub">26 年 9 月期（25 年 10 月〜 26 年 9 月）の月次　単位：百万円　棒の上は各月の値</p>
+  <h1>アンドフラワー：月次売上と限界利益</h1>
+  <p class="sub">2I から年 {sum(AF_S)/1e6:,.0f} 百万円を出荷。限界利益は年 {sum(AF_M)/1e6:,.0f} 百万円（率 {sum(AF_M)/sum(AF_S)*100:.0f}%）</p>
+  <p class="cap">26 年 9 月期（25 年 10 月〜 26 年 9 月）の月次　単位：百万円　棒の上は各月の値</p>
   {legend([('売上','var(--pink-lt)'),('限界利益',PINK)])}
   {c_af}
   <table class="tb kv" style="margin-top:14px">
@@ -225,8 +235,9 @@ page(f'''
 
 # 9 ハナイチ
 page(f'''
-  <h1>ハナイチ：年 {sum(HA_S)/1e6:,.0f} 百万円を出荷。直近 2 か月は注文数が 2 倍の水準</h1>
-  <p class="sub">26 年 9 月期（25 年 10 月〜 26 年 9 月）の月次　単位：百万円　棒の上は各月の値</p>
+  <h1>ハナイチ：月次売上と粗利</h1>
+  <p class="sub">年 {sum(HA_S)/1e6:,.0f} 百万円を出荷。直近 2 か月は注文数が 2 倍の水準</p>
+  <p class="cap">26 年 9 月期（25 年 10 月〜 26 年 9 月）の月次　単位：百万円　棒の上は各月の値</p>
   {legend([('売上','var(--yellow-lt)'),('粗利',YEL)])}
   {c_ha}
   <table class="tb kv" style="margin-top:14px">
@@ -239,8 +250,9 @@ page(f'''
 
 # 10 貢献利益
 page(f'''
-  <h1>2I の貢献利益：月 {cp/1e4:,.0f} 万円。坪あたりでは AND FLOWER {fmt((afm-lab)/AF_T-UNIT)} 円、ハナイチ {fmt(hag/HA_T-UNIT)} 円</h1>
-  <p class="sub">貢献利益＝限界利益（粗利）−拠点人件費−家賃　単位：百万円／月　人件費は AND FLOWER 発送アルバイトの月次計画値</p>
+  <h1>2I の貢献利益</h1>
+  <p class="sub">月 {cp/1e4:,.0f} 万円。坪あたりでは AND FLOWER {fmt((afm-lab)/AF_T-UNIT)} 円、ハナイチ {fmt(hag/HA_T-UNIT)} 円</p>
+  <p class="cap">貢献利益＝限界利益（粗利）−拠点人件費−家賃　単位：百万円／月　人件費は AND FLOWER 発送アルバイトの月次計画値</p>
   <div class="cols">
     <div style="flex:1.45">
       {legend([('限界利益（AF＋ハナイチ）',MINT),('貢献利益','var(--line)'),('― 人件費＋家賃',MOSS)])}
@@ -270,8 +282,9 @@ page('<div class="num">03</div><div class="lab">SCENARIOS</div><div class="t">�
 # 12 3用途
 hb = hbars([(s['n'], s['cp'], c, s['d']) for s,c in zip(SC,[GRAY,MOSS,MINT])])
 page(f'''
-  <h1>坪効率：同じ 1 坪でも、単純3PL +{fmt(SC[0]['cp'])} 円、高付加価値3PL +{fmt(SC[1]['cp'])} 円、自社EC +{fmt(SC[2]['cp'])} 円</h1>
-  <p class="sub">3 つの用途を「1 坪・1 か月の貢献利益」で比べる　単位：円／坪／月　※税抜</p>
+  <h1>坪効率：3 つの用途の比較</h1>
+  <p class="sub">同じ 1 坪でも、単純3PL +{fmt(SC[0]['cp'])} 円、高付加価値3PL +{fmt(SC[1]['cp'])} 円、自社EC +{fmt(SC[2]['cp'])} 円</p>
+  <p class="cap">3 つの用途を「1 坪・1 か月の貢献利益」で比べる　単位：円／坪／月　※税抜</p>
   <div class="cols">
     <div style="flex:1.2">
       <table class="tb">
@@ -294,8 +307,9 @@ page(f'''
 # 13 2Gに当てはめた
 cond=['2 パレット／坪が常時埋まり、出荷 20 件／坪／月。保管単価が 1 割下がると赤字','月 14,600 件（60 件／坪 × 243.82 坪）の高付加価値案件の受注が前提','AND FLOWER の平均密度（22 件／坪／月）で床が埋まる需要が前提。繁閑差 5 倍のため年間では成立しない']
 page(f'''
-  <h1>2G に当てはめると：同じ用途を 243.82 坪に広げた場合の月次貢献利益</h1>
-  <p class="sub">前ページの「1 坪あたり貢献利益」× 2G の坪数　実際に成立するかは、右の条件を満たす需要があるかで決まる　※税抜</p>
+  <h1>2G に当てはめた場合</h1>
+  <p class="sub">同じ用途を 243.82 坪に広げたときの月次貢献利益</p>
+  <p class="cap">前ページの「1 坪あたり貢献利益」× 2G の坪数　実際に成立するかは、右の条件を満たす需要があるかで決まる　※税抜</p>
   <div class="kpis">
     {"".join(f'<div class="kpi"><div class="l">{s["n"]}</div><div class="v" style="color:{"var(--red)" if s["cp"]<0 else "var(--moss)"}">{"+" if s["cp"]>=0 else "▲"}{abs(s["cp"])*T2G/1e6:,.1f}<small>百万円／月</small></div><div class="d">年 {abs(s["cp"])*T2G*12/1e6:,.1f} 百万円</div></div>' for s in SC)}
   </div>
@@ -312,8 +326,9 @@ page('<div class="num">04</div><div class="lab">NEXT STEPS</div><div class="t">�
 
 # 15 効率化
 page(f'''
-  <h1>効率化：2I のままでも、閑散月の空き能力を埋めれば貢献利益は月 {eff/1e4:,.0f} 万円まで伸びる</h1>
-  <p class="sub">① 母の日の出荷能力（{peak:,} 件／月）に対する閑散月の空きを高付加価値3PL で埋める　② ハナイチを直近 2 か月の水準で回す</p>
+  <h1>効率化：閑散月の空き能力を埋める</h1>
+  <p class="sub">2I のままでも、貢献利益は月 {eff/1e4:,.0f} 万円まで伸びる</p>
+  <p class="cap">① 母の日の出荷能力（{peak:,} 件／月）に対する閑散月の空きを高付加価値3PL で埋める　② ハナイチを直近 2 か月の水準で回す</p>
   <div class="cols">
     <div style="flex:1.3">
       {legend([('AND FLOWER 注文数',PINK),('空き能力（出荷能力 4,480 件との差）','var(--light)')])}
@@ -342,8 +357,9 @@ nx=[('冷蔵',30,MOSS),('保管',110,'var(--line)'),('AF 制作・梱包',80,PIN
 seg2="".join(f'<div class="seg" style="flex:{v};background:{c}"><span>{n} {v:.0f}坪</span></div>' for n,v,c in nx)
 rows2=[('① 高付加価値3PL　6,000 件／月 × '+fmt(m1-labHV)+' 円',g1),('② AF 繁忙期の追加出荷 3,000 件（月額換算）',g2),('③ 預かり在庫の保管売上（40 パレット）',g3),('2G 管理者 1 名',-MGR),('2G 追加家賃（7,296 円 × 243.82 坪）',-GRENT)]
 page(f'''
-  <h1>2G の判断：高付加価値3PL と AF の繁忙期増産で埋めれば、追加家賃を引いても月 +{net/1e4:,.0f} 万円</h1>
-  <p class="sub">判断基準はひとつ。2G を借りて増える貢献利益が、2G の追加家賃（{M(GRENT)} 百万円／月）を上回るか　単位：円　※税抜</p>
+  <h1>2G の判断</h1>
+  <p class="sub">高付加価値3PL と AF の繁忙期増産で埋めれば、追加家賃を引いても月 +{net/1e4:,.0f} 万円</p>
+  <p class="cap">判断基準はひとつ。2G を借りて増える貢献利益が、2G の追加家賃（{M(GRENT)} 百万円／月）を上回るか　単位：円　※税抜</p>
   <div class="stack">{seg2}</div>
   <p class="note" style="margin-top:4px">2I＋2G の用途内訳（372.66 坪・配置案）。単純3PL には床を使わない</p>
   <div class="cols" style="margin-top:20px">
@@ -389,7 +405,7 @@ page(f'''
       <ul class="pts">
         <li>冷蔵庫と各用途の実測坪数（P.6 の配分を置き換える）</li>
         <li>2G の提示坪単価・契約期間・原状回復条件</li>
-        <li>2D のうちギフティ様が利用する坪数と、共同で使える設備（冷蔵・作業台）の有無</li>
+        <li>2D のうちギフティ社が利用する坪数と、共同で使える設備（冷蔵・作業台）の有無</li>
         <li>高付加価値3PL の受注見込み件数（平常月ベース）と 1 件あたり単価</li>
         <li>AND FLOWER の拠点通過分の売上（直送品を除いた値）と、9 月試算表の部門別人件費</li>
       </ul>
@@ -414,45 +430,48 @@ body{margin:0;background:var(--bg);color:var(--moss);font-family:Montserrat,"Not
 header{max-width:1040px;margin:0 auto;padding:24px 16px 8px}
 header h1{font-size:20px;margin:0 0 4px} header p{font-size:13px;color:var(--gray);margin:0}
 main{max-width:1040px;margin:0 auto;padding:8px 16px 48px;display:grid;gap:20px}
-.slide{position:relative;width:1040px;height:780px;max-width:100%;background:#fff;border-radius:6px;box-shadow:0 1px 3px rgba(0,0,0,.12);overflow:hidden;padding:52px 56px 44px 60px;display:flex;flex-direction:column}
+.slide{position:relative;width:1040px;height:780px;max-width:100%;background:#fff;border-radius:6px;box-shadow:0 1px 3px rgba(0,0,0,.12);overflow:hidden;padding:48px 48px 40px 52px;display:flex;flex-direction:column}
 .slide::before{content:"";position:absolute;left:0;top:0;bottom:0;width:6px;background:var(--accent)}
 .slide.af{--accent:var(--pink)} .slide.ha{--accent:var(--yellow)}
 .slide.divider{background:var(--moss);color:#fff;justify-content:center;padding-left:72px} .slide.divider::before{display:none}
-.divider .num{font-weight:300;font-size:84px;line-height:1;color:transparent;-webkit-text-stroke:1.5px #fff;letter-spacing:.02em;margin-bottom:44px}
-.divider .lab{font-size:14px;letter-spacing:.38em;margin-bottom:18px;font-weight:400}
-.divider .t{font-size:30px;font-weight:700;letter-spacing:.04em;margin-bottom:10px} .divider .s{font-size:14px;opacity:.85}
-.pn{position:absolute;right:24px;bottom:14px;font-size:11px;color:var(--muted)}
-h1{font-size:25px;font-weight:700;letter-spacing:.03em;line-height:1.4;margin:0 0 6px}
-.sub{font-size:14px;color:var(--gray);margin:0 0 18px;line-height:1.6}
-.cover{margin:auto 0;padding-left:8px} .cover .eyebrow{font-size:16px;margin-bottom:28px} .cover h1{font-size:38px;letter-spacing:.06em;margin-bottom:18px}
-.cover .sub{font-size:15px;letter-spacing:.06em;margin-bottom:96px} .cover .meta{font-size:15px;color:var(--gray);line-height:2}
-.toc{margin-top:64px;padding:0 24px} .toc-i{display:flex;gap:28px;align-items:flex-start;padding:22px 0;border-bottom:1px solid var(--line2)} .toc-i:last-child{border-bottom:0}
-.toc .n{font-size:38px;font-weight:700;color:var(--accent);line-height:1;width:40px} .toc .t{font-size:22px;font-weight:700;letter-spacing:.04em;margin-bottom:6px} .toc .s{font-size:14px;color:var(--gray)}
-.sum{margin-top:14px} .sum-i{display:flex;gap:18px;align-items:flex-start;margin-bottom:22px} .sum .n{font-size:26px;font-weight:700;color:var(--accent);line-height:1.3;width:28px;flex:none}
-.sum .t{font-size:17px;font-weight:700;margin-bottom:8px;line-height:1.5} .sum ul{margin:0;padding:0;list-style:none} .sum li{font-size:13.5px;line-height:1.75;padding-left:16px;position:relative;margin-bottom:3px}
+.divider .num{font-weight:300;font-size:88px;line-height:1;color:transparent;-webkit-text-stroke:1.5px #fff;letter-spacing:.02em;margin-bottom:44px}
+.divider .lab{font-size:15px;letter-spacing:.38em;margin-bottom:18px;font-weight:400}
+.divider .t{font-size:32px;font-weight:700;letter-spacing:.04em;margin-bottom:10px} .divider .s{font-size:15px;opacity:.85}
+.pn{position:absolute;right:24px;bottom:14px;font-size:10px;color:var(--muted)}
+h1{font-size:32px;font-weight:700;letter-spacing:.03em;line-height:1.35;margin:0 0 8px}
+.sub{font-size:19px;font-weight:700;color:var(--moss);margin:0 0 6px;line-height:1.5}
+.cap{font-size:14px;color:var(--gray);margin:0 0 14px;line-height:1.5}
+.cover{margin:auto 0;padding-left:8px} .cover .eyebrow{font-size:22px;margin-bottom:28px} .cover h1{font-size:52px;letter-spacing:.06em;margin-bottom:18px}
+.cover .sub{font-size:21px;font-weight:400;color:var(--gray);letter-spacing:.06em;margin-bottom:88px} .cover .meta{font-size:19px;color:var(--gray);line-height:2}
+.toc{margin-top:56px;padding:0 24px} .toc-i{display:flex;gap:28px;align-items:flex-start;padding:22px 0;border-bottom:1px solid var(--line2)} .toc-i:last-child{border-bottom:0}
+.toc .n{font-size:42px;font-weight:700;color:var(--accent);line-height:1;width:44px} .toc .t{font-size:30px;font-weight:700;letter-spacing:.04em;margin-bottom:6px} .toc .s{font-size:18px;color:var(--gray)}
+.sum{margin-top:10px} .sum-i{display:flex;gap:18px;align-items:flex-start;margin-bottom:18px} .sum .n{font-size:29px;font-weight:700;color:var(--accent);line-height:1.3;width:32px;flex:none}
+.sum .t{font-size:21px;font-weight:700;margin-bottom:8px;line-height:1.5} .sum ul{margin:0;padding:0;list-style:none} .sum li{font-size:16.5px;line-height:1.7;padding-left:18px;position:relative;margin-bottom:3px}
 .sum li::before,.pts li::before{content:"";position:absolute;left:0;top:.62em;width:7px;height:7px;background:var(--accent)}
 .hl{color:var(--mint)} .hl.pk{color:var(--pink)} .hl.yl{color:var(--yellow)} .hl.rd{color:var(--red)}
-.st{font-size:15px;font-weight:700;line-height:1.7;margin:auto 0 0;padding-top:18px}
-.note{font-size:9.5px;color:var(--gray);line-height:1.6;margin:10px 0 0}
-.unit{font-size:10px;color:var(--gray);text-align:right;margin:6px 0 0}
+.st{font-size:19px;font-weight:700;line-height:1.65;margin:auto 0 0;padding-top:16px}
+.note{font-size:11.5px;color:var(--gray);line-height:1.55;margin:8px 0 0}
+.unit{font-size:12px;color:var(--gray);text-align:right;margin:6px 0 0}
 .cols{display:flex;gap:32px;align-items:flex-start} .cols>div{min-width:0}
-.h2{font-size:18px;font-weight:700;margin-bottom:14px}
-.pts{margin:0;padding:0;list-style:none} .pts li{font-size:13.5px;line-height:1.75;padding-left:16px;position:relative;margin-bottom:8px}
-table.tb{width:100%;border-collapse:collapse;font-size:12.5px} .tb th,.tb td{padding:9px 10px;text-align:left;vertical-align:middle;border-bottom:1px solid var(--line2);line-height:1.5}
-.tb thead th{font-weight:700;border-bottom:2px solid var(--moss);font-size:12px} .tb .r{text-align:right;font-variant-numeric:tabular-nums}
-.tb tr.tot td{background:var(--light);font-weight:700} .tb td.in{padding-left:24px;color:var(--gray)} .tb td.g,.tb span.g{color:var(--gray);font-size:11px;font-weight:400} .tb span.g{display:block} .tb .rd{color:var(--red)}
-.tb.kv td{font-size:13px} .tb.terms th{width:150px;font-weight:700;padding:14px 10px;vertical-align:top} .tb.terms td{padding:14px 10px;font-size:12.5px;color:var(--gray)}
-.legend{display:flex;gap:18px;font-size:11px;color:var(--gray);margin:0 0 6px;justify-content:flex-end} .legend span{display:flex;align-items:center;gap:6px} .legend i{width:12px;height:12px;display:block;border-radius:2px}
-.kpis{display:flex;gap:24px;margin-top:20px} .kpi{flex:1;min-width:0} .kpi .l{font-size:12.5px;font-weight:700;margin-bottom:6px} .kpi .v{font-size:46px;font-weight:700;line-height:1.1;letter-spacing:-.01em} .kpi .v small{font-size:14px;font-weight:600;margin-left:6px;letter-spacing:0} .kpi .d{font-size:11.5px;color:var(--gray);margin-top:6px;line-height:1.5}
-.stack{display:flex;width:100%;height:52px;border-radius:4px;overflow:hidden} .stack .seg{display:flex;align-items:center;justify-content:center;min-width:0;overflow:hidden;white-space:nowrap;font-size:12px;font-weight:700;color:#fff} .stack .seg+.seg{border-left:2px solid #fff}
+.h2{font-size:22px;font-weight:700;margin-bottom:14px}
+.pts{margin:0;padding:0;list-style:none} .pts li{font-size:16.5px;line-height:1.7;padding-left:18px;position:relative;margin-bottom:8px}
+table.tb{width:100%;border-collapse:collapse;font-size:14.5px} .tb th,.tb td{padding:8px 10px;text-align:left;vertical-align:middle;border-bottom:1px solid var(--line2);line-height:1.45}
+.tb thead th{font-weight:700;border-bottom:2px solid var(--moss);font-size:14px} .tb .r{text-align:right;font-variant-numeric:tabular-nums}
+.tb tr.tot td{background:var(--light);font-weight:700} .tb td.in{padding-left:24px;color:var(--gray)} .tb td.g,.tb span.g{color:var(--gray);font-size:12.5px;font-weight:400} .tb span.g{display:block} .tb .rd{color:var(--red)}
+.tb.kv td{font-size:15px} .tb.terms th{width:160px;font-weight:700;padding:13px 10px;vertical-align:top;font-size:15px} .tb.terms td{padding:13px 10px;font-size:14px;color:var(--gray)}
+.legend{display:flex;gap:18px;font-size:13.5px;color:var(--gray);margin:0 0 6px;justify-content:flex-end} .legend span{display:flex;align-items:center;gap:6px} .legend i{width:12px;height:12px;display:block;border-radius:2px}
+.kpis{display:flex;gap:24px;margin-top:16px} .kpi{flex:1;min-width:0} .kpi .l{font-size:16px;font-weight:700;margin-bottom:6px} .kpi .v{font-size:52px;font-weight:700;line-height:1.1;letter-spacing:-.01em} .kpi .v small{font-size:19px;font-weight:600;margin-left:6px;letter-spacing:0} .kpi .d{font-size:13px;color:var(--gray);margin-top:6px;line-height:1.5}
+.stack{display:flex;width:100%;height:52px;border-radius:4px;overflow:hidden} .stack .seg{display:flex;align-items:center;justify-content:center;min-width:0;overflow:hidden;white-space:nowrap;font-size:14px;font-weight:700;color:#fff} .stack .seg+.seg{border-left:2px solid #fff}
 .stack .seg[style*="--line"],.stack .seg[style*="--light"],.stack .seg[style*="--yellow"]{color:var(--moss)}
 .sw{display:inline-block;width:11px;height:11px;border-radius:2px;margin-right:8px;vertical-align:-1px}
+.tb.compact th,.tb.compact td{padding:5px 10px}
 .plan{position:relative;width:100%;aspect-ratio:1722/790;background-size:contain;background-repeat:no-repeat;background-position:center;background-color:#fff;border:1px solid var(--line2);border-radius:4px}
 .ov{position:absolute;border-radius:3px} .ov.solid{border:2.5px solid var(--pink);background:rgba(239,102,125,.16)} .ov.dash{border:2px dashed var(--mint);background:rgba(0,215,156,.08)} .ov.fill{border:2px solid var(--gray);background:rgba(201,207,207,.55)}
-.ov>.tag{position:absolute;left:-2px;top:-2px;transform:translateY(-100%);white-space:nowrap;font-size:10.5px;font-weight:700;padding:2px 8px;border-radius:3px;background:var(--pink);color:#fff}
+.ov>.tag{position:absolute;left:-2px;top:-2px;transform:translateY(-100%);white-space:nowrap;font-size:12px;font-weight:700;padding:2px 8px;border-radius:3px;background:var(--pink);color:#fff}
 .tag.alt{background:#fff;color:var(--moss);border:1px solid var(--mint)} .tag.gray{background:#fff;color:var(--gray);border:1px solid var(--gray)}
-.hbt{font-size:12.5px;font-weight:700;margin-bottom:14px} .hb{display:flex;align-items:center;gap:14px;margin-bottom:18px} .hb-l{width:150px;font-size:12.5px;font-weight:700;line-height:1.35} .hb-l span{display:block;font-size:10px;color:var(--gray);font-weight:400;margin-top:2px}
-.hb-t{flex:1;display:flex;align-items:center;gap:10px} .hb-f{height:22px;border-radius:2px;min-width:3px} .hb-t b{font-size:13px;white-space:nowrap}
+.hbt{font-size:15px;font-weight:700;margin-bottom:14px} .hb{display:flex;align-items:center;gap:14px;margin-bottom:18px} .hb-l{width:170px;font-size:15px;font-weight:700;line-height:1.35} .hb-l span{display:block;font-size:11.5px;color:var(--gray);font-weight:400;margin-top:2px}
+.hb-t{flex:1;display:flex;align-items:center;gap:10px} .hb-f{height:24px;border-radius:2px;min-width:3px} .hb-t b{font-size:16px;white-space:nowrap}
+.plan.plan-wide{width:56%;margin:0 auto} .plan.plan-2i{width:48%;aspect-ratio:570/335;margin:0 auto}
 @page{size:1040px 780px;margin:0}
 @media print{body{background:#fff}header{display:none}main{padding:0;gap:0;max-width:none;display:block}.slide{box-shadow:none;border-radius:0;page-break-after:always;break-after:page;max-width:none}.slide:last-child{page-break-after:auto;break-after:auto}*{-webkit-print-color-adjust:exact;print-color-adjust:exact}}
 '''
