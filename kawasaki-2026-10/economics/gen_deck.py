@@ -124,6 +124,7 @@ c_cap = stacked(600, 380, L, AF_O, slack, PINK, 'var(--light)', lambda v: f"{rou
 INCLUDE_SUMMARY = False    # サマリー（結論の先出し）を入れるか
 INCLUDE_ANALYSIS = False   # 第2章「現状の分析」（AF・ハナイチ月次、貢献利益）を入れるか
 INCLUDE_DECISION = False   # 「効率化」「2G の判断」のページを入れるか
+INCLUDE_SCENARIOS = False  # 第2章「収益性の試算」（坪効率、2G に当てはめた場合）を入れるか
 pages=[]
 def page(body, cls='', accent=None, id=None, skip=False):
     if skip: return
@@ -137,7 +138,7 @@ page('''
   <div class="cover">
     <div class="eyebrow">株式会社ギフティ様　ご参考資料</div>
     <h1>川崎拠点の現状と収益性</h1>
-    <div class="sub">2I 区画の現状と、汎用3PL／高付加価値3PL／自社EC（AP&AF）の坪効率</div>
+    <div class="sub">2I 区画の現状とキャパシティ、今後の使い方</div>
     <div class="meta">2026 年 10 月<br>株式会社 DOMUZ<br>髙木 弘貴</div>
   </div>
 ''','cover')
@@ -145,7 +146,8 @@ page('''
 # 2 構成
 toc=[('現状の整理','2階フロアで借りている床（2I）、その使い方とキャパシティ')]
 if INCLUDE_ANALYSIS: toc.append(('現状の分析','AND FLOWER・ハナイチの FY2026 実績と、2I の貢献利益'))
-toc+=[('収益性の試算','汎用3PL／高付加価値3PL／自社EC（AP&AF）を 1 坪あたりで比べる'),('今後の使い方','運用方針と、スケールした後の拠点の考え方')]
+if INCLUDE_SCENARIOS: toc.append(('収益性の試算','汎用3PL／高付加価値3PL／自社EC（AP&AF）を 1 坪あたりで比べる'))
+toc+=[('今後の使い方','運用方針、スケール後の拠点と体制')]
 page('<h1>本資料の構成</h1><div class="toc">'+"".join(f'<div class="toc-i"><div class="n">{i}</div><div><div class="t">a</div><div class="s">{s}</div></div></div>'.replace('>a<',f'>{n}<') for i,(n,s) in enumerate(toc,1))+'</div><p class="note">※ 用語と集計の前提は最終ページにまとめています</p>')
 
 # 3 サマリー
@@ -219,7 +221,7 @@ page(f'''
     <thead><tr><th>用途</th><th class="r">坪</th><th class="r">比率</th><th class="r">家賃相当／月（円）</th><th>主な中身</th></tr></thead>
     <tbody>{rows}<tr class="tot"><td>合計</td><td class="r">{T2I:.2f}</td><td class="r">100%</td><td class="r">{fmt(RENT)}</td><td></td></tr></tbody>
   </table>
-  <p class="note">※ 床を使う主体は AND FLOWER の発送（ブーケ制作、梱包、資材、出荷待ち）。イネイブラー案件（キャンディ、コーヒー、ギフトカード等の保管と同梱）も AND FLOWER と同じ作業スペースを利用する。冷蔵庫だけが固定設備で、ほかは繁閑で入れ替わる。母の日前後の 2 か月間は、資材等の準備で一部隣の倉庫を借りる場合もある</p>
+  <p class="note">※ 床を使う主体は AND FLOWER の発送（ブーケ制作、梱包、資材、出荷待ち）。イネイブラー案件（キャンディ、コーヒー、ギフトカード等の保管と同梱）も AND FLOWER と同じ作業スペースを利用する（AND FLOWER での販売も行うため）。冷蔵庫のみ固定設備で、ほかは繁閑で入れ替わる。母の日前後の 2 か月間は、資材等の準備で一部隣の倉庫を借りる場合もある</p>
   <p class="note" style="margin-top:4px">※ イネイブラー案件（ギフトカード、コーヒー、スイーツ等）は実施時期によって変動するが、床の使い方は AND FLOWER と同等とみなす</p>
 ''', id='usage')
 
@@ -237,12 +239,12 @@ page(f'''
   <p class="cap">AND FLOWER の日次発送商品数（全チャネル、発送日ベース）　26 年 4 月 27 日〜 5 月 15 日　単位：点／日</p>
   {c_cap_day}
   <div class="kpis" style="margin-top:14px">
-    <div class="kpi"><div class="l">母の日前日の発送数（過去実績の最大）</div><div class="v">{CAP_MAX:,}<small>点／日</small></div><div class="d">26 年 5 月 9 日（土）。うち Shopify 3,892 点、法人 45 点、楽天 49 点、Amazon 53 点</div></div>
-    <div class="kpi"><div class="l">坪あたり（{AF_T:.2f} 坪）</div><div class="v">{CAP_MAX/AF_T:,.1f}<small>点／坪／日</small></div><div class="d">AND FLOWER の床で割った値。冷蔵庫（キーパー）は共用のため除く</div></div>
-    <div class="kpi"><div class="l">{FREE_T:.2f} 坪に振り切った場合</div><div class="v">{CAP_MAX/AF_T*FREE_T:,.0f}<small>点／日</small></div><div class="d">冷蔵庫を除く床をすべて AND FLOWER に使った場合（同じ密度）</div></div>
+    <div class="kpi"><div class="l">母の日前日の発送数（過去実績の最大）</div><div class="v">{CAP_MAX:,}<small>点／日</small></div><div class="d">26 年 5 月 9 日（土）。全チャネルの発送商品数</div></div>
+    <div class="kpi"><div class="l">坪あたりの発送数（{CAP_MAX:,} 点 ÷ {AF_T:.2f} 坪）</div><div class="v">{CAP_MAX/AF_T:,.1f}<small>点／坪／日</small></div><div class="d">AND FLOWER が使っている床で割った値。冷蔵庫（キーパー）は共用のため除く</div></div>
+    <div class="kpi"><div class="l">{FREE_T:.2f} 坪に振り切った場合（{CAP_MAX/AF_T:,.1f} × {FREE_T:.2f}）</div><div class="v">{CAP_MAX/AF_T*FREE_T:,.0f}<small>点／日</small></div><div class="d">冷蔵庫を除く床（128.84 − 18）をすべて AND FLOWER に使い、同じ密度で発送した場合</div></div>
   </div>
   <p class="st">母の日前日は平常日（約 500 点）の <b class="hl pk">約 8 倍</b>。これが現状の最大発送実績</p>
-  <p class="note">※ 受注管理システムの「チャネル別 発送商品数」（発送日ベース。Amazon のみ注文日）。Shopify には AND PLANTS の商品が一部含まれる。ハナイチの出荷枠は仕入と人員で日ごとに設定しており、床だけの制約ではない</p>
+  <p class="note">※ 受注管理システムの「チャネル別 発送商品数」（発送日ベース。Amazon のみ注文日）</p>
 ''', 'af', id='cap')
 
 # 振り切った場合のシミュレーション
@@ -326,7 +328,7 @@ page(f'''
 ''', skip=not INCLUDE_ANALYSIS)
 
 # 11 章扉
-page(f'<div class="num">{{SEC}}</div><div class="lab">SCENARIOS</div><div class="t">収益性の試算</div><div class="s">汎用3PL／高付加価値3PL／自社EC（AP&AF）を 1 坪あたりで比べる</div>','divider')
+page(f'<div class="num">{{SEC}}</div><div class="lab">SCENARIOS</div><div class="t">収益性の試算</div><div class="s">汎用3PL／高付加価値3PL／自社EC（AP&AF）を 1 坪あたりで比べる</div>','divider', skip=not INCLUDE_SCENARIOS)
 
 # 12 3用途
 hb = hbars([(s['n'], s['cp'], c, s['d']) for s,c in zip(SC,[GRAY,MOSS,MINT])])
@@ -351,7 +353,7 @@ page(f'''
   </div>
   <p class="st">汎用3PL は家賃をようやく賄う水準で、保管単価が 1 割下がれば赤字。<b class="hl">作業が付く高付加価値3PL</b> と、商品の粗利を含む自社EC が床を活かす</p>
   <p class="note">※ 汎用3PL：保管 3,300 円／パレット／月 × 2 パレット／坪、出荷作業料 250 円／件 × 20 件／坪／月、作業 60 件／人／日（アルバイト 26 万円／人月・22 日 → 197 円／件）。高付加価値3PL：ギフト同梱・花オプション付き、限界利益 800 円／件（保冷実費除く）× 60 件／坪／月、作業 24 件／人／日（→ 492 円／件）。自社EC（AP&AF）：AND FLOWER の限界利益・人件費を {AF_T:.2f} 坪で割った実績値で、商品の粗利を含むためサービス料だけの 3PL とは性質が異なる</p>
-''', id='tsubo')
+''', id='tsubo', skip=not INCLUDE_SCENARIOS)
 
 # 13 2Gに当てはめた
 cond=['2 パレット／坪が常時埋まり、出荷 20 件／坪／月。保管単価が 1 割下がると赤字','月 14,600 件（60 件／坪 × 243.82 坪）の高付加価値案件の受注が前提','AND FLOWER の平均密度（22 件／坪／月）で床が埋まる需要が前提。繁閑差 5 倍のため年間では成立しない']
@@ -368,28 +370,43 @@ page(f'''
   </table>
   <p class="st">2G を単一用途で埋める前提は現実的ではなく、<b class="hl">高付加価値3PL と AF の繁忙期増産の組み合わせ</b>で判断する</p>
   <p class="note">※ 2G の家賃は 7,296 円／坪で仮置き。設備・什器・原状回復は含まない</p>
-''')
+''', skip=not INCLUDE_SCENARIOS)
 
 # 14 章扉
-page(f'<div class="num">{{SEC}}</div><div class="lab">NEXT STEPS</div><div class="t">今後の使い方</div><div class="s">運用方針と、スケールした後の拠点の考え方</div>','divider')
+page(f'<div class="num">{{SEC}}</div><div class="lab">NEXT STEPS</div><div class="t">今後の使い方</div><div class="s">運用方針、スケール後の拠点と体制</div>','divider')
 
-# 15 運用方針
+# 15 運用方針（1/2）
 page(f'''
   <h1>今後の使い方：運用方針</h1>
-  <p class="sub">現状の配分を基本に、当社の倉庫は「高付加価値な部分のみ」を担う</p>
+  <p class="sub">当社の倉庫は「生花・ギフト EC の管理発送」と、高付加価値なイネイブラー事業のみを行う</p>
   <div class="sum tight" style="margin-top:14px">
     <div class="sum-i"><div class="n">1</div><div><div class="t">現状の配分を基本にする</div>
       <ul><li>冷蔵庫（キーパー）18 坪は固定。ハナイチは全体の 20% までを上限に運用し、残りは AND FLOWER の水揚げ・製作・梱包・資材管理・出荷待ち商品に使う</li></ul></div></div>
-    <div class="sum-i"><div class="n">2</div><div><div class="t">イネイブラーは高付加価値な部分のみを当社の倉庫でやる</div>
-      <ul><li>現状はカードやスイーツなど在庫がそれほど多くないものが中心のため、AND FLOWER の一部として運用中</li>
-      <li>汎用的な倉庫業務（保管して出すだけの仕事）は、基本的に <b class="hl">佐川急便（SGL）に委託する前提</b>。当社の倉庫でやるのは、花の扱いや製作作業が付く高付加価値な部分のみ</li>
-      <li>坪単価 7,200〜7,300 円前後の倉庫を借りている理由は、<b class="hl">クオリティの高い花の制作と発送を実現するため</b>。汎用3PL は坪あたり貢献利益が家賃をようやく賄う水準で、この床を使う理由にならない（P.{{P:tsubo}}）</li></ul></div></div>
-    <div class="sum-i"><div class="n">3</div><div><div class="t">空いた床は高付加価値3PL で埋め、足りなくなったら 2G を借りる</div>
-      <ul><li>閑散月の空き能力（月 {fmt(slackAvg)} 件）を高付加価値3PL で埋め、それでも足りない段階で 2G を借りる</li></ul></div></div>
-    <div class="sum-i"><div class="n">4</div><div><div class="t">川崎エリアよりスケールしたら、より広く坪単価の安いエリアで運用する</div>
-      <ul><li>例えば埼玉県・栃木県・群馬県など、大都市圏の東京に近いエリアで <b class="hl">坪単価 5,000 円以下</b> の場所を探して運用していく想定</li></ul></div></div>
+    <div class="sum-i"><div class="n">2</div><div><div class="t">当社の倉庫で行うのは、高付加価値な部分のみ</div>
+      <ul><li>当社の倉庫は「生花およびギフト EC の管理発送」と、高付加価値なイネイブラー事業のみを行う形にする。汎用的な倉庫業務は <b class="hl">佐川急便（SGL）に委託する想定</b></li>
+      <li>当社倉庫で行うのは、花の扱いや制作作業、封入等の高付加価値な部分のみ。現状のイネイブラーはカードやスイーツなど在庫がそれほど多くないものが中心のため、AND FLOWER の一部として運用中</li></ul></div></div>
+    <div class="sum-i"><div class="n">3</div><div><div class="t">坪単価 7,200〜7,300 円前後の倉庫を借りている理由</div>
+      <ul><li><b class="hl">クオリティの高い花の制作と発送を実現するため</b></li>
+      <li>都心に近いエリアの方が高クオリティなフローリストの採用がしやすく、かつ大田市場や世田谷市場など物流の面でも非常に効率が良いため、川崎を選定した</li></ul></div></div>
+    <div class="sum-i"><div class="n">4</div><div><div class="t">汎用3PL の位置づけ</div>
+      <ul><li>あくまで高付加価値な 3PL 発送業務を獲得するための営業メニューの 1 つであり、ここで収益性を出す想定ではない</li></ul></div></div>
   </div>
   <p class="st"><b class="hl">保管して出すだけの仕事は外に出し、花の扱いや高付加価値な同梱・梱包作業がつく仕事だけを川崎でやる。</b>それが坪効率をいちばん高く保つ使い方</p>
+''')
+
+# 15b 運用方針（2/2）スケールと体制
+page(f'''
+  <h1>今後の使い方：スケールと体制</h1>
+  <p class="sub">川崎でスケールした段階で、より広く坪単価の安いエリアへ。用地選定から運用までを担える体制を整える</p>
+  <div class="sum" style="margin-top:20px">
+    <div class="sum-i"><div class="n">1</div><div><div class="t">空いた床は高付加価値3PL で埋め、足りなくなったら 2G を借りる</div>
+      <ul><li>閑散月の空き能力（月 {fmt(slackAvg)} 件）を高付加価値3PL で埋め、それでも足りない段階で 2G（243.82 坪、交渉中）を借りる</li></ul></div></div>
+    <div class="sum-i"><div class="n">2</div><div><div class="t">川崎エリアでスケールしたら、坪単価 4,000 円台のエリアで運用する</div>
+      <ul><li>例えば埼玉県・栃木県・群馬県など、大都市圏の東京に近いエリアで <b class="hl">坪単価 4,000 円台</b> の場所を探して運用していく想定</li></ul></div></div>
+    <div class="sum-i"><div class="n">3</div><div><div class="t">体制：用地選定から管理・運用まで社内で対応できる</div>
+      <ul><li>3 月入社予定の元 SBS の倉庫管理責任者経験者が、倉庫の用地選定・誘致の作業から管理・運用まで対応可能</li></ul></div></div>
+  </div>
+  <p class="st"><b class="hl">次の拠点は、用地選定から運用まで社内で回せる体制で進める。</b>川崎は高付加価値な制作・発送の拠点として残す</p>
 ''')
 
 # 16 効率化
@@ -463,9 +480,9 @@ page(f'''
       <div class="h2">結論</div>
       <ul class="pts">
         <li><b>現状。</b>2I の貢献利益は 26 年 9 月期で月 {cp/1e4:,.0f} 万円（年 {cp*12/1e6:,.1f} 百万円）、家賃の {cp/RENT:.1f} 倍。AND FLOWER が床の 7 割で月 {M(afm)} 百万円の限界利益、ハナイチが 2 割で月 {M(hag)} 百万円の粗利</li>
-        <li><b>用途の選び方。</b>1 坪あたり貢献利益は 汎用3PL +{fmt(SC[0]['cp'])} 円 ＜ 高付加価値3PL +{fmt(SC[1]['cp'])} 円 ＜ 自社EC +{fmt(SC[2]['cp'])} 円。汎用3PL に床は使わない</li>
-        <li><b>運用方針。</b>当社の倉庫でやるのは花の扱いや高付加価値な同梱・梱包作業がつく仕事のみ。汎用的な倉庫業務は佐川急便（SGL）に委託する</li>
-        <li><b>スケール後。</b>川崎より広く坪単価の安いエリア（埼玉・栃木・群馬など、坪単価 5,000 円以下）で運用する想定</li>
+        <li><b>倉庫の役割。</b>当社の倉庫は「生花・ギフト EC の管理発送」と高付加価値なイネイブラー事業のみ。汎用的な倉庫業務は佐川急便（SGL）に委託する</li>
+        <li><b>川崎を選んだ理由。</b>高クオリティなフローリストの採用と、大田市場・世田谷市場に近い物流効率。坪単価 7,200〜7,300 円はそのための投資</li>
+        <li><b>スケール後。</b>川崎でスケールした段階で、坪単価 4,000 円台のエリア（埼玉・栃木・群馬など）で運用する想定。用地選定から運用までを担える人材が 3 月に入社予定</li>
       </ul>
     </div>
     <div style="flex:1">
@@ -474,7 +491,6 @@ page(f'''
         <li>ハナイチ・AND FLOWER の実測坪数（P.{{P:usage}} の配分を置き換える。冷蔵庫は 18 坪で確定）</li>
         <li>2G の提示坪単価・契約期間・原状回復条件</li>
         <li>2D のうちギフティ社が利用する坪数と、共同で使える設備（冷蔵・作業台）の有無</li>
-        <li>高付加価値3PL の受注見込み件数（平常月ベース）と 1 件あたり単価</li>
         <li>AND FLOWER の拠点通過分の売上（直送品を除いた値）と、9 月試算表の部門別人件費</li>
       </ul>
     </div>
@@ -482,7 +498,7 @@ page(f'''
 ''')
 
 # 18 用語
-terms=[('期','9 月決算。「26 年 9 月期」＝ 2025 年 10 月〜 2026 年 9 月'),('売上','税抜・注文日ベース。AND FLOWER は受注管理システムの売上サマリー（ブランド合計）、ハナイチは管理画面の売上推移'),('限界利益','売上 − 花材・資材・送料（AND FLOWER）'),('粗利','売上 − 仕入（ハナイチ）。送料・資材・決済手数料は含まない'),('拠点人件費','AND FLOWER 発送アルバイトの月次計画値（事業計画 AP/AF 202610）。26 年 9 月は 8 月と同額で仮置き。ハナイチの拠点人件費は未反映'),('家賃','川崎 2I の 0.94 百万円／月（7,296 円／坪 × 128.84 坪）。2G は同単価で仮置き'),('貢献利益','限界利益（粗利）− 拠点人件費 − 家賃。本社人件費・光熱費・設備償却は含まない'),('空き能力','26 年 5 月の AND FLOWER 注文数（4,480 件）− 各月の注文数。作業能力の空きを件数で表したもの'),('3PL の前提','保管 3,300 円／パレット／月・2 パレット／坪、高付加価値3PL は限界利益 800 円／件・60 件／坪／月・24 件／人／日。いずれも仮置きで、受注条件が決まったら置き換える')]
+terms=[('期','9 月決算。「26 年 9 月期」＝ 2025 年 10 月〜 2026 年 9 月'),('売上','税抜・注文日ベース。AND FLOWER は受注管理システムの売上サマリー（ブランド合計）、ハナイチは管理画面の売上推移'),('限界利益','売上 − 花材・資材・送料（AND FLOWER）'),('粗利','売上 − 仕入（ハナイチ）。送料・資材・決済手数料は含まない'),('拠点人件費','AND FLOWER 発送アルバイトの月次計画値（事業計画 AP/AF 202610）。26 年 9 月は 8 月と同額で仮置き。ハナイチの拠点人件費は未反映'),('家賃','川崎 2I の 0.94 百万円／月（7,296 円／坪 × 128.84 坪）。2G は同単価で仮置き'),('貢献利益','限界利益（粗利）− 拠点人件費 − 家賃。本社人件費・光熱費・設備償却は含まない'),('空き能力','26 年 5 月の AND FLOWER 注文数（4,480 件）− 各月の注文数。作業能力の空きを件数で表したもの')]
 page('<h1>用語と集計の前提</h1><table class="tb terms"><tbody>'+"".join(f'<tr><th>{k}</th><td>{v}</td></tr>' for k,v in terms)+'</tbody></table>')
 
 # ---------------- HTML ----------------
@@ -498,7 +514,7 @@ for i,(cls,body,acc,_) in enumerate(pages,1):
 CSS = '''
 :root{--moss:#004347;--mint:#00D79C;--pink:#EF667D;--pink-lt:#F8B3BE;--yellow:#F5B700;--yellow-lt:#FBDF8A;--red:#E16464;--gray:#626262;--muted:#999999;--line:#C9CFCF;--line2:#E3E6E6;--light:#ECEEEE;--bg:#eef1f1;--accent:var(--mint)}
 *{box-sizing:border-box}
-body{margin:0;background:var(--bg);color:var(--moss);font-family:Montserrat,"Noto Sans JP","Hiragino Sans",sans-serif;font-feature-settings:"palt" 1;-webkit-font-smoothing:antialiased}
+body{margin:0;background:var(--bg);color:var(--moss);font-family:Montserrat,"Noto Sans JP","Hiragino Sans",sans-serif;letter-spacing:.03em;-webkit-font-smoothing:antialiased}
 header{max-width:1040px;margin:0 auto;padding:24px 16px 8px}
 header h1{font-size:20px;margin:0 0 4px} header p{font-size:13px;color:var(--gray);margin:0}
 main{max-width:1040px;margin:0 auto;padding:8px 16px 48px;display:grid;gap:20px}
@@ -516,7 +532,7 @@ h1{font-size:32px;font-weight:700;letter-spacing:.03em;line-height:1.35;margin:0
 .cover{margin:auto 0 0;padding:0 0 46px 48px} .cover .eyebrow{font-size:22px;margin-bottom:36px} .cover h1{font-size:52px;letter-spacing:.06em;margin-bottom:24px}
 .cover .sub{font-size:21px;font-weight:400;color:var(--gray);letter-spacing:.06em;margin-bottom:120px} .cover .meta{font-size:19px;color:var(--gray);line-height:2.1}
 .toc{margin-top:56px;padding:0 24px} .toc-i{display:flex;gap:28px;align-items:flex-start;padding:22px 0;border-bottom:1px solid var(--line2)} .toc-i:last-child{border-bottom:0}
-.toc .n{font-size:42px;font-weight:700;color:var(--accent);line-height:1;width:44px} .toc .t{font-size:30px;font-weight:700;letter-spacing:.04em;margin-bottom:6px} .toc .s{font-size:18px;color:var(--gray)}
+.toc .n{font-size:42px;font-weight:700;color:var(--accent);line-height:1;width:44px} .toc .t{font-size:30px;font-weight:700;letter-spacing:.06em;margin-bottom:8px} .toc .s{font-size:18px;color:var(--gray);letter-spacing:.06em}
 .sum{margin-top:10px} .sum-i{display:flex;gap:18px;align-items:flex-start;margin-bottom:18px} .sum .n{font-size:29px;font-weight:700;color:var(--accent);line-height:1.3;width:32px;flex:none}
 .sum .t{font-size:21px;font-weight:700;margin-bottom:8px;line-height:1.5} .sum.tight .sum-i{margin-bottom:10px} .sum.tight .t{margin-bottom:4px} .sum.tight li{line-height:1.6} .sum ul{margin:0;padding:0;list-style:none} .sum li{font-size:16.5px;line-height:1.7;padding-left:18px;position:relative;margin-bottom:3px}
 .sum li::before,.pts li::before{content:"";position:absolute;left:0;top:.62em;width:7px;height:7px;background:var(--accent)}
@@ -543,8 +559,8 @@ table.tb{width:100%;border-collapse:collapse;font-size:14.5px} .tb th,.tb td{pad
 .tag.alt{background:#fff;color:var(--moss);border:1px solid var(--mint)} .tag.gray{background:#fff;color:var(--gray);border:1px solid var(--gray)}
 .hbt{font-size:15px;font-weight:700;margin-bottom:14px} .hb{display:flex;align-items:center;gap:14px;margin-bottom:18px} .hb-l{width:170px;font-size:15px;font-weight:700;line-height:1.35} .hb-l span{display:block;font-size:11.5px;color:var(--gray);font-weight:400;margin-top:2px}
 .hb-t{flex:1;display:flex;align-items:center;gap:10px} .hb-f{height:24px;border-radius:2px;min-width:3px} .hb-t b{font-size:16px;white-space:nowrap}
-.plan.plan-wide{width:75%;margin:0 auto} .plan.plan-2i{flex:none;width:248px;aspect-ratio:252/335;margin:0}
-.ab{display:flex;align-items:center;gap:14px;margin-bottom:22px} .ab-l{width:150px;font-size:15px;font-weight:700} .ab-t{flex:1;height:26px;background:var(--light);border-radius:2px;overflow:hidden} .ab-f{height:100%} .ab-v{width:150px;font-size:22px;font-weight:700;white-space:nowrap} .ab-v small{font-size:13px;margin-left:3px} .ab-v span{font-size:13px;color:var(--gray);font-weight:400;margin-left:10px}
+.plan.plan-wide{width:75%;margin:0 auto} .plan.plan-2i{flex:none;width:232px;aspect-ratio:252/335;margin:0}
+.ab{display:flex;align-items:center;gap:14px;margin-bottom:18px} .ab-l{width:150px;font-size:15px;font-weight:700} .ab-t{flex:1;height:26px;background:var(--light);border-radius:2px;overflow:hidden} .ab-f{height:100%} .ab-v{width:150px;font-size:22px;font-weight:700;white-space:nowrap} .ab-v small{font-size:13px;margin-left:3px} .ab-v span{font-size:13px;color:var(--gray);font-weight:400;margin-left:10px}
 @page{size:1040px 780px;margin:0}
 @media print{body{background:#fff}header{display:none}main{padding:0;gap:0;max-width:none;display:block}.slide{box-shadow:none;border-radius:0;page-break-after:always;break-after:page;max-width:none}.slide:last-child{page-break-after:auto;break-after:auto}*{-webkit-print-color-adjust:exact;print-color-adjust:exact}}
 '''
