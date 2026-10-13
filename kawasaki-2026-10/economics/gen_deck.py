@@ -142,7 +142,7 @@ page('''
     <div class="toc-i"><div class="n">1</div><div><div class="t">現状の整理</div><div class="s">2階フロアで借りている床（2I）と、その使い方</div></div></div>
     <div class="toc-i"><div class="n">2</div><div><div class="t">現状の分析</div><div class="s">AND FLOWER・ハナイチの FY2026 実績と、2I の貢献利益</div></div></div>
     <div class="toc-i"><div class="n">3</div><div><div class="t">収益性の試算</div><div class="s">単純3PL／高付加価値3PL／自社EC（AP&AF）を 1坪あたりで比べる</div></div></div>
-    <div class="toc-i"><div class="n">4</div><div><div class="t">今後</div><div class="s">閑散月を埋める効率化と、2G を借りる判断</div></div></div>
+    <div class="toc-i"><div class="n">4</div><div><div class="t">今後の使い方</div><div class="s">運用方針、閑散月を埋める効率化、2G を借りる判断</div></div></div>
   </div>
   <p class="note">※ 用語と集計の前提は最終ページにまとめています</p>
 ''')
@@ -198,12 +198,15 @@ page(f'''
 # 6 2I の使い方
 now=[('冷蔵庫（キーパー）',COLD,MOSS,'生花の鮮度保持（固定設備。59.52㎡、6.4m × 9.3m）'),('ハナイチ',HA_T,YEL,'生花の在庫・出荷（2I の 20% を上限）'),('AND FLOWER',AF_T,PINK,'ブーケ制作、梱包、資材、出荷待ち、イネイブラー同梱')]
 seg="".join(f'<div class="seg" style="flex:{v};background:{c}"><span>{n.split("（")[0]} {v:.0f}坪</span></div>' for n,v,c,_ in now)
-area="".join(f'<div class="ab"><div class="ab-l">{n}</div><div class="ab-t"><div class="ab-f" style="width:{v/T2I*100:.1f}%;background:{c}"></div></div><div class="ab-v">{v:.2f}<small>坪</small><span>{v/T2I*100:.0f}%</span></div></div>' for n,v,c,_ in now)
+_acc=0; area=''
+for n,v,c,_ in now:
+    area+=f'<div class="ab"><div class="ab-l">{n}</div><div class="ab-t"><div class="ab-f" style="margin-left:{_acc/T2I*100:.1f}%;width:{v/T2I*100:.1f}%;background:{c}"></div></div><div class="ab-v">{v:.2f}<small>坪</small><span>{v/T2I*100:.0f}%</span></div></div>'
+    _acc+=v
 rows="".join(f'<tr><td><i class="sw" style="background:{c}"></i>{n}</td><td class="r">{v:.2f}</td><td class="r">{v/T2I*100:.0f}%</td><td class="r">{fmt(v*UNIT)}</td><td class="g">{d}</td></tr>' for n,v,c,d in now)
 page(f'''
-  <h1>2I の使い方</h1>
-  <p class="sub">128.84 坪を、冷蔵庫・ハナイチ（上限 20%）・AND FLOWER で使っている</p>
-  <p class="cap">配分ルール：冷蔵庫（キーパー）18 坪は固定設備、ハナイチは 2I 全体の 20% まで、残りは AND FLOWER（制作・梱包・資材・出荷待ち）</p>
+  <h1>現状の使い方</h1>
+  <p class="sub">128.84 坪を、冷蔵庫（キーパー）・ハナイチ・AND FLOWER で使っている</p>
+  <p class="cap">配分ルール：ハナイチは全体の 20% までを上限に運用中。残りは水揚げ、製作、梱包、資材管理、出荷待ち商品</p>
   <div class="cols" style="gap:40px;align-items:center">
     <div class="plan plan-2i" style="background-image:url({PLAN_2I})"></div>
     <div style="flex:1">
@@ -321,14 +324,31 @@ page(f'''
     <thead><tr><th>用途</th><th class="r">月額（円）</th><th class="r">年額（円）</th><th>成立条件</th></tr></thead>
     <tbody>{"".join(f'<tr><td>{s["n"]}</td><td class="r">{sg(s["cp"]*T2G)}</td><td class="r">{sg(s["cp"]*T2G*12)}</td><td class="g">{c}</td></tr>' for s,c in zip(SC,cond))}</tbody>
   </table>
-  <p class="st">2G を単一用途で埋める前提は現実的ではなく、<b class="hl">高付加価値3PL と AF の繁忙期増産の組み合わせ</b>で判断する（P.16）</p>
+  <p class="st">2G を単一用途で埋める前提は現実的ではなく、<b class="hl">高付加価値3PL と AF の繁忙期増産の組み合わせ</b>で判断する（P.17）</p>
   <p class="note">※ 2G の家賃は 7,296 円／坪で仮置き。設備・什器・原状回復は含まない</p>
 ''')
 
 # 14 章扉
-page('<div class="num">04</div><div class="lab">NEXT STEPS</div><div class="t">今後</div><div class="s">閑散月を埋める効率化と、2G を借りる判断</div>','divider')
+page('<div class="num">04</div><div class="lab">NEXT STEPS</div><div class="t">今後の使い方</div><div class="s">運用方針、閑散月を埋める効率化、2G を借りる判断</div>','divider')
 
-# 15 効率化
+# 15 運用方針
+page(f'''
+  <h1>今後の使い方：運用方針</h1>
+  <p class="sub">現状の配分を基本に、当社の倉庫は「高付加価値な部分だけ」を担う</p>
+  <p class="cap">床の使い方の基本方針。数字の裏付けは次ページ以降（効率化、2G の判断）</p>
+  <div class="sum" style="margin-top:20px">
+    <div class="sum-i"><div class="n">1</div><div><div class="t">現状の配分を基本にする</div>
+      <ul><li>冷蔵庫（キーパー）18 坪は固定。ハナイチは全体の 20% までを上限に運用し、残りは AND FLOWER の水揚げ・製作・梱包・資材管理・出荷待ち商品に使う</li></ul></div></div>
+    <div class="sum-i"><div class="n">2</div><div><div class="t">イネイブラーは高付加価値な部分だけを当社の倉庫でやる</div>
+      <ul><li>花オプション・ギフト同梱など、花の扱いや製作作業が付く案件は当社の倉庫で受ける（AND FLOWER と同じ床・同じ人員）</li>
+      <li>汎用3PL の商材（保管して出すだけのもの）が来た場合は、基本的に当社の倉庫ではなく <b class="hl">SGL にお願いする</b>。坪あたり貢献利益が家賃をようやく賄う水準で、床を使うほど利益が薄くなるため（P.12）</li></ul></div></div>
+    <div class="sum-i"><div class="n">3</div><div><div class="t">空いた床は高付加価値3PL で埋め、足りなくなったら 2G を借りる</div>
+      <ul><li>閑散月の空き能力（月 {fmt(slackAvg)} 件）を高付加価値3PL で埋める。それでも足りない段階で、高付加価値3PL と AND FLOWER の繁忙期増産を前提に 2G を借りる</li></ul></div></div>
+  </div>
+  <p class="st"><b class="hl">保管して出すだけの仕事は外に出し、花の扱いと製作が付く仕事だけを川崎でやる。</b>それが坪効率をいちばん高く保つ使い方</p>
+''')
+
+# 16 効率化
 page(f'''
   <h1>効率化：閑散月の空き能力を埋める</h1>
   <p class="sub">2I のままでも、貢献利益は月 {eff/1e4:,.0f} 万円まで伸びる</p>
@@ -445,8 +465,8 @@ main{max-width:1040px;margin:0 auto;padding:8px 16px 48px;display:grid;gap:20px}
 h1{font-size:32px;font-weight:700;letter-spacing:.03em;line-height:1.35;margin:0 0 8px}
 .sub{font-size:19px;font-weight:700;color:var(--moss);margin:0 0 6px;line-height:1.5}
 .cap{font-size:14px;color:var(--gray);margin:0 0 14px;line-height:1.5}
-.cover{margin:auto 0;padding-left:8px} .cover .eyebrow{font-size:22px;margin-bottom:28px} .cover h1{font-size:52px;letter-spacing:.06em;margin-bottom:18px}
-.cover .sub{font-size:21px;font-weight:400;color:var(--gray);letter-spacing:.06em;margin-bottom:88px} .cover .meta{font-size:19px;color:var(--gray);line-height:2}
+.cover{margin:auto 0 0;padding:0 0 46px 104px} .cover .eyebrow{font-size:22px;margin-bottom:36px} .cover h1{font-size:52px;letter-spacing:.06em;margin-bottom:24px}
+.cover .sub{font-size:21px;font-weight:400;color:var(--gray);letter-spacing:.06em;margin-bottom:120px} .cover .meta{font-size:19px;color:var(--gray);line-height:2.1}
 .toc{margin-top:56px;padding:0 24px} .toc-i{display:flex;gap:28px;align-items:flex-start;padding:22px 0;border-bottom:1px solid var(--line2)} .toc-i:last-child{border-bottom:0}
 .toc .n{font-size:42px;font-weight:700;color:var(--accent);line-height:1;width:44px} .toc .t{font-size:30px;font-weight:700;letter-spacing:.04em;margin-bottom:6px} .toc .s{font-size:18px;color:var(--gray)}
 .sum{margin-top:10px} .sum-i{display:flex;gap:18px;align-items:flex-start;margin-bottom:18px} .sum .n{font-size:29px;font-weight:700;color:var(--accent);line-height:1.3;width:32px;flex:none}
