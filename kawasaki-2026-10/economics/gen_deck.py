@@ -226,38 +226,40 @@ page(f'''
 ''', id='usage')
 
 
-# 現状のキャパシティ（発送日ベースの日次発送商品数、26年4月27日〜5月15日）
-CAP_L = ['4/27','4/28','4/29','4/30','5/1','5/2','5/3','5/4','5/5','5/6','5/7','5/8','5/9','5/10','5/11','5/12','5/13','5/14','5/15']
-CAP_V = [545,456,165,605,552,265,411,317,655,1259,2467,2778,4039,161,656,491,448,514,520]
-CAP_MAX = max(CAP_V); CAP_DAY = CAP_L[CAP_V.index(CAP_MAX)]
+# 現状のキャパシティ（発送チーム別の日次発送件数、母の日の週 26年5月4日〜5月10日）
+CAP_L = ['5/4（月）','5/5（火）','5/6（水）','5/7（木）','5/8（金）','5/9（土）','5/10（日）']
+CAP_ALL = [139,499,1115,1912,2278,3910,34]   # 全発送チーム合計
+CAP_V   = [0,354,797,1431,1571,2406,0]       # 花チーム
+CAP_MAX = max(CAP_V); CAP_DAY = CAP_L[CAP_V.index(CAP_MAX)]; CAP_ALL_MAX = CAP_ALL[CAP_V.index(CAP_MAX)]
 HA_QUOTA = 800   # ハナイチ 出荷枠の上限（本／日）。管理画面の出荷枠（26年10月）の最大値
 FREE_T = T2I - COLD  # 冷蔵庫を除く床
-c_cap_day = bars(920, 290, CAP_L, [('発送商品数',CAP_V,PINK)], lambda v: f"{round(v):,}", lambda v: f"{round(v):,}")
+c_cap_day = bars(920, 290, CAP_L, [('全発送チーム合計',CAP_ALL,'var(--line)'),('花チーム',CAP_V,PINK)], lambda v: f"{round(v):,}", lambda v: f"{round(v):,}")
 page(f'''
   <h1>現状のキャパシティ（AND FLOWER に振り切った場合）</h1>
-  <p class="sub">過去実績の最大は母の日前日（26 年 5 月 9 日）の {CAP_MAX:,} 点／日。この密度で床を広げた場合の発送数を出す</p>
-  <p class="cap">AND FLOWER の日次発送商品数（全チャネル、発送日ベース）　26 年 4 月 27 日〜 5 月 15 日　単位：点／日</p>
+  <p class="sub">過去実績の最大は母の日前日（26 年 5 月 9 日）の花チーム {CAP_MAX:,} 件／日。この密度で床を広げた場合の発送数を出す</p>
+  <p class="cap">発送チーム別の日次発送件数　母の日の週（26 年 5 月 4 日〜 5 月 10 日）　単位：件／日</p>
+  {legend([('全発送チーム合計','var(--line)'),('花チーム',PINK)])}
   {c_cap_day}
   <div class="kpis" style="margin-top:14px">
-    <div class="kpi"><div class="l">母の日前日の発送数（過去実績の最大）</div><div class="v">{CAP_MAX:,}<small>点／日</small></div><div class="d">26 年 5 月 9 日（土）。全チャネルの発送商品数</div></div>
-    <div class="kpi"><div class="l">坪あたりの発送数（{CAP_MAX:,} 点 ÷ {AF_T:.2f} 坪）</div><div class="v">{CAP_MAX/AF_T:,.1f}<small>点／坪／日</small></div><div class="d">AND FLOWER が使っている床で割った値。冷蔵庫（キーパー）は共用のため除く</div></div>
-    <div class="kpi"><div class="l">{FREE_T:.2f} 坪に振り切った場合（{CAP_MAX/AF_T:,.1f} × {FREE_T:.2f}）</div><div class="v">{CAP_MAX/AF_T*FREE_T:,.0f}<small>点／日</small></div><div class="d">冷蔵庫を除く床（128.84 − 18）をすべて AND FLOWER に使い、同じ密度で発送した場合</div></div>
+    <div class="kpi"><div class="l">母の日前日の発送数（過去実績の最大）</div><div class="v">{CAP_MAX:,}<small>件／日</small></div><div class="d">26 年 5 月 9 日（土）の花チーム。全発送チーム合計は {CAP_ALL_MAX:,} 件</div></div>
+    <div class="kpi"><div class="l">坪あたりの発送数（{CAP_MAX:,} 件 ÷ {AF_T:.2f} 坪）</div><div class="v">{CAP_MAX/AF_T:,.1f}<small>件／坪／日</small></div><div class="d">AND FLOWER が使っている床で割った値。冷蔵庫（キーパー）は共用のため除く</div></div>
+    <div class="kpi"><div class="l">{FREE_T:.2f} 坪に振り切った場合（{CAP_MAX/AF_T:,.1f} × {FREE_T:.2f}）</div><div class="v">{CAP_MAX/AF_T*FREE_T:,.0f}<small>件／日</small></div><div class="d">冷蔵庫を除く床（128.84 − 18）をすべて AND FLOWER に使い、同じ密度で発送した場合</div></div>
   </div>
-  <p class="st">母の日前日は平常日（約 500 点）の <b class="hl pk">約 8 倍</b>。これが現状の最大発送実績</p>
-  <p class="note">※ 受注管理システムの「チャネル別 発送商品数」（発送日ベース。Amazon のみ注文日）</p>
+  <p class="st">母の日の週は全発送チームで {sum(CAP_ALL):,} 件、うち花チーム {sum(CAP_V):,} 件。ピークの 5 月 9 日は <b class="hl pk">花チームだけで {CAP_MAX:,} 件</b>。これが現状の最大発送実績</p>
+  <p class="note">※ 社内の発送実績（発送チーム別、発送日ベース）。花チーム＝AND FLOWER の制作・発送。全発送チーム合計には AND PLANTS など他チームの発送を含む</p>
 ''', 'af', id='cap')
 
 # 振り切った場合のシミュレーション
 AF_FULL = CAP_MAX/AF_T*FREE_T; HA_FULL = HA_QUOTA/HA_T*FREE_T
-sim = hbars([('AND FLOWER のみ', AF_FULL, PINK, f'{CAP_MAX/AF_T:,.1f} 点／坪／日 × {FREE_T:.2f} 坪'),('ハナイチのみ', HA_FULL, YEL, f'{HA_QUOTA/HA_T:,.1f} 本／坪／日 × {FREE_T:.2f} 坪')]).replace('+','')
+sim = hbars([('AND FLOWER のみ', AF_FULL, PINK, f'{CAP_MAX/AF_T:,.1f} 件／坪／日 × {FREE_T:.2f} 坪'),('ハナイチのみ', HA_FULL, YEL, f'{HA_QUOTA/HA_T:,.1f} 本／坪／日 × {FREE_T:.2f} 坪')]).replace('+','')
 page(f'''
   <h1>キャパシティのシミュレーション</h1>
-  <p class="sub">冷蔵庫を除く {FREE_T:.2f} 坪を 1 つの事業に振り切ると、AND FLOWER なら {AF_FULL:,.0f} 点／日、ハナイチなら {HA_FULL:,.0f} 本／日</p>
-  <p class="cap">現状の坪あたりの最大発送数に、振り切った場合の床を掛けた値　単位：点（本）／日</p>
+  <p class="sub">冷蔵庫を除く {FREE_T:.2f} 坪を 1 つの事業に振り切ると、AND FLOWER なら {AF_FULL:,.0f} 件／日、ハナイチなら {HA_FULL:,.0f} 本／日</p>
+  <p class="cap">現状の坪あたりの最大発送数に、振り切った場合の床を掛けた値　単位：件（本）／日</p>
   <table class="tb" style="margin-top:6px">
     <thead><tr><th></th><th class="r">現状の床（坪）</th><th class="r">現状の最大（／日）</th><th class="r">坪あたり（／坪／日）</th><th class="r">振り切った場合の床（坪）</th><th class="r">発送可能数（／日）</th></tr></thead>
     <tbody>
-      <tr><td><i class="sw" style="background:{PINK}"></i>AND FLOWER のみ</td><td class="r">{AF_T:.2f}</td><td class="r">{CAP_MAX:,} 点</td><td class="r">{CAP_MAX/AF_T:,.1f}</td><td class="r">{FREE_T:.2f}</td><td class="r"><b>{AF_FULL:,.0f} 点</b></td></tr>
+      <tr><td><i class="sw" style="background:{PINK}"></i>AND FLOWER のみ</td><td class="r">{AF_T:.2f}</td><td class="r">{CAP_MAX:,} 件</td><td class="r">{CAP_MAX/AF_T:,.1f}</td><td class="r">{FREE_T:.2f}</td><td class="r"><b>{AF_FULL:,.0f} 件</b></td></tr>
       <tr><td><i class="sw" style="background:{YEL}"></i>ハナイチのみ</td><td class="r">{HA_T:.2f}</td><td class="r">{HA_QUOTA:,} 本</td><td class="r">{HA_QUOTA/HA_T:,.1f}</td><td class="r">{FREE_T:.2f}</td><td class="r"><b>{HA_FULL:,.0f} 本</b></td></tr>
     </tbody>
   </table>
