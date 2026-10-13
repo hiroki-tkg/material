@@ -50,7 +50,7 @@ s = content_slide("本資料の構成")
 items = [
     ("1", "ハナイチのエコノミクスの整理と経年推移", "24年9月期（2024年2月の開始）〜26年9月期"),
     ("2", "今後の事業におけるエコノミクスの整理", "原価・全体ROAS・直接固定費、LTV/CAC、損益分岐の月商"),
-    ("3", "中長期の可能性とグループ内のシナジー", "卸仕入れサイトからの広がり、アンドフラワー／アンドプランツとの連携"),
+    ("3", "中長期の可能性と事業間シナジー", "卸仕入れサイトからの広がり、アンドフラワー／アンドプランツとの連携"),
 ]
 y = 220
 for n, label, sub in items:
@@ -99,7 +99,7 @@ text(s, 938, 154, 140, 20, "ボックス等（参考）", size=12, color=SECONDA
 top, base = 206, 434
 slot = (x1 - x0) / NQ
 bw = slot * 0.6
-vmax = max(a + b for a, b in zip(q_s, q_fb))
+vmax = max(a + b for a, b in zip(q_s, q_fb)) * 1.18  # 上に目印のラベルの余白
 sy = lambda v: base - (base - top) * v / vmax
 for qi, (lab, a_, b_, k) in enumerate(QTR):
     bx = x0 + qi * slot + (slot - bw) / 2
@@ -146,10 +146,10 @@ footnote(s, "※ 税抜・注文日ベース。ハナイチは管理画面の純
             "フラワーボックス等はマスター管理表のイネイブラー事業の売上・限界利益（24年9月期の粗利は未集計）。24年9月期は2024年2月〜9月の8か月")
 
 # ---- 広告投資：四半期の広告費・売上・ROAS（24年10〜12月〜26年7〜9月）
-s = content_slide("広告投資：生花の新規獲得に広告を投下", "ハナイチ（卸仕入れサイト）の四半期の売上・広告費・ROAS（24年10月〜26年9月）　単位：百万円　※フラワーボックスは含まない")
+s = content_slide("広告投資：生花の新規獲得に広告を投下", "卸仕入れサイトの四半期の売上・広告費・ROAS（24年10月〜26年9月）　単位：百万円")
 Q0 = 3  # 25年9月期の最初の四半期
 nq = NQ - Q0
-x0, x1 = 120, 1040
+x0, x1 = 214, 914
 slot = (x1 - x0) / nq
 cx = lambda qi: x0 + (qi - Q0) * slot + slot / 2
 top, base = 190, 440
@@ -157,7 +157,7 @@ vmax_ = 20
 sy = lambda v: base - (base - top) * v / vmax_
 for v in range(0, vmax_ + 1, 5):
     hline(s, x0 - 4, sy(v), x1 - x0 + 4, BORDER_LIGHT if v == 0 else WATERMARK)
-    text(s, 60, sy(v) - 11, 50, 22, str(v), size=12, color=MUTED, align=PP_ALIGN.RIGHT, en=True)
+    text(s, x0 - 60, sy(v) - 11, 50, 22, str(v), size=12, color=MUTED, align=PP_ALIGN.RIGHT, en=True)
 for qi in range(Q0, NQ):
     bw_ = slot * 0.5
     rect(s, cx(qi) - bw_ / 2, sy(q_s[qi]), bw_, base - sy(q_s[qi]), HANA)
@@ -169,10 +169,10 @@ for qi in range(Q0, NQ):
 rt, rb = 492, 600
 rmax = 1200
 ry = lambda v: rb - (rb - rt) * min(v, rmax) / rmax
-text(s, 56, rt - 30, 300, 22, "ROAS（売上÷広告費）", size=13, color=SECONDARY, bold=True)
+text(s, x0, rt - 30, 300, 22, "ROAS（売上÷広告費）", size=13, color=SECONDARY, bold=True)
 for v in (0, 400, 800, 1200):
     hline(s, x0 - 4, ry(v), x1 - x0 + 4, BORDER_LIGHT if v == 0 else WATERMARK)
-    text(s, 50, ry(v) - 10, 60, 20, f"{v}%", size=11, color=MUTED, align=PP_ALIGN.RIGHT, en=True)
+    text(s, x0 - 70, ry(v) - 10, 60, 20, f"{v}%", size=11, color=MUTED, align=PP_ALIGN.RIGHT, en=True)
 q_roas = [q_s[qi] / q_ad[qi] * 100 if q_ad[qi] > 0 else None for qi in range(NQ)]
 polyline(s, [(cx(qi), ry(q_roas[qi])) for qi in range(Q0 + 1, NQ)], MOSS, 2.5)  # 広告が本格化した25年1〜3月から
 for qi in range(Q0, NQ):
@@ -182,19 +182,19 @@ for qi in range(Q0, NQ):
 for lab, qi in (("25年9月期", 3), ("26年9月期", 7)):
     text(s, cx(qi) - slot / 2, rb + 22, 4 * slot, 20, lab, size=13, color=SECONDARY, bold=True, align=PP_ALIGN.CENTER)
 vline(s, cx(7) - slot / 2, top - 10, rb - top + 36, BORDER_LIGHT, 1.0, dash=True)
-rect(s, 120, 150, 16, 16, HANA)
-text(s, 142, 146, 80, 24, "売上", size=14, color=SECONDARY)
-rect(s, 206, 156, 28, 4, HANA_DARK)
-text(s, 240, 146, 80, 24, "広告費", size=14, color=SECONDARY)
-rect(s, 310, 156, 28, 4, MOSS)
-text(s, 344, 146, 80, 24, "ROAS", size=14, color=SECONDARY)
+rect(s, x0, 150, 16, 16, HANA)
+text(s, x0 + 22, 146, 80, 24, "売上", size=14, color=SECONDARY)
+rect(s, x0 + 86, 156, 28, 4, HANA_DARK)
+text(s, x0 + 120, 146, 80, 24, "広告費", size=14, color=SECONDARY)
+rect(s, x0 + 190, 156, 28, 4, MOSS)
+text(s, x0 + 224, 146, 80, 24, "ROAS", size=14, color=SECONDARY)
 qa_ = (q_ad[6], q_ad[10])
 qs_ = (q_s[6], q_s[10])
 text(s, 56, 660, 1016, 70,
      [f"26年7〜9月は広告費を{qa_[1]:.1f}百万円（前年同期{qa_[0]:.1f}）に増やし、注文数は{q_orders[10]:,}件（前年同期の約{q_orders[10] / q_orders[6]:.1f}倍）。",
       f"売上は{qs_[0]:.1f}→{qs_[1]:.1f}百万円（{(qs_[1] / qs_[0] - 1) * 100:+.0f}%）、全体ROASは{qs_[0] / qa_[0] * 100:.0f}→{qs_[1] / qa_[1] * 100:.0f}%"],
      size=18, bold=True, spacing=1.45)
-footnote(s, "※ 広告は生花のみ（植木鉢・資材は広告なし）。ROASは生花以外も含むサイト全体の売上÷広告費。24年10〜12月は広告費が小さいためROASの線は25年1〜3月から")
+footnote(s, "※ フラワーボックス等は含まない。広告は生花のみ（植木鉢・資材は広告なし）。ROASは生花以外も含むサイト全体の売上÷広告費。24年10〜12月は広告費が小さいためROASの線は25年1〜3月から")
 
 # =====================================================================
 # 章 02：今後のエコノミクス
@@ -226,7 +226,7 @@ PERIODS = {
 }
 PH = "（直接固定費は仮置き）" if FIXED_IS_PLACEHOLDER else ""
 
-s = content_slide("エコノミクス：直近の四半期と通年", "棒の数字は売上を100としたときの割合（%）。金額は期間名の下　※税抜、フラワーボックスは含まない" + PH)
+s = content_slide("エコノミクス：直近の四半期と通年", "棒の数字は売上を100としたときの割合（%）。金額は期間名の下　※税抜、ボックス等は含まない")
 for k, (key, x) in enumerate((("q", 150), ("fy", 640))):
     e = PERIODS[key]["e"]
     waterfall(s, x, PERIODS[key]["label"], [("原価等", e["COGS"]), ("広告費", e["AD"]), ("人件費", e["LABOR"]), ("拠点費", e["OTHER"])],
@@ -241,7 +241,7 @@ footnote(s, "※ 原価等＝商品原価・送料・資材・決済手数料（
             "人件費・拠点費は仮置き（月" + f"{FIXED['LABOR']:.1f}／{FIXED['RENT']:.1f}百万円" + "）で、社内の集計に差し替える前提")
 
 # ---- 主要指標（表）
-s = content_slide("エコノミクスの主要指標", "直近の四半期（26年7〜9月）と通年（26年9月期・25年9月期）　※税抜、フラワーボックスは含まない" + PH)
+s = content_slide("エコノミクスの主要指標", "直近の四半期（26年7〜9月）と通年（26年9月期・25年9月期）　※税抜、ボックス等は含まない")
 cols = ["q", "fy", "fy25"]
 cx2 = [56, 430, 650, 870]
 CW2 = 180
@@ -416,7 +416,7 @@ footnote(summary_slide, "※ 数値は税抜。用語の定義と集計の前提
 # =====================================================================
 # 章 03：中長期の可能性とシナジー
 # =====================================================================
-divider("03", "GROWTH & SYNERGY", "中長期の可能性とグループ内のシナジー", "卸仕入れサイトからの広がり、アンドフラワー／アンドプランツとの連携")
+divider("03", "GROWTH & SYNERGY", "中長期の可能性と事業間シナジー", "卸仕入れサイトからの広がり、アンドフラワー／アンドプランツとの連携")
 
 # ---- 中長期の可能性：卸仕入れサイトを起点に、花屋・植物屋向けのサービスを広げる
 s = content_slide("中長期の可能性：卸仕入れサイトを起点に広げる", "花屋・植物屋・事業者との取引接点を持つことで、仕入れ以外のサービスに展開できる")
@@ -449,8 +449,8 @@ text(s, 56, y0 + bh + 44, 1016, 120,
      size=17, bold=True, spacing=1.5)
 footnote(s, "※ 02〜04は構想段階。いずれも仕入れサイトの取引先と取引データを前提にしたサービスで、順序や時期は今後の検討による")
 
-# ---- グループ内のシナジー
-s = content_slide("グループ内のシナジー", "アンドフラワー・アンドプランツとの連携。現在すでに動いているものと、これから広げられるもの")
+# ---- 事業間シナジー
+s = content_slide("事業間シナジー", "アンドフラワー・アンドプランツとの連携。現在すでに動いているものと、これから広げられるもの")
 COLS = [
     ("アンドフラワー", FLOWER, [
         ("生花の仕入れ", "アンドフラワーの生花の仕入れを、ハナイチの仕入れ機能（市場・産地との取引）で担い、仕入れ量をまとめて仕入れ力を高める"),
@@ -481,7 +481,7 @@ for k, (name, col, items_) in enumerate(COLS):
 vline(s, 564, 150, 520)
 text(s, 56, 690, 1016, 60,
      ["生花の仕入れと余剰在庫の販売はすでに運用中。拠点・仕入れ・顧客を共有することで、",
-      "ハナイチ単体では吸収しにくい固定費を、グループ全体で薄められる"], size=17, bold=True, spacing=1.45)
+      "ハナイチ単体では吸収しにくい固定費を、事業間で薄められる"], size=17, bold=True, spacing=1.45)
 footnote(s, "※ 「現在」は運用中の連携、「今後」は構想。アンドフラワーの余剰在庫の販売は2026年5月末に開始")
 
 # ---- 用語と集計の前提

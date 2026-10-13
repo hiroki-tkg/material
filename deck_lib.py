@@ -255,7 +255,7 @@ def waterfall(s, x, name, steps, end_label, end_val, sales, color, lo=-40, unit=
     hline(s, x - 6, yv(0), bx + bw + 12 - x, MUTED)
     ly_ = yv(min(0.0, endp)) + 10 + (0 if endp >= 0 else 20)  # 0の線（赤字なら棒の下）のすぐ下に項目名
     for lx, lab, c, b in labels:
-        text(s, lx - 10, ly_, bw + 20, 44, lab, size=12, color=c, bold=b, align=PP_ALIGN.CENTER, spacing=1.2)
+        text(s, lx - 10, ly_, bw + 20, 44, lab.split("\n"), size=12, color=c, bold=b, align=PP_ALIGN.CENTER, spacing=1.2)
     return s
 
 
