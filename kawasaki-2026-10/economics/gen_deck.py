@@ -135,14 +135,14 @@ def sec():
 page('''
   <div class="cover">
     <div class="eyebrow">株式会社ギフティ様　ご参考資料</div>
-    <h1>川崎倉庫の収益性試算</h1>
+    <h1>川崎拠点の現状と収益性</h1>
     <div class="sub">2I 区画の現状と、単純3PL／高付加価値3PL／自社EC（AP&AF）の坪効率</div>
     <div class="meta">2026 年 10 月<br>株式会社 DOMUZ<br>髙木 弘貴</div>
   </div>
 ''','cover')
 
 # 2 構成
-toc=[('現状の整理','2階フロアで借りている床（2I）と、その使い方')]
+toc=[('現状の整理','2階フロアで借りている床（2I）、その使い方とキャパシティ')]
 if INCLUDE_ANALYSIS: toc.append(('現状の分析','AND FLOWER・ハナイチの FY2026 実績と、2I の貢献利益'))
 toc+=[('収益性の試算','単純3PL／高付加価値3PL／自社EC（AP&AF）を 1 坪あたりで比べる'),('今後の使い方','運用方針、閑散月を埋める効率化、2G を借りる判断')]
 page('<h1>本資料の構成</h1><div class="toc">'+"".join(f'<div class="toc-i"><div class="n">{i}</div><div><div class="t">a</div><div class="s">{s}</div></div></div>'.replace('>a<',f'>{n}<') for i,(n,s) in enumerate(toc,1))+'</div><p class="note">※ 用語と集計の前提は最終ページにまとめています</p>')
@@ -192,7 +192,7 @@ page(f'''
       <p class="unit">※税抜</p>
     </div>
   </div>
-  <p class="note">※ 2I と 2G は同じフロアの左側で隣接し、2G は 2I の約 1.9 倍。2G の坪単価・契約条件は提示待ちで、確定したら置き換える。2D（384.27 坪）のうちギフティ社が使う部分の坪数は要確認</p>
+  <p class="note">※ 2I と 2G は同じフロアの左側で隣接し、2G は 2I の約 1.9 倍。2G の坪単価・契約条件は交渉中。2D（384.27 坪）のうちギフティ社が使う部分の坪数は要確認</p>
 ''')
 
 # 6 2I の使い方
@@ -221,6 +221,47 @@ page(f'''
   <p class="note">※ 床を使う主体は AND FLOWER の発送（ブーケ制作、梱包、資材、出荷待ち）。イネイブラー案件（パパブブレ等の同梱）も同じ作業スペースを使う。冷蔵庫だけが固定設備で、ほかは繁閑で入れ替わる（母の日の 2 か月は資材と出荷待ちが通路まで広がり、閑散期は作業台が空く）</p>
   <p class="note" style="margin-top:4px">※ イネイブラー案件（ギフトカード、コーヒー、スイーツ等）は実施時期によって変動するが、床の使い方は AND FLOWER と同等とみなす</p>
 ''', id='usage')
+
+
+# 現状のキャパシティ（発送日ベースの日次発送商品数、26年4月27日〜5月15日）
+CAP_L = ['4/27','4/28','4/29','4/30','5/1','5/2','5/3','5/4','5/5','5/6','5/7','5/8','5/9','5/10','5/11','5/12','5/13','5/14','5/15']
+CAP_V = [545,456,165,605,552,265,411,317,655,1259,2467,2778,4039,161,656,491,448,514,520]
+CAP_MAX = max(CAP_V); CAP_DAY = CAP_L[CAP_V.index(CAP_MAX)]
+HA_QUOTA = 800   # ハナイチ 出荷枠の上限（本／日）。管理画面の出荷枠（26年10月）の最大値
+FREE_T = T2I - COLD  # 冷蔵庫を除く床
+c_cap_day = bars(920, 290, CAP_L, [('発送商品数',CAP_V,PINK)], lambda v: f"{round(v):,}", lambda v: f"{round(v):,}")
+page(f'''
+  <h1>現状のキャパシティ</h1>
+  <p class="sub">最大は母の日前日（26 年 5 月 9 日）の {CAP_MAX:,} 点／日。これを現状の床と体制の上限と仮定する</p>
+  <p class="cap">AND FLOWER の日次発送商品数（全チャネル、発送日ベース）　26 年 4 月 27 日〜 5 月 15 日　単位：点／日</p>
+  {c_cap_day}
+  <div class="kpis" style="margin-top:14px">
+    <div class="kpi"><div class="l">1 日の最大発送数（AND FLOWER）</div><div class="v">{CAP_MAX:,}<small>点／日</small></div><div class="d">26 年 5 月 9 日（土）。うち Shopify 3,892 点、法人 45 点、楽天 49 点、Amazon 53 点</div></div>
+    <div class="kpi"><div class="l">坪あたり（AND FLOWER の床 {AF_T:.2f} 坪）</div><div class="v">{CAP_MAX/AF_T:,.1f}<small>点／坪／日</small></div><div class="d">冷蔵庫（キーパー）は共用のため除いて計算</div></div>
+    <div class="kpi"><div class="l">ハナイチの出荷枠（上限）</div><div class="v">{HA_QUOTA:,}<small>本／日</small></div><div class="d">管理画面の出荷枠の最大値（26 年 10 月）。{HA_QUOTA/HA_T:,.1f} 本／坪／日（{HA_T:.2f} 坪）</div></div>
+  </div>
+  <p class="st">母の日前日は平常日（約 500 点）の <b class="hl pk">約 8 倍</b>。この日を回せた床と体制が、現状の上限</p>
+  <p class="note">※ 受注管理システムの「チャネル別 発送商品数」（発送日ベース。Amazon のみ注文日）。Shopify には AND PLANTS の商品が一部含まれる。ハナイチの出荷枠は仕入と人員で日ごとに設定しており、床だけの制約ではない</p>
+''', 'af', id='cap')
+
+# 振り切った場合のシミュレーション
+AF_FULL = CAP_MAX/AF_T*FREE_T; HA_FULL = HA_QUOTA/HA_T*FREE_T
+sim = hbars([('AND FLOWER のみ', AF_FULL, PINK, f'{CAP_MAX/AF_T:,.1f} 点／坪／日 × {FREE_T:.2f} 坪'),('ハナイチのみ', HA_FULL, YEL, f'{HA_QUOTA/HA_T:,.1f} 本／坪／日 × {FREE_T:.2f} 坪')]).replace('+','')
+page(f'''
+  <h1>キャパシティのシミュレーション</h1>
+  <p class="sub">冷蔵庫を除く {FREE_T:.2f} 坪を 1 つの事業に振り切ると、AND FLOWER なら {AF_FULL:,.0f} 点／日、ハナイチなら {HA_FULL:,.0f} 本／日</p>
+  <p class="cap">現状の坪あたりの最大発送数に、振り切った場合の床を掛けた値　単位：点（本）／日</p>
+  <table class="tb" style="margin-top:6px">
+    <thead><tr><th></th><th class="r">現状の床（坪）</th><th class="r">現状の最大（／日）</th><th class="r">坪あたり（／坪／日）</th><th class="r">振り切った場合の床（坪）</th><th class="r">発送可能数（／日）</th></tr></thead>
+    <tbody>
+      <tr><td><i class="sw" style="background:{PINK}"></i>AND FLOWER のみ</td><td class="r">{AF_T:.2f}</td><td class="r">{CAP_MAX:,} 点</td><td class="r">{CAP_MAX/AF_T:,.1f}</td><td class="r">{FREE_T:.2f}</td><td class="r"><b>{AF_FULL:,.0f} 点</b></td></tr>
+      <tr><td><i class="sw" style="background:{YEL}"></i>ハナイチのみ</td><td class="r">{HA_T:.2f}</td><td class="r">{HA_QUOTA:,} 本</td><td class="r">{HA_QUOTA/HA_T:,.1f}</td><td class="r">{FREE_T:.2f}</td><td class="r"><b>{HA_FULL:,.0f} 本</b></td></tr>
+    </tbody>
+  </table>
+  <div style="margin-top:28px"><div class="hbt">振り切った場合の 1 日あたり発送可能数</div>{sim}</div>
+  <p class="st">AND FLOWER は現状の約 1.3 倍、ハナイチは現状の約 4.3 倍まで伸ばせる。<b class="hl">床よりも先に、人員と仕入（花材）が上限になる</b></p>
+  <p class="note">※ 坪あたりの密度が床の広さに比例して保てる前提。人員・作業台・冷蔵庫（共用 18 坪）は振り切った側に合わせて増やす必要がある。ハナイチは本数ベース（1 注文あたり平均 20〜30 本）</p>
+''', 'ha', id='sim')
 
 # 7 章扉
 page(f'<div class="num">{{SEC}}</div><div class="lab">CURRENT PERFORMANCE</div><div class="t">現状の分析</div><div class="s">AND FLOWER・ハナイチの FY2026 実績と、2I の貢献利益</div>','divider', skip=not INCLUDE_ANALYSIS)
@@ -340,8 +381,9 @@ page(f'''
     <div class="sum-i"><div class="n">1</div><div><div class="t">現状の配分を基本にする</div>
       <ul><li>冷蔵庫（キーパー）18 坪は固定。ハナイチは全体の 20% までを上限に運用し、残りは AND FLOWER の水揚げ・製作・梱包・資材管理・出荷待ち商品に使う</li></ul></div></div>
     <div class="sum-i"><div class="n">2</div><div><div class="t">イネイブラーは高付加価値な部分だけを当社の倉庫でやる</div>
-      <ul><li>花オプション・ギフト同梱など、花の扱いや製作作業が付く案件は当社の倉庫で受ける（AND FLOWER と同じ床・同じ人員）</li>
-      <li>汎用3PL の商材（保管して出すだけのもの）が来た場合は、基本的に当社の倉庫ではなく <b class="hl">SGL にお願いする</b>。坪あたり貢献利益が家賃をようやく賄う水準で、床を使うほど利益が薄くなるため（P.{{P:tsubo}}）</li></ul></div></div>
+      <ul><li>現状はカードやスイーツなど在庫がそれほど多くないものが中心のため、AND FLOWER の一部として運用中</li>
+      <li>汎用的な倉庫業務（保管して出すだけの仕事）は、基本的に <b class="hl">佐川急便（SGL）に委託する前提</b>。当社の倉庫でやるのは、花の扱いや製作作業が付く高付加価値な部分だけ</li>
+      <li>坪単価 7,200〜7,300 円前後の倉庫を借りている理由は、<b class="hl">クオリティの高い花の制作と発送を実現するため</b>。汎用3PL は坪あたり貢献利益が家賃をようやく賄う水準で、この床を使う理由にならない（P.{{P:tsubo}}）</li></ul></div></div>
     <div class="sum-i"><div class="n">3</div><div><div class="t">空いた床は高付加価値3PL で埋め、足りなくなったら 2G を借りる</div>
       <ul><li>閑散月の空き能力（月 {fmt(slackAvg)} 件）を高付加価値3PL で埋める。それでも足りない段階で、高付加価値3PL と AND FLOWER の繁忙期増産を前提に 2G を借りる</li></ul></div></div>
   </div>
@@ -509,13 +551,13 @@ html=f'''<!doctype html>
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>川崎倉庫の収益性試算</title>
+<title>川崎拠点の現状と収益性</title>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;700&family=Noto+Sans+JP:wght@400;700&display=swap">
 <style>{CSS}</style>
 </head>
 <body>
 <header>
-<h1>株式会社ギフティ様　ご参考資料　川崎倉庫の収益性試算</h1>
+<h1>株式会社ギフティ様　ご参考資料　川崎拠点の現状と収益性</h1>
 <p>2026.10　株式会社Domuz　全{N}ページ</p>
 </header>
 <main>
