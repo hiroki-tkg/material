@@ -3,7 +3,7 @@
 同じ見た目で生成する。数字とグラフ（インラインSVG）はここで計算する。
 実行: python3 gen_deck.py  → giftee_kawasaki_economics_2026-10.html
 """
-import os, json, math
+import os, json, math, re
 ROOT = os.path.dirname(os.path.abspath(__file__))
 OUT = os.path.join(ROOT, 'giftee_kawasaki_economics_2026-10.html')
 PLAN = json.load(open(os.path.join(ROOT, '..', 'assets', 'images.json')))['plan']
@@ -121,9 +121,15 @@ c_ha = bars(920, 300, L, [('売上',HA_S,'var(--yellow-lt)'),('粗利',HA_G,YEL)
 c_cp = bars(600, 380, L, [('限界利益（AF＋ハナイチ）',MP,MINT),('貢献利益',CPm,'var(--line)','peaks')], lambda v: tri(v), lambda v: M(v,0), line=('人件費＋家賃',[l+RENT for l in LAB],lambda v: M(v),MOSS))
 c_cap = stacked(600, 380, L, AF_O, slack, PINK, 'var(--light)', lambda v: f"{round(v):,}")
 
+INCLUDE_SUMMARY = False    # サマリー（結論の先出し）を入れるか
+INCLUDE_ANALYSIS = False   # 第2章「現状の分析」（AF・ハナイチ月次、貢献利益）を入れるか
 pages=[]
-def page(body, cls='', accent=None):
-    pages.append((cls, body, accent))
+def page(body, cls='', accent=None, id=None, skip=False):
+    if skip: return
+    pages.append((cls, body, accent, id))
+_sec=[0]
+def sec():
+    _sec[0]+=1; return f"{_sec[0]:02d}"
 
 # 1 表紙
 page('''
@@ -136,16 +142,10 @@ page('''
 ''','cover')
 
 # 2 構成
-page('''
-  <h1>本資料の構成</h1>
-  <div class="toc">
-    <div class="toc-i"><div class="n">1</div><div><div class="t">現状の整理</div><div class="s">2階フロアで借りている床（2I）と、その使い方</div></div></div>
-    <div class="toc-i"><div class="n">2</div><div><div class="t">現状の分析</div><div class="s">AND FLOWER・ハナイチの FY2026 実績と、2I の貢献利益</div></div></div>
-    <div class="toc-i"><div class="n">3</div><div><div class="t">収益性の試算</div><div class="s">単純3PL／高付加価値3PL／自社EC（AP&AF）を 1坪あたりで比べる</div></div></div>
-    <div class="toc-i"><div class="n">4</div><div><div class="t">今後の使い方</div><div class="s">運用方針、閑散月を埋める効率化、2G を借りる判断</div></div></div>
-  </div>
-  <p class="note">※ 用語と集計の前提は最終ページにまとめています</p>
-''')
+toc=[('現状の整理','2階フロアで借りている床（2I）と、その使い方')]
+if INCLUDE_ANALYSIS: toc.append(('現状の分析','AND FLOWER・ハナイチの FY2026 実績と、2I の貢献利益'))
+toc+=[('収益性の試算','単純3PL／高付加価値3PL／自社EC（AP&AF）を 1 坪あたりで比べる'),('今後の使い方','運用方針、閑散月を埋める効率化、2G を借りる判断')]
+page('<h1>本資料の構成</h1><div class="toc">'+"".join(f'<div class="toc-i"><div class="n">{i}</div><div><div class="t">a</div><div class="s">{s}</div></div></div>'.replace('>a<',f'>{n}<') for i,(n,s) in enumerate(toc,1))+'</div><p class="note">※ 用語と集計の前提は最終ページにまとめています</p>')
 
 # 3 サマリー
 page(f'''
@@ -162,10 +162,10 @@ page(f'''
       <li>2G（243.82 坪）は高付加価値3PL と AF の繁忙期増産で埋めれば、追加家賃 {man(GRENT)} を引いて <b class="hl">月 +{net/1e4:,.0f} 万円</b>。高付加価値3PL だけなら損益分岐 {fmt(be1)} 件／月</li></ul></div></div>
   </div>
   <p class="note">※ 数値は税抜、月次。限界利益＝売上−花材・資材・送料、粗利＝売上−仕入、貢献利益＝限界利益（粗利）−拠点人件費−家賃。3PL の単価と件数は仮置き</p>
-''')
+''', skip=not INCLUDE_SUMMARY)
 
 # 4 章扉
-page('<div class="num">01</div><div class="lab">CURRENT STATE</div><div class="t">現状の整理</div><div class="s">2階フロアで借りている床（2I）と、その使い方</div>','divider')
+page(f'<div class="num">{{SEC}}</div><div class="lab">CURRENT STATE</div><div class="t">現状の整理</div><div class="s">2階フロアで借りている床（2I）と、その使い方</div>','divider')
 
 # 5 区画図
 page(f'''
@@ -220,10 +220,10 @@ page(f'''
   </table>
   <p class="note">※ 床を使う主体は AND FLOWER の発送（ブーケ制作、梱包、資材、出荷待ち）。イネイブラー案件（パパブブレ等の同梱）も同じ作業スペースを使う。冷蔵庫だけが固定設備で、ほかは繁閑で入れ替わる（母の日の 2 か月は資材と出荷待ちが通路まで広がり、閑散期は作業台が空く）</p>
   <p class="note" style="margin-top:4px">※ イネイブラー案件（ギフトカード、コーヒー、スイーツ等）は実施時期によって変動するが、床の使い方は AND FLOWER と同等とみなす</p>
-''')
+''', id='usage')
 
 # 7 章扉
-page('<div class="num">02</div><div class="lab">CURRENT PERFORMANCE</div><div class="t">現状の分析</div><div class="s">AND FLOWER・ハナイチの FY2026 実績と、2I の貢献利益</div>','divider')
+page(f'<div class="num">{{SEC}}</div><div class="lab">CURRENT PERFORMANCE</div><div class="t">現状の分析</div><div class="s">AND FLOWER・ハナイチの FY2026 実績と、2I の貢献利益</div>','divider', skip=not INCLUDE_ANALYSIS)
 
 # 8 AF
 page(f'''
@@ -238,7 +238,7 @@ page(f'''
   </table>
   <p class="st">母の日の 4〜5 月で年間限界利益の <b class="hl pk">{(AF_M[6]+AF_M[7])/sum(AF_M)*100:.0f}%</b> を出し、最大月（5 月 {max(AF_O):,} 件）と最小月（7 月 {min(AF_O):,} 件）の差は注文数で {max(AF_O)/min(AF_O):.1f} 倍</p>
   <p class="note">※ 税抜・注文日ベース。受注管理システムの売上サマリー（AND FLOWER ブランド＝生花・ドライフラワー・スタンド花・胡蝶蘭など）。拠点を通らない直送品（スタンド花・胡蝶蘭の一部）を含む可能性があり、拠点通過分に絞る場合は下振れする。繁閑差＝限界利益の最大月 ÷ 最小月</p>
-''', 'af')
+''', 'af', skip=not INCLUDE_ANALYSIS)
 
 # 9 ハナイチ
 page(f'''
@@ -253,7 +253,7 @@ page(f'''
   </table>
   <p class="st">8〜9 月は月 {HA_O[-1]} 件と期前半の約 2 倍。粗利は月 {M(haRun)} 百万円で、期平均（{M(hag)} 百万円）から <b class="hl yl">+{M(e2)} 百万円</b> の水準にある</p>
   <p class="note">※ 税抜・注文日ベース。ハナイチ管理画面の売上推移。粗利＝売上−仕入（送料・資材・決済手数料は含まない）。拠点人件費は本資料では未反映</p>
-''', 'ha')
+''', 'ha', skip=not INCLUDE_ANALYSIS)
 
 # 10 貢献利益
 page(f'''
@@ -281,10 +281,10 @@ page(f'''
   </div>
   <p class="st">4〜5 月は貢献利益が月 11 百万円。閑散月（6〜7 月、1〜2 月）は 1 百万円を割り、<b class="hl rd">家賃と人件費をまかなう程度</b></p>
   <p class="note">※ AND FLOWER は {AF_T:.2f} 坪、ハナイチは 25.77 坪で割った値。2I 全体は冷蔵庫を含む 128.84 坪。ハナイチは拠点人件費が未反映のため上振れ。家賃は川崎 2I の 0.94 百万円のみ。26 年 9 月期の平均</p>
-''')
+''', skip=not INCLUDE_ANALYSIS)
 
 # 11 章扉
-page('<div class="num">03</div><div class="lab">SCENARIOS</div><div class="t">収益性の試算</div><div class="s">単純3PL／高付加価値3PL／自社EC（AP&AF）を 1 坪あたりで比べる</div>','divider')
+page(f'<div class="num">{{SEC}}</div><div class="lab">SCENARIOS</div><div class="t">収益性の試算</div><div class="s">単純3PL／高付加価値3PL／自社EC（AP&AF）を 1 坪あたりで比べる</div>','divider')
 
 # 12 3用途
 hb = hbars([(s['n'], s['cp'], c, s['d']) for s,c in zip(SC,[GRAY,MOSS,MINT])])
@@ -309,7 +309,7 @@ page(f'''
   </div>
   <p class="st">単純3PL は家賃をようやく賄う水準で、保管単価が 1 割下がれば赤字。<b class="hl">作業が付く高付加価値3PL</b> と、商品の粗利を含む自社EC が床を活かす</p>
   <p class="note">※ 単純3PL：保管 3,300 円／パレット／月 × 2 パレット／坪、出荷作業料 250 円／件 × 20 件／坪／月、作業 60 件／人／日（アルバイト 26 万円／人月・22 日 → 197 円／件）。高付加価値3PL：ギフト同梱・花オプション付き、限界利益 800 円／件（保冷実費除く）× 60 件／坪／月、作業 24 件／人／日（→ 492 円／件）。自社EC（AP&AF）：AND FLOWER の限界利益・人件費を {AF_T:.2f} 坪で割った実績値で、商品の粗利を含むためサービス料だけの 3PL とは性質が異なる</p>
-''')
+''', id='tsubo')
 
 # 13 2Gに当てはめた
 cond=['2 パレット／坪が常時埋まり、出荷 20 件／坪／月。保管単価が 1 割下がると赤字','月 14,600 件（60 件／坪 × 243.82 坪）の高付加価値案件の受注が前提','AND FLOWER の平均密度（22 件／坪／月）で床が埋まる需要が前提。繁閑差 5 倍のため年間では成立しない']
@@ -324,12 +324,12 @@ page(f'''
     <thead><tr><th>用途</th><th class="r">月額（円）</th><th class="r">年額（円）</th><th>成立条件</th></tr></thead>
     <tbody>{"".join(f'<tr><td>{s["n"]}</td><td class="r">{sg(s["cp"]*T2G)}</td><td class="r">{sg(s["cp"]*T2G*12)}</td><td class="g">{c}</td></tr>' for s,c in zip(SC,cond))}</tbody>
   </table>
-  <p class="st">2G を単一用途で埋める前提は現実的ではなく、<b class="hl">高付加価値3PL と AF の繁忙期増産の組み合わせ</b>で判断する（P.17）</p>
+  <p class="st">2G を単一用途で埋める前提は現実的ではなく、<b class="hl">高付加価値3PL と AF の繁忙期増産の組み合わせ</b>で判断する（P.{{P:g2}}）</p>
   <p class="note">※ 2G の家賃は 7,296 円／坪で仮置き。設備・什器・原状回復は含まない</p>
 ''')
 
 # 14 章扉
-page('<div class="num">04</div><div class="lab">NEXT STEPS</div><div class="t">今後の使い方</div><div class="s">運用方針、閑散月を埋める効率化、2G を借りる判断</div>','divider')
+page(f'<div class="num">{{SEC}}</div><div class="lab">NEXT STEPS</div><div class="t">今後の使い方</div><div class="s">運用方針、閑散月を埋める効率化、2G を借りる判断</div>','divider')
 
 # 15 運用方針
 page(f'''
@@ -341,7 +341,7 @@ page(f'''
       <ul><li>冷蔵庫（キーパー）18 坪は固定。ハナイチは全体の 20% までを上限に運用し、残りは AND FLOWER の水揚げ・製作・梱包・資材管理・出荷待ち商品に使う</li></ul></div></div>
     <div class="sum-i"><div class="n">2</div><div><div class="t">イネイブラーは高付加価値な部分だけを当社の倉庫でやる</div>
       <ul><li>花オプション・ギフト同梱など、花の扱いや製作作業が付く案件は当社の倉庫で受ける（AND FLOWER と同じ床・同じ人員）</li>
-      <li>汎用3PL の商材（保管して出すだけのもの）が来た場合は、基本的に当社の倉庫ではなく <b class="hl">SGL にお願いする</b>。坪あたり貢献利益が家賃をようやく賄う水準で、床を使うほど利益が薄くなるため（P.12）</li></ul></div></div>
+      <li>汎用3PL の商材（保管して出すだけのもの）が来た場合は、基本的に当社の倉庫ではなく <b class="hl">SGL にお願いする</b>。坪あたり貢献利益が家賃をようやく賄う水準で、床を使うほど利益が薄くなるため（P.{{P:tsubo}}）</li></ul></div></div>
     <div class="sum-i"><div class="n">3</div><div><div class="t">空いた床は高付加価値3PL で埋め、足りなくなったら 2G を借りる</div>
       <ul><li>閑散月の空き能力（月 {fmt(slackAvg)} 件）を高付加価値3PL で埋める。それでも足りない段階で、高付加価値3PL と AND FLOWER の繁忙期増産を前提に 2G を借りる</li></ul></div></div>
   </div>
@@ -409,7 +409,7 @@ page(f'''
     </div>
   </div>
   <p class="st"><b class="hl">「埋め方」が決まれば借りてよい。</b>2I の効率化と合わせると拠点全体で月 {(eff+net)/1e4:,.0f} 万円（年 {(eff+net)*12/1e6:,.1f} 百万円）</p>
-''')
+''', id='g2')
 
 # 17 まとめ
 page(f'''
@@ -427,7 +427,7 @@ page(f'''
     <div style="flex:1">
       <div class="h2">次に確定する数字</div>
       <ul class="pts">
-        <li>ハナイチ・AND FLOWER の実測坪数（P.6 の配分を置き換える。冷蔵庫は 18 坪で確定）</li>
+        <li>ハナイチ・AND FLOWER の実測坪数（P.{{P:usage}} の配分を置き換える。冷蔵庫は 18 坪で確定）</li>
         <li>2G の提示坪単価・契約期間・原状回復条件</li>
         <li>2D のうちギフティ社が利用する坪数と、共同で使える設備（冷蔵・作業台）の有無</li>
         <li>高付加価値3PL の受注見込み件数（平常月ベース）と 1 件あたり単価</li>
@@ -443,7 +443,11 @@ page('<h1>用語と集計の前提</h1><table class="tb terms"><tbody>'+"".join(
 
 # ---------------- HTML ----------------
 N=len(pages); secs=[]
-for i,(cls,body,acc) in enumerate(pages,1):
+PID={pid:i for i,(_,_,_,pid) in enumerate(pages,1) if pid}
+secno=0
+for i,(cls,body,acc,_) in enumerate(pages,1):
+    if cls=='divider': secno+=1; body=body.replace('{SEC}', f'{secno:02d}')
+    body=re.sub(r'\{\{?P:(\w+)\}\}?', lambda m: str(PID[m.group(1)]), body)
     style=f' style="--accent:{acc}"' if acc else ''
     pn='' if cls in ('cover','divider') else f'<div class="pn">{i}</div>'
     secs.append(f'<section class="slide {cls}"{style}>{body}{pn}</section>')
@@ -465,7 +469,7 @@ main{max-width:1040px;margin:0 auto;padding:8px 16px 48px;display:grid;gap:20px}
 h1{font-size:32px;font-weight:700;letter-spacing:.03em;line-height:1.35;margin:0 0 8px}
 .sub{font-size:19px;font-weight:700;color:var(--moss);margin:0 0 6px;line-height:1.5}
 .cap{font-size:14px;color:var(--gray);margin:0 0 14px;line-height:1.5}
-.cover{margin:auto 0 0;padding:0 0 46px 104px} .cover .eyebrow{font-size:22px;margin-bottom:36px} .cover h1{font-size:52px;letter-spacing:.06em;margin-bottom:24px}
+.cover{margin:auto 0 0;padding:0 0 46px 48px} .cover .eyebrow{font-size:22px;margin-bottom:36px} .cover h1{font-size:52px;letter-spacing:.06em;margin-bottom:24px}
 .cover .sub{font-size:21px;font-weight:400;color:var(--gray);letter-spacing:.06em;margin-bottom:120px} .cover .meta{font-size:19px;color:var(--gray);line-height:2.1}
 .toc{margin-top:56px;padding:0 24px} .toc-i{display:flex;gap:28px;align-items:flex-start;padding:22px 0;border-bottom:1px solid var(--line2)} .toc-i:last-child{border-bottom:0}
 .toc .n{font-size:42px;font-weight:700;color:var(--accent);line-height:1;width:44px} .toc .t{font-size:30px;font-weight:700;letter-spacing:.04em;margin-bottom:6px} .toc .s{font-size:18px;color:var(--gray)}
