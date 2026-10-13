@@ -242,8 +242,8 @@ page(f'''
   {c_cap_day}
   <div class="kpis" style="margin-top:14px">
     <div class="kpi"><div class="l">母の日前日の発送数（過去実績の最大）</div><div class="v">{CAP_MAX:,}<small>件／日</small></div><div class="d">26 年 5 月 9 日（土）の花チーム。全発送チーム合計は {CAP_ALL_MAX:,} 件</div></div>
-    <div class="kpi"><div class="l">坪あたりの発送数（{CAP_MAX:,} 件 ÷ {AF_T:.2f} 坪）</div><div class="v">{CAP_MAX/AF_T:,.1f}<small>件／坪／日</small></div><div class="d">AND FLOWER が使っている床で割った値。冷蔵庫（キーパー）は共用のため除く</div></div>
-    <div class="kpi"><div class="l">{FREE_T:.2f} 坪に振り切った場合（{CAP_MAX/AF_T:,.1f} × {FREE_T:.2f}）</div><div class="v">{CAP_MAX/AF_T*FREE_T:,.0f}<small>件／日</small></div><div class="d">冷蔵庫を除く床（128.84 − 18）をすべて AND FLOWER に使い、同じ密度で発送した場合</div></div>
+    <div class="kpi"><div class="l">坪あたり（{CAP_MAX:,} ÷ {AF_T:.2f} 坪）</div><div class="v">{CAP_MAX/AF_T:,.1f}<small>件／坪／日</small></div><div class="d">AND FLOWER が使っている床で割った値。冷蔵庫（キーパー）は共用のため除く</div></div>
+    <div class="kpi"><div class="l">{FREE_T:.2f} 坪に振り切った場合</div><div class="v">{CAP_MAX/AF_T*FREE_T:,.0f}<small>件／日</small></div><div class="d">{CAP_MAX/AF_T:,.1f} × {FREE_T:.2f} 坪。冷蔵庫を除く床（128.84 − 18）をすべて AND FLOWER に使い、同じ密度で発送した場合</div></div>
   </div>
   <p class="st">母の日の週は全発送チームで {sum(CAP_ALL):,} 件、うち花チーム {sum(CAP_V):,} 件。ピークの 5 月 9 日は <b class="hl pk">花チームだけで {CAP_MAX:,} 件</b>。これが現状の最大発送実績</p>
   <p class="note">※ 社内の発送実績（発送チーム別、発送日ベース）。花チーム＝AND FLOWER の制作・発送。全発送チーム合計には AND PLANTS など他チームの発送を含む</p>
