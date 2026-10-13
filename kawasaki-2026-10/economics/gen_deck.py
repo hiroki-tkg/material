@@ -183,7 +183,7 @@ page(f'''
         <thead><tr><th>区画</th><th class="r">坪</th><th class="r">坪単価（円／坪／月）</th><th class="r">月額（円）</th><th class="r">年額（円）</th></tr></thead>
         <tbody>
           <tr><td>2I（当社・現在）</td><td class="r">128.84</td><td class="r">7,296</td><td class="r">{fmt(RENT)}</td><td class="r">{fmt(RENT*12)}</td></tr>
-          <tr><td class="in">うち冷蔵庫（キーパー）59.52㎡　6.4m × 9.3m</td><td class="r">18.00</td><td class="r">7,296</td><td class="r">{fmt(UNIT*COLD)}</td><td class="r">{fmt(UNIT*COLD*12)}</td></tr>
+          <tr><td class="in">　うち冷蔵庫（キーパー）59.52㎡　6.4m × 9.3m</td><td class="r">18.00</td><td class="r">7,296</td><td class="r">{fmt(UNIT*COLD)}</td><td class="r">{fmt(UNIT*COLD*12)}</td></tr>
           <tr><td>2G（交渉中）</td><td class="r">243.82</td><td class="r">7,296（仮置き）</td><td class="r">{fmt(GRENT)}</td><td class="r">{fmt(GRENT*12)}</td></tr>
           <tr class="tot"><td>2I ＋ 2G</td><td class="r">372.66</td><td class="r">7,296（仮置き）</td><td class="r">{fmt(RENT+GRENT)}</td><td class="r">{fmt((RENT+GRENT)*12)}</td></tr>
           <tr><td>2D の一部（ギフティ社）</td><td class="r">要確認</td><td class="r">—</td><td class="r">—</td><td class="r">—</td></tr>
@@ -216,6 +216,7 @@ page(f'''
     <tbody>{rows}<tr class="tot"><td>合計</td><td class="r">{T2I:.2f}</td><td class="r">100%</td><td class="r">{fmt(RENT)}</td><td></td></tr></tbody>
   </table>
   <p class="note">※ 床を使う主体は AND FLOWER の発送（ブーケ制作、梱包、資材、出荷待ち）。イネイブラー案件（パパブブレ等の同梱）も同じ作業スペースを使う。冷蔵庫だけが固定設備で、ほかは繁閑で入れ替わる（母の日の 2 か月は資材と出荷待ちが通路まで広がり、閑散期は作業台が空く）</p>
+  <p class="note" style="margin-top:4px">※ イネイブラー案件（ギフトカード、コーヒー、スイーツ等）は実施時期によって変動するが、床の使い方は AND FLOWER と同等とみなす</p>
 ''')
 
 # 7 章扉
