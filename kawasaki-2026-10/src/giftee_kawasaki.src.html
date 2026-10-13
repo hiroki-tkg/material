@@ -1,0 +1,646 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<title>ギフティ様_川崎倉庫の収益性試算_20261013</title>
+<!-- OUT: ギフティ様_川崎倉庫の収益性試算_20261013.html -->
+<!--
+  Domuz デザインシステム v2.1 準拠（proposal-materials/.claude/knowledge/design_system/domuz_design_system.md）。
+  4:3 1128×846px。1 <section class="page"> = 1スライド。色は var(--…) のみ。
+  このファイルは gen_src.py が生成する。数字・グラフを直すときは gen_src.py を直して再生成し、
+  `python3 build.py --pdf` で最終HTML/PDFを作る。
+-->
+<style>
+  /* @@BASE@@ */
+
+  /* ===== この資料だけの型 ===== */
+  .plan { position: relative; width: 100%; aspect-ratio: 1722 / 790; border-radius: 6px; overflow: hidden;
+          background-color: var(--bg-white); background-size: contain; background-repeat: no-repeat; background-position: center; border: 1px solid var(--border-light); }
+  .ov { position: absolute; box-sizing: border-box; border-radius: 3px; }
+  .ov.solid { border: 2.5px solid var(--border-strong); background: rgba(0,67,71,0.14); }
+  .ov.dash  { border: 2px dashed var(--border-strong); background: rgba(0,67,71,0.06); }
+  .ov.fill  { border: 2px solid var(--text-secondary); background: rgba(203,208,211,0.55); }
+  .ov > .badge { position: absolute; left: -2px; top: -2px; transform: translateY(-100%); white-space: nowrap; margin-bottom: 0; }
+  .stackbar { display: flex; width: 100%; height: 56px; border-radius: var(--radius); overflow: hidden; border: 1px solid var(--border-light); }
+  .stackbar .seg { display: flex; align-items: center; justify-content: center; min-width: 0; overflow: hidden; white-space: nowrap; font-size: 11.5px; font-weight: 600; letter-spacing: 0; }
+  table th { white-space: nowrap; }
+  .stackbar .seg + .seg { border-left: 2px solid var(--bg-white); }
+  .seg.w, .sw.w { background: var(--brand-primary); color: var(--text-on-fill); }
+  .seg.m, .sw.m { background: var(--bg-gray); color: var(--text-primary); }
+  .seg.c, .sw.c { background: var(--bg-cream); color: var(--text-primary); }
+  .seg.o, .sw.o { background: var(--bg-white); color: var(--text-primary); box-shadow: inset 0 0 0 1.5px var(--border-strong); }
+  .seg.l, .sw.l { background: var(--bg-light); color: var(--text-primary); }
+  .sw { display: inline-block; width: 12px; height: 12px; border-radius: 2px; margin-right: 8px; vertical-align: -1px; border: 1px solid var(--border-light); }
+  .hbars-wide .hb-label { width: 128px; }
+  .hbars-wide .hb-total { width: 84px; }
+  .kpi .num { white-space: nowrap; font-size: 56px; }
+  .kpi .num small { font-family: var(--font-ja); }
+  table td.num { white-space: nowrap; }
+  table td .sub { font-weight: 400; }
+  .note.r { text-align: right; margin-top: 6px; }
+</style>
+</head>
+<body>
+
+<section class="page cover">
+  <div class="watermark">Domuz</div>
+  <div class="cover-eyebrow">REPORT</div>
+  <h1>ギフティ様<br>川崎倉庫の収益性試算</h1>
+  <div class="cover-en">KAWASAKI WAREHOUSE ECONOMICS</div>
+  <div class="cover-rule"></div>
+  <div class="cover-meta">2026年10月13日<br>株式会社Domuz　代表取締役　髙木 弘貴</div>
+  <div class="cover-brand en">AND FLOWER / HANAICHI</div>
+<div class="ft"><span>Copyright (C) Domuz inc, All Rights Reserved.</span><span>1</span></div></section>
+<section class="page ">
+  <div class="hd"><span>Domuz inc.</span><span>Confidential</span></div>
+  <div class="sec-label">- SUMMARY -</div>
+  <h2 class="page-title">結論：2I は稼いでいる。閑散月を埋め、2G は「埋め方」が決まれば借りる</h2>
+  <p class="page-title-sub">ラポール川崎SRC 2階の 2I 区画（128.84坪）を1つの器として見たときの収益性を、確定している数字と FY2026（2025年10月〜2026年9月）の実績から積み上げました。単位は円・税抜・月次です。</p>
+  <div class="body">
+  <div class="kpis">
+    <div class="kpi"><div class="label">2I の貢献利益（FY2026 平均）</div><div class="num">340<small>万円/月</small></div><div class="desc">年 4,079万円。家賃 94万円の 3.6倍、26,386円/坪/月</div></div>
+    <div class="kpi"><div class="label">効率化後の 2I 貢献利益</div><div class="num">450<small>万円/月</small></div><div class="desc">閑散月の空き能力を高付加価値3PLで埋め、ハナイチを直近水準に</div></div>
+    <div class="kpi"><div class="label">2G を借りた場合の増分</div><div class="num">+20<small>万円/月</small></div><div class="desc">追加家賃 178万円 を引いた後。高付加価値3PL だけなら損益分岐 5,354件/月</div></div>
+  </div>
+  <div class="box" style="margin-top:32px">
+    <ul class="dots">
+      <li><b>2I は家賃と人件費を引いても貢献利益が出ている。</b>FY2026 実績で月約340万円。ただし母の日の2か月に偏り、閑散月は家賃と人件費をまかなう程度。</li>
+      <li><b>同じ1坪でも用途で収益は大きく変わる。</b>単純3PL は +365円/坪/月、高付加価値3PL は +1.1万円、自社EC（AP&amp;AF）は +2.6万円。単純3PL に床は使わない。</li>
+      <li><b>今後は「閑散月を埋める」と「2G で床を増やす」の2段。</b>2I のままでも月約450万円まで。2G は高付加価値3PL と AF の繁忙期増産で埋めれば、追加家賃を引いてもプラス。</li>
+    </ul>
+  </div>
+  </div>
+  <p class="note">限界利益＝売上−花材・資材・送料（AND FLOWER）。粗利＝売上−仕入（ハナイチ）。貢献利益＝限界利益（粗利）−拠点人件費−家賃。出典：受注管理システムの売上サマリー、ハナイチ管理画面、事業計画 AP/AF 202610（人件費の計画値）。</p>
+<div class="ft"><span>Copyright (C) Domuz inc, All Rights Reserved.</span><span>2</span></div></section>
+<section class="page divider">
+  <div class="num">01</div>
+  <div class="title-en">Current State</div>
+  <div class="title-ja">現状の整理 — 借りている床と、その使い方</div>
+</section>
+<section class="page ">
+  <div class="hd"><span>Domuz inc.</span><span>Confidential</span></div>
+  <div class="sec-label">- FLOOR PLAN -</div>
+  <h2 class="page-title">2階フロアで 2I を借りている。2D の一部をギフティ様が利用予定、2G は交渉中</h2>
+  <p class="page-title-sub">区画の坪数は図面の専有面積。坪単価は 2I の契約値 7,296円で、2G は同単価で仮置きしています。</p>
+  <div class="body top">
+  <div class="cols" style="gap:32px">
+    <div class="col" style="flex:1.45">
+      <div class="plan im-plan">
+        <div class="ov dash" style="left:3.6%;top:36%;width:30.8%;height:14.6%"><span class="badge alt">2G　243.82坪 ・ 交渉中</span></div>
+        <div class="ov solid" style="left:3.4%;top:60%;width:8.5%;height:38.5%"><span class="badge">2I　128.84坪 ・ 当社利用中</span></div>
+        <div class="ov fill" style="left:57.2%;top:83.5%;width:8.4%;height:12.7%"><span class="badge alt">2D の一部 ・ ギフティ様 利用予定</span></div>
+      </div>
+      <p class="note">2I と 2G は同じフロアの左側で隣接し、2G は 2I の約1.9倍。2D（384.27坪）のうちギフティ様が使う部分の坪数は要確認。</p>
+    </div>
+    <div class="col">
+      <table>
+        <thead><tr><th>区画</th><th class="num">坪</th><th class="num">坪単価</th><th class="num">月額</th></tr></thead>
+        <tbody>
+          <tr><td>2I（当社・現在）</td><td class="num">128.84</td><td class="num">7,296</td><td class="num">940,017</td></tr>
+          <tr><td>　うち冷蔵庫 <span class="badge alt">坪数は要確認</span></td><td class="num">10.00</td><td class="num">7,296</td><td class="num">72,960</td></tr>
+          <tr><td>2G（交渉中・同単価で仮置き）</td><td class="num">243.82</td><td class="num">7,296</td><td class="num">1,778,911</td></tr>
+          <tr class="total"><td>2I ＋ 2G</td><td class="num">372.66</td><td class="num">7,296</td><td class="num">2,718,927</td></tr>
+          <tr><td>2D の一部（ギフティ様）</td><td class="num">要確認</td><td class="num">—</td><td class="num">—</td></tr>
+        </tbody>
+      </table>
+      <p class="note r">単位：円・月次・税抜</p>
+      <p class="note">年額では 2I 1,128万円、2G 2,135万円。2G の坪単価・契約条件は提示待ちで、確定したら置き換えます。</p>
+    </div>
+  </div>
+  </div>
+<div class="ft"><span>Copyright (C) Domuz inc, All Rights Reserved.</span><span>4</span></div></section>
+<section class="page ">
+  <div class="hd"><span>Domuz inc.</span><span>Confidential</span></div>
+  <div class="sec-label">- HOW WE USE 2I -</div>
+  <h2 class="page-title">2I の 128.84坪は、冷蔵庫・ハナイチ（上限20%）・AND FLOWER で使っている</h2>
+  <p class="page-title-sub">面積の配分ルール：冷蔵庫10坪は固定設備、ハナイチは 2I 全体の20%まで、残りは AND FLOWER（制作・梱包・資材・出荷待ち）。</p>
+  <div class="body top">
+  <div class="stackbar"><div class="seg w" style="flex:10.0"><span>冷蔵庫 10坪</span></div><div class="seg m" style="flex:25.768"><span>ハナイチ 26坪</span></div><div class="seg c" style="flex:93.072"><span>AND FLOWER 93坪</span></div></div>
+  <table style="margin-top:28px">
+    <thead><tr><th>用途</th><th class="num">坪</th><th class="num">比率</th><th class="num">家賃相当/月（円）</th><th>主な中身</th></tr></thead>
+    <tbody><tr><td><i class="sw w"></i>冷蔵庫</td><td class="num">10.00</td><td class="num">8%</td><td class="num">72,960</td><td>生花の鮮度保持（固定設備、坪数は要確認）</td></tr><tr><td><i class="sw m"></i>ハナイチ</td><td class="num">25.77</td><td class="num">20%</td><td class="num">188,003</td><td>生花の在庫・出荷（2I の20%を上限）</td></tr><tr><td><i class="sw c"></i>AND FLOWER</td><td class="num">93.07</td><td class="num">72%</td><td class="num">679,053</td><td>ブーケ制作、梱包、資材、出荷待ち、イネイブラー同梱</td></tr><tr class="total"><td>合計</td><td class="num">128.84</td><td class="num">100%</td><td class="num">940,017</td><td></td></tr></tbody>
+  </table>
+  <div class="box" style="margin-top:28px">
+    <ul class="dots">
+      <li>床を使う主体は AND FLOWER の発送（ブーケ制作、梱包、資材、出荷待ち）。イネイブラー案件（パパブブレ等の同梱）も同じ作業スペースを使う。</li>
+      <li>ハナイチは生花の在庫と出荷で、2I 全体の20%を上限に使う。超える分は AND FLOWER の床を圧迫するため、この上限で運用する。</li>
+      <li>冷蔵庫だけが固定設備で、ほかは繁閑で入れ替わる。母の日の2か月は資材と出荷待ちが通路まで広がり、閑散期は作業台が空く。</li>
+    </ul>
+  </div>
+  </div>
+<div class="ft"><span>Copyright (C) Domuz inc, All Rights Reserved.</span><span>5</span></div></section>
+<section class="page divider">
+  <div class="num">02</div>
+  <div class="title-en">Current Performance</div>
+  <div class="title-ja">現状の分析 — 2I から出ている売上と利益</div>
+</section>
+<section class="page ">
+  <div class="hd"><span>Domuz inc.</span><span>Confidential</span></div>
+  <div class="sec-label">- AND FLOWER -</div>
+  <h2 class="page-title">AND FLOWER は 2I から年 1.72億円を出荷。限界利益は年 85百万円</h2>
+  <p class="page-title-sub">FY2026（2025年10月〜2026年9月）の月次実績。注文日ベース・税抜。限界利益＝売上−花材・資材・送料。</p>
+  <div class="body top">
+  <div class="legend"><span><i style="background:var(--bg-gray);"></i>売上</span><span><i style="background:var(--brand-primary);"></i>限界利益</span></div>
+  <svg viewBox="0 0 1016 330" style="width:100%;height:auto;display:block" font-family="var(--font-en)" font-size="10">
+<line x1="56" x2="1008" y1="302.0" y2="302.0" stroke="var(--border-light)" stroke-width="1"/>
+<text x="50" y="305.5" text-anchor="end" fill="var(--text-secondary)">0</text>
+<line x1="56" x2="1008" y1="232.5" y2="232.5" stroke="var(--border-light)" stroke-width="1"/>
+<text x="50" y="236.0" text-anchor="end" fill="var(--text-secondary)">10</text>
+<line x1="56" x2="1008" y1="163.0" y2="163.0" stroke="var(--border-light)" stroke-width="1"/>
+<text x="50" y="166.5" text-anchor="end" fill="var(--text-secondary)">20</text>
+<line x1="56" x2="1008" y1="93.5" y2="93.5" stroke="var(--border-light)" stroke-width="1"/>
+<text x="50" y="97.0" text-anchor="end" fill="var(--text-secondary)">30</text>
+<line x1="56" x2="1008" y1="24.0" y2="24.0" stroke="var(--border-light)" stroke-width="1"/>
+<text x="50" y="27.5" text-anchor="end" fill="var(--text-secondary)">40</text>
+<text x="95.7" y="322" text-anchor="middle" fill="var(--text-secondary)" font-family="var(--font-ja)">10月</text>
+<text x="175.0" y="322" text-anchor="middle" fill="var(--text-secondary)" font-family="var(--font-ja)">11月</text>
+<text x="254.3" y="322" text-anchor="middle" fill="var(--text-secondary)" font-family="var(--font-ja)">12月</text>
+<text x="333.7" y="322" text-anchor="middle" fill="var(--text-secondary)" font-family="var(--font-ja)">1月</text>
+<text x="413.0" y="322" text-anchor="middle" fill="var(--text-secondary)" font-family="var(--font-ja)">2月</text>
+<text x="492.3" y="322" text-anchor="middle" fill="var(--text-secondary)" font-family="var(--font-ja)">3月</text>
+<text x="571.7" y="322" text-anchor="middle" fill="var(--text-secondary)" font-family="var(--font-ja)">4月</text>
+<text x="651.0" y="322" text-anchor="middle" fill="var(--text-secondary)" font-family="var(--font-ja)">5月</text>
+<text x="730.3" y="322" text-anchor="middle" fill="var(--text-secondary)" font-family="var(--font-ja)">6月</text>
+<text x="809.7" y="322" text-anchor="middle" fill="var(--text-secondary)" font-family="var(--font-ja)">7月</text>
+<text x="889.0" y="322" text-anchor="middle" fill="var(--text-secondary)" font-family="var(--font-ja)">8月</text>
+<text x="968.3" y="322" text-anchor="middle" fill="var(--text-secondary)" font-family="var(--font-ja)">9月</text>
+<rect x="67.1" y="200.2" width="26.6" height="101.8" fill="var(--bg-gray)"/>
+<text x="80.4" y="196.2" text-anchor="middle" fill="var(--text-primary)" font-weight="700" font-size="9.5">14.6</text>
+<rect x="146.4" y="200.7" width="26.6" height="101.3" fill="var(--bg-gray)"/>
+<text x="159.7" y="196.7" text-anchor="middle" fill="var(--text-primary)" font-weight="700" font-size="9.5">14.6</text>
+<rect x="225.8" y="219.5" width="26.6" height="82.5" fill="var(--bg-gray)"/>
+<text x="239.1" y="215.5" text-anchor="middle" fill="var(--text-primary)" font-weight="700" font-size="9.5">11.9</text>
+<rect x="305.1" y="218.4" width="26.6" height="83.6" fill="var(--bg-gray)"/>
+<text x="318.4" y="214.4" text-anchor="middle" fill="var(--text-primary)" font-weight="700" font-size="9.5">12.0</text>
+<rect x="384.4" y="229.9" width="26.6" height="72.1" fill="var(--bg-gray)"/>
+<text x="397.7" y="225.9" text-anchor="middle" fill="var(--text-primary)" font-weight="700" font-size="9.5">10.4</text>
+<rect x="463.8" y="200.8" width="26.6" height="101.2" fill="var(--bg-gray)"/>
+<text x="477.1" y="196.8" text-anchor="middle" fill="var(--text-primary)" font-weight="700" font-size="9.5">14.6</text>
+<rect x="543.1" y="110.5" width="26.6" height="191.5" fill="var(--bg-gray)"/>
+<text x="556.4" y="106.5" text-anchor="middle" fill="var(--text-primary)" font-weight="700" font-size="9.5">27.5</text>
+<rect x="622.4" y="93.0" width="26.6" height="209.0" fill="var(--bg-gray)"/>
+<text x="635.7" y="89.0" text-anchor="middle" fill="var(--text-primary)" font-weight="700" font-size="9.5">30.1</text>
+<rect x="701.8" y="243.8" width="26.6" height="58.2" fill="var(--bg-gray)"/>
+<text x="715.1" y="239.8" text-anchor="middle" fill="var(--text-primary)" font-weight="700" font-size="9.5">8.4</text>
+<rect x="781.1" y="250.6" width="26.6" height="51.4" fill="var(--bg-gray)"/>
+<text x="794.4" y="246.6" text-anchor="middle" fill="var(--text-primary)" font-weight="700" font-size="9.5">7.4</text>
+<rect x="860.4" y="239.7" width="26.6" height="62.3" fill="var(--bg-gray)"/>
+<text x="873.7" y="235.7" text-anchor="middle" fill="var(--text-primary)" font-weight="700" font-size="9.5">9.0</text>
+<rect x="939.8" y="223.8" width="26.6" height="78.2" fill="var(--bg-gray)"/>
+<text x="953.1" y="219.8" text-anchor="middle" fill="var(--text-primary)" font-weight="700" font-size="9.5">11.3</text>
+<rect x="95.7" y="257.8" width="26.6" height="44.2" fill="var(--brand-primary)"/>
+<text x="108.9" y="253.8" text-anchor="middle" fill="var(--text-primary)" font-weight="700" font-size="9.5">6.4</text>
+<rect x="175.0" y="256.3" width="26.6" height="45.7" fill="var(--brand-primary)"/>
+<text x="188.3" y="252.3" text-anchor="middle" fill="var(--text-primary)" font-weight="700" font-size="9.5">6.6</text>
+<rect x="254.3" y="265.5" width="26.6" height="36.5" fill="var(--brand-primary)"/>
+<text x="267.6" y="261.5" text-anchor="middle" fill="var(--text-primary)" font-weight="700" font-size="9.5">5.3</text>
+<rect x="333.7" y="265.8" width="26.6" height="36.2" fill="var(--brand-primary)"/>
+<text x="346.9" y="261.8" text-anchor="middle" fill="var(--text-primary)" font-weight="700" font-size="9.5">5.2</text>
+<rect x="413.0" y="269.9" width="26.6" height="32.1" fill="var(--brand-primary)"/>
+<text x="426.3" y="265.9" text-anchor="middle" fill="var(--text-primary)" font-weight="700" font-size="9.5">4.6</text>
+<rect x="492.3" y="255.8" width="26.6" height="46.2" fill="var(--brand-primary)"/>
+<text x="505.6" y="251.8" text-anchor="middle" fill="var(--text-primary)" font-weight="700" font-size="9.5">6.7</text>
+<rect x="571.7" y="195.0" width="26.6" height="107.0" fill="var(--brand-primary)"/>
+<text x="584.9" y="191.0" text-anchor="middle" fill="var(--text-primary)" font-weight="700" font-size="9.5">15.4</text>
+<rect x="651.0" y="180.0" width="26.6" height="122.0" fill="var(--brand-primary)"/>
+<text x="664.3" y="176.0" text-anchor="middle" fill="var(--text-primary)" font-weight="700" font-size="9.5">17.6</text>
+<rect x="730.3" y="273.9" width="26.6" height="28.1" fill="var(--brand-primary)"/>
+<text x="743.6" y="269.9" text-anchor="middle" fill="var(--text-primary)" font-weight="700" font-size="9.5">4.0</text>
+<rect x="809.7" y="277.6" width="26.6" height="24.4" fill="var(--brand-primary)"/>
+<text x="822.9" y="273.6" text-anchor="middle" fill="var(--text-primary)" font-weight="700" font-size="9.5">3.5</text>
+<rect x="889.0" y="272.2" width="26.6" height="29.8" fill="var(--brand-primary)"/>
+<text x="902.3" y="268.2" text-anchor="middle" fill="var(--text-primary)" font-weight="700" font-size="9.5">4.3</text>
+<rect x="968.3" y="264.4" width="26.6" height="37.6" fill="var(--brand-primary)"/>
+<text x="981.6" y="260.4" text-anchor="middle" fill="var(--text-primary)" font-weight="700" font-size="9.5">5.4</text>
+</svg>
+  <p class="note r">単位：百万円/月</p>
+  <div class="kpis" style="margin-top:12px">
+    <div class="kpi"><div class="label">年間売上</div><div class="num">1.72<small>億円</small></div><div class="desc">月平均 1,431万円</div></div>
+    <div class="kpi"><div class="label">年間限界利益</div><div class="num">85<small>百万円</small></div><div class="desc">限界利益率 49%、月平均 707万円</div></div>
+    <div class="kpi"><div class="label">年間注文数</div><div class="num">24,426<small>件</small></div><div class="desc">最大月 5月 4,480件、最小月 7月 1,069件</div></div>
+    <div class="kpi"><div class="label">繁閑差（限界利益）</div><div class="num">5.0<small>倍</small></div><div class="desc">母の日月 ÷ 閑散月</div></div>
+  </div>
+  </div>
+  <p class="note">受注管理システムの売上サマリー（AND FLOWER ブランド＝生花・ドライフラワー・スタンド花・胡蝶蘭など）。拠点を通らない直送品（スタンド花・胡蝶蘭の一部）を含む可能性があり、拠点通過分に絞る場合は下振れします。</p>
+<div class="ft"><span>Copyright (C) Domuz inc, All Rights Reserved.</span><span>7</span></div></section>
+<section class="page ">
+  <div class="hd"><span>Domuz inc.</span><span>Confidential</span></div>
+  <div class="sec-label">- HANAICHI -</div>
+  <h2 class="page-title">ハナイチは年 47百万円を出荷。直近2か月は注文数が2倍の水準</h2>
+  <p class="page-title-sub">FY2026（2025年10月〜2026年9月）の月次実績。注文日ベース・税抜。粗利＝売上−仕入。</p>
+  <div class="body top">
+  <div class="legend"><span><i style="background:var(--bg-gray);"></i>売上</span><span><i style="background:var(--brand-primary);"></i>粗利</span></div>
+  <svg viewBox="0 0 1016 330" style="width:100%;height:auto;display:block" font-family="var(--font-en)" font-size="10">
+<line x1="56" x2="1008" y1="302.0" y2="302.0" stroke="var(--border-light)" stroke-width="1"/>
+<text x="50" y="305.5" text-anchor="end" fill="var(--text-secondary)">0</text>
+<line x1="56" x2="1008" y1="232.5" y2="232.5" stroke="var(--border-light)" stroke-width="1"/>
+<text x="50" y="236.0" text-anchor="end" fill="var(--text-secondary)">2</text>
+<line x1="56" x2="1008" y1="163.0" y2="163.0" stroke="var(--border-light)" stroke-width="1"/>
+<text x="50" y="166.5" text-anchor="end" fill="var(--text-secondary)">4</text>
+<line x1="56" x2="1008" y1="93.5" y2="93.5" stroke="var(--border-light)" stroke-width="1"/>
+<text x="50" y="97.0" text-anchor="end" fill="var(--text-secondary)">6</text>
+<line x1="56" x2="1008" y1="24.0" y2="24.0" stroke="var(--border-light)" stroke-width="1"/>
+<text x="50" y="27.5" text-anchor="end" fill="var(--text-secondary)">8</text>
+<text x="95.7" y="322" text-anchor="middle" fill="var(--text-secondary)" font-family="var(--font-ja)">10月</text>
+<text x="175.0" y="322" text-anchor="middle" fill="var(--text-secondary)" font-family="var(--font-ja)">11月</text>
+<text x="254.3" y="322" text-anchor="middle" fill="var(--text-secondary)" font-family="var(--font-ja)">12月</text>
+<text x="333.7" y="322" text-anchor="middle" fill="var(--text-secondary)" font-family="var(--font-ja)">1月</text>
+<text x="413.0" y="322" text-anchor="middle" fill="var(--text-secondary)" font-family="var(--font-ja)">2月</text>
+<text x="492.3" y="322" text-anchor="middle" fill="var(--text-secondary)" font-family="var(--font-ja)">3月</text>
+<text x="571.7" y="322" text-anchor="middle" fill="var(--text-secondary)" font-family="var(--font-ja)">4月</text>
+<text x="651.0" y="322" text-anchor="middle" fill="var(--text-secondary)" font-family="var(--font-ja)">5月</text>
+<text x="730.3" y="322" text-anchor="middle" fill="var(--text-secondary)" font-family="var(--font-ja)">6月</text>
+<text x="809.7" y="322" text-anchor="middle" fill="var(--text-secondary)" font-family="var(--font-ja)">7月</text>
+<text x="889.0" y="322" text-anchor="middle" fill="var(--text-secondary)" font-family="var(--font-ja)">8月</text>
+<text x="968.3" y="322" text-anchor="middle" fill="var(--text-secondary)" font-family="var(--font-ja)">9月</text>
+<rect x="67.1" y="222.2" width="26.6" height="79.8" fill="var(--bg-gray)"/>
+<text x="80.4" y="218.2" text-anchor="middle" fill="var(--text-primary)" font-weight="700" font-size="9.5">2.3</text>
+<rect x="146.4" y="217.6" width="26.6" height="84.4" fill="var(--bg-gray)"/>
+<text x="159.7" y="213.6" text-anchor="middle" fill="var(--text-primary)" font-weight="700" font-size="9.5">2.4</text>
+<rect x="225.8" y="207.6" width="26.6" height="94.4" fill="var(--bg-gray)"/>
+<text x="239.1" y="203.6" text-anchor="middle" fill="var(--text-primary)" font-weight="700" font-size="9.5">2.7</text>
+<rect x="305.1" y="236.7" width="26.6" height="65.3" fill="var(--bg-gray)"/>
+<text x="318.4" y="232.7" text-anchor="middle" fill="var(--text-primary)" font-weight="700" font-size="9.5">1.9</text>
+<rect x="384.4" y="220.8" width="26.6" height="81.2" fill="var(--bg-gray)"/>
+<text x="397.7" y="216.8" text-anchor="middle" fill="var(--text-primary)" font-weight="700" font-size="9.5">2.3</text>
+<rect x="463.8" y="106.1" width="26.6" height="195.9" fill="var(--bg-gray)"/>
+<text x="477.1" y="102.1" text-anchor="middle" fill="var(--text-primary)" font-weight="700" font-size="9.5">5.6</text>
+<rect x="543.1" y="100.8" width="26.6" height="201.2" fill="var(--bg-gray)"/>
+<text x="556.4" y="96.8" text-anchor="middle" fill="var(--text-primary)" font-weight="700" font-size="9.5">5.8</text>
+<rect x="622.4" y="148.5" width="26.6" height="153.5" fill="var(--bg-gray)"/>
+<text x="635.7" y="144.5" text-anchor="middle" fill="var(--text-primary)" font-weight="700" font-size="9.5">4.4</text>
+<rect x="701.8" y="175.4" width="26.6" height="126.6" fill="var(--bg-gray)"/>
+<text x="715.1" y="171.4" text-anchor="middle" fill="var(--text-primary)" font-weight="700" font-size="9.5">3.6</text>
+<rect x="781.1" y="156.3" width="26.6" height="145.7" fill="var(--bg-gray)"/>
+<text x="794.4" y="152.3" text-anchor="middle" fill="var(--text-primary)" font-weight="700" font-size="9.5">4.2</text>
+<rect x="860.4" y="95.5" width="26.6" height="206.5" fill="var(--bg-gray)"/>
+<text x="873.7" y="91.5" text-anchor="middle" fill="var(--text-primary)" font-weight="700" font-size="9.5">5.9</text>
+<rect x="939.8" y="109.8" width="26.6" height="192.2" fill="var(--bg-gray)"/>
+<text x="953.1" y="105.8" text-anchor="middle" fill="var(--text-primary)" font-weight="700" font-size="9.5">5.5</text>
+<rect x="95.7" y="282.2" width="26.6" height="19.8" fill="var(--brand-primary)"/>
+<text x="108.9" y="278.2" text-anchor="middle" fill="var(--text-primary)" font-weight="700" font-size="9.5">0.6</text>
+<rect x="175.0" y="280.3" width="26.6" height="21.7" fill="var(--brand-primary)"/>
+<text x="188.3" y="276.3" text-anchor="middle" fill="var(--text-primary)" font-weight="700" font-size="9.5">0.6</text>
+<rect x="254.3" y="275.6" width="26.6" height="26.4" fill="var(--brand-primary)"/>
+<text x="267.6" y="271.6" text-anchor="middle" fill="var(--text-primary)" font-weight="700" font-size="9.5">0.8</text>
+<rect x="333.7" y="281.2" width="26.6" height="20.8" fill="var(--brand-primary)"/>
+<text x="346.9" y="277.2" text-anchor="middle" fill="var(--text-primary)" font-weight="700" font-size="9.5">0.6</text>
+<rect x="413.0" y="275.5" width="26.6" height="26.5" fill="var(--brand-primary)"/>
+<text x="426.3" y="271.5" text-anchor="middle" fill="var(--text-primary)" font-weight="700" font-size="9.5">0.8</text>
+<rect x="492.3" y="230.4" width="26.6" height="71.6" fill="var(--brand-primary)"/>
+<text x="505.6" y="226.4" text-anchor="middle" fill="var(--text-primary)" font-weight="700" font-size="9.5">2.1</text>
+<rect x="571.7" y="226.6" width="26.6" height="75.4" fill="var(--brand-primary)"/>
+<text x="584.9" y="222.6" text-anchor="middle" fill="var(--text-primary)" font-weight="700" font-size="9.5">2.2</text>
+<rect x="651.0" y="244.9" width="26.6" height="57.1" fill="var(--brand-primary)"/>
+<text x="664.3" y="240.9" text-anchor="middle" fill="var(--text-primary)" font-weight="700" font-size="9.5">1.6</text>
+<rect x="730.3" y="257.5" width="26.6" height="44.5" fill="var(--brand-primary)"/>
+<text x="743.6" y="253.5" text-anchor="middle" fill="var(--text-primary)" font-weight="700" font-size="9.5">1.3</text>
+<rect x="809.7" y="253.7" width="26.6" height="48.3" fill="var(--brand-primary)"/>
+<text x="822.9" y="249.7" text-anchor="middle" fill="var(--text-primary)" font-weight="700" font-size="9.5">1.4</text>
+<rect x="889.0" y="242.7" width="26.6" height="59.3" fill="var(--brand-primary)"/>
+<text x="902.3" y="238.7" text-anchor="middle" fill="var(--text-primary)" font-weight="700" font-size="9.5">1.7</text>
+<rect x="968.3" y="249.6" width="26.6" height="52.4" fill="var(--brand-primary)"/>
+<text x="981.6" y="245.6" text-anchor="middle" fill="var(--text-primary)" font-weight="700" font-size="9.5">1.5</text>
+</svg>
+  <p class="note r">単位：百万円/月</p>
+  <div class="kpis" style="margin-top:12px">
+    <div class="kpi"><div class="label">年間売上</div><div class="num">47<small>百万円</small></div><div class="desc">月平均 390万円</div></div>
+    <div class="kpi"><div class="label">年間粗利</div><div class="num">15.1<small>百万円</small></div><div class="desc">粗利率 32%、月平均 126万円</div></div>
+    <div class="kpi"><div class="label">年間注文数</div><div class="num">2,865<small>件</small></div><div class="desc">8〜9月は月 431件、FY 前半の約2倍</div></div>
+    <div class="kpi"><div class="label">直近2か月の粗利</div><div class="num">161<small>万円/月</small></div><div class="desc">FY2026 平均 126万円 に対し +35万円</div></div>
+  </div>
+  </div>
+  <p class="note">ハナイチ管理画面の売上推移。繁閑差（粗利の最大月 ÷ 最小月）は 3.8倍。</p>
+<div class="ft"><span>Copyright (C) Domuz inc, All Rights Reserved.</span><span>8</span></div></section>
+<section class="page ">
+  <div class="hd"><span>Domuz inc.</span><span>Confidential</span></div>
+  <div class="sec-label">- CONTRIBUTION -</div>
+  <h2 class="page-title">2I の貢献利益は月約340万円。坪あたりでは AND FLOWER 2.6万円、ハナイチ 4.1万円</h2>
+  <p class="page-title-sub">貢献利益＝限界利益（粗利）−拠点人件費−家賃。人件費は AND FLOWER 発送アルバイトの月次計画値。ハナイチの拠点人件費は未反映。</p>
+  <div class="body top">
+  <div class="cols" style="gap:32px">
+    <div class="col" style="flex:1.5">
+      <div class="legend"><span><i style="background:var(--brand-primary);"></i>限界利益（AF＋ハナイチ）</span><span><i style="background:var(--bg-cream);border:1px solid var(--border-light);"></i>貢献利益</span><span><i style="height:0;border-top:2px dashed var(--text-secondary);border-radius:0"></i>人件費＋家賃</span></div>
+      <svg viewBox="0 0 660 400" style="width:100%;height:auto;display:block" font-family="var(--font-en)" font-size="10">
+<line x1="56" x2="620" y1="372.0" y2="372.0" stroke="var(--border-light)" stroke-width="1"/>
+<text x="50" y="375.5" text-anchor="end" fill="var(--text-secondary)">0</text>
+<line x1="56" x2="620" y1="256.0" y2="256.0" stroke="var(--border-light)" stroke-width="1"/>
+<text x="50" y="259.5" text-anchor="end" fill="var(--text-secondary)">10</text>
+<line x1="56" x2="620" y1="140.0" y2="140.0" stroke="var(--border-light)" stroke-width="1"/>
+<text x="50" y="143.5" text-anchor="end" fill="var(--text-secondary)">20</text>
+<line x1="56" x2="620" y1="24.0" y2="24.0" stroke="var(--border-light)" stroke-width="1"/>
+<text x="50" y="27.5" text-anchor="end" fill="var(--text-secondary)">30</text>
+<text x="79.5" y="392" text-anchor="middle" fill="var(--text-secondary)" font-family="var(--font-ja)">10月</text>
+<text x="126.5" y="392" text-anchor="middle" fill="var(--text-secondary)" font-family="var(--font-ja)">11月</text>
+<text x="173.5" y="392" text-anchor="middle" fill="var(--text-secondary)" font-family="var(--font-ja)">12月</text>
+<text x="220.5" y="392" text-anchor="middle" fill="var(--text-secondary)" font-family="var(--font-ja)">1月</text>
+<text x="267.5" y="392" text-anchor="middle" fill="var(--text-secondary)" font-family="var(--font-ja)">2月</text>
+<text x="314.5" y="392" text-anchor="middle" fill="var(--text-secondary)" font-family="var(--font-ja)">3月</text>
+<text x="361.5" y="392" text-anchor="middle" fill="var(--text-secondary)" font-family="var(--font-ja)">4月</text>
+<text x="408.5" y="392" text-anchor="middle" fill="var(--text-secondary)" font-family="var(--font-ja)">5月</text>
+<text x="455.5" y="392" text-anchor="middle" fill="var(--text-secondary)" font-family="var(--font-ja)">6月</text>
+<text x="502.5" y="392" text-anchor="middle" fill="var(--text-secondary)" font-family="var(--font-ja)">7月</text>
+<text x="549.5" y="392" text-anchor="middle" fill="var(--text-secondary)" font-family="var(--font-ja)">8月</text>
+<text x="596.5" y="392" text-anchor="middle" fill="var(--text-secondary)" font-family="var(--font-ja)">9月</text>
+<rect x="62.6" y="291.7" width="14.9" height="80.3" fill="var(--brand-primary)"/>
+<text x="70.0" y="287.7" text-anchor="middle" fill="var(--text-primary)" font-weight="700" font-size="9.5">6.9</text>
+<rect x="109.6" y="288.5" width="14.9" height="83.5" fill="var(--brand-primary)"/>
+<text x="117.0" y="284.5" text-anchor="middle" fill="var(--text-primary)" font-weight="700" font-size="9.5">7.2</text>
+<rect x="156.6" y="302.2" width="14.9" height="69.8" fill="var(--brand-primary)"/>
+<text x="164.0" y="298.2" text-anchor="middle" fill="var(--text-primary)" font-weight="700" font-size="9.5">6.0</text>
+<rect x="203.6" y="304.6" width="14.9" height="67.4" fill="var(--brand-primary)"/>
+<text x="211.0" y="300.6" text-anchor="middle" fill="var(--text-primary)" font-weight="700" font-size="9.5">5.8</text>
+<rect x="250.6" y="309.6" width="14.9" height="62.4" fill="var(--brand-primary)"/>
+<text x="258.0" y="305.6" text-anchor="middle" fill="var(--text-primary)" font-weight="700" font-size="9.5">5.4</text>
+<rect x="297.6" y="270.9" width="14.9" height="101.1" fill="var(--brand-primary)"/>
+<text x="305.0" y="266.9" text-anchor="middle" fill="var(--text-primary)" font-weight="700" font-size="9.5">8.7</text>
+<rect x="344.6" y="168.3" width="14.9" height="203.7" fill="var(--brand-primary)"/>
+<text x="352.0" y="164.3" text-anchor="middle" fill="var(--text-primary)" font-weight="700" font-size="9.5">17.6</text>
+<rect x="391.6" y="149.3" width="14.9" height="222.7" fill="var(--brand-primary)"/>
+<text x="399.0" y="145.3" text-anchor="middle" fill="var(--text-primary)" font-weight="700" font-size="9.5">19.2</text>
+<rect x="438.6" y="310.2" width="14.9" height="61.8" fill="var(--brand-primary)"/>
+<text x="446.0" y="306.2" text-anchor="middle" fill="var(--text-primary)" font-weight="700" font-size="9.5">5.3</text>
+<rect x="485.6" y="315.1" width="14.9" height="56.9" fill="var(--brand-primary)"/>
+<text x="493.0" y="311.1" text-anchor="middle" fill="var(--text-primary)" font-weight="700" font-size="9.5">4.9</text>
+<rect x="532.6" y="302.5" width="14.9" height="69.5" fill="var(--brand-primary)"/>
+<text x="540.0" y="298.5" text-anchor="middle" fill="var(--text-primary)" font-weight="700" font-size="9.5">6.0</text>
+<rect x="579.6" y="291.8" width="14.9" height="80.2" fill="var(--brand-primary)"/>
+<text x="587.0" y="287.8" text-anchor="middle" fill="var(--text-primary)" font-weight="700" font-size="9.5">6.9</text>
+<rect x="79.5" y="342.6" width="14.9" height="29.4" fill="var(--bg-cream)" stroke="var(--border-light)" stroke-width="1"/>
+<text x="87.0" y="338.6" text-anchor="middle" fill="var(--text-primary)" font-weight="700" font-size="9.5">2.5</text>
+<rect x="126.5" y="339.4" width="14.9" height="32.6" fill="var(--bg-cream)" stroke="var(--border-light)" stroke-width="1"/>
+<text x="134.0" y="335.4" text-anchor="middle" fill="var(--text-primary)" font-weight="700" font-size="9.5">2.8</text>
+<rect x="173.5" y="353.1" width="14.9" height="18.9" fill="var(--bg-cream)" stroke="var(--border-light)" stroke-width="1"/>
+<text x="181.0" y="349.1" text-anchor="middle" fill="var(--text-primary)" font-weight="700" font-size="9.5">1.6</text>
+<rect x="220.5" y="355.5" width="14.9" height="16.5" fill="var(--bg-cream)" stroke="var(--border-light)" stroke-width="1"/>
+<text x="228.0" y="351.5" text-anchor="middle" fill="var(--text-primary)" font-weight="700" font-size="9.5">1.4</text>
+<rect x="267.5" y="360.5" width="14.9" height="11.5" fill="var(--bg-cream)" stroke="var(--border-light)" stroke-width="1"/>
+<text x="275.0" y="356.5" text-anchor="middle" fill="var(--text-primary)" font-weight="700" font-size="9.5">1.0</text>
+<rect x="314.5" y="330.5" width="14.9" height="41.5" fill="var(--bg-cream)" stroke="var(--border-light)" stroke-width="1"/>
+<text x="322.0" y="326.5" text-anchor="middle" fill="var(--text-primary)" font-weight="700" font-size="9.5">3.6</text>
+<rect x="361.5" y="241.9" width="14.9" height="130.1" fill="var(--bg-cream)" stroke="var(--border-light)" stroke-width="1"/>
+<text x="369.0" y="237.9" text-anchor="middle" fill="var(--text-primary)" font-weight="700" font-size="9.5">11.2</text>
+<rect x="408.5" y="239.1" width="14.9" height="132.9" fill="var(--bg-cream)" stroke="var(--border-light)" stroke-width="1"/>
+<text x="416.0" y="235.1" text-anchor="middle" fill="var(--text-primary)" font-weight="700" font-size="9.5">11.5</text>
+<rect x="455.5" y="362.4" width="14.9" height="9.6" fill="var(--bg-cream)" stroke="var(--border-light)" stroke-width="1"/>
+<text x="463.0" y="358.4" text-anchor="middle" fill="var(--text-primary)" font-weight="700" font-size="9.5">0.8</text>
+<rect x="502.5" y="367.3" width="14.9" height="4.7" fill="var(--bg-cream)" stroke="var(--border-light)" stroke-width="1"/>
+<text x="510.0" y="363.3" text-anchor="middle" fill="var(--text-primary)" font-weight="700" font-size="9.5">0.4</text>
+<rect x="549.5" y="354.6" width="14.9" height="17.4" fill="var(--bg-cream)" stroke="var(--border-light)" stroke-width="1"/>
+<text x="557.0" y="350.6" text-anchor="middle" fill="var(--text-primary)" font-weight="700" font-size="9.5">1.5</text>
+<rect x="596.5" y="343.9" width="14.9" height="28.1" fill="var(--bg-cream)" stroke="var(--border-light)" stroke-width="1"/>
+<text x="604.0" y="339.9" text-anchor="middle" fill="var(--text-primary)" font-weight="700" font-size="9.5">2.4</text>
+<polyline points="79.5,321.1 126.5,321.1 173.5,321.1 220.5,321.1 267.5,321.1 314.5,312.4 361.5,298.4 408.5,282.2 455.5,319.9 502.5,319.9 549.5,319.9 596.5,319.9" fill="none" stroke="var(--text-secondary)" stroke-width="2" stroke-dasharray="6 4"/>
+<circle cx="79.5" cy="321.1" r="3" fill="var(--bg-white)" stroke="var(--text-secondary)" stroke-width="1.5"/>
+<circle cx="126.5" cy="321.1" r="3" fill="var(--bg-white)" stroke="var(--text-secondary)" stroke-width="1.5"/>
+<circle cx="173.5" cy="321.1" r="3" fill="var(--bg-white)" stroke="var(--text-secondary)" stroke-width="1.5"/>
+<circle cx="220.5" cy="321.1" r="3" fill="var(--bg-white)" stroke="var(--text-secondary)" stroke-width="1.5"/>
+<circle cx="267.5" cy="321.1" r="3" fill="var(--bg-white)" stroke="var(--text-secondary)" stroke-width="1.5"/>
+<circle cx="314.5" cy="312.4" r="3" fill="var(--bg-white)" stroke="var(--text-secondary)" stroke-width="1.5"/>
+<circle cx="361.5" cy="298.4" r="3" fill="var(--bg-white)" stroke="var(--text-secondary)" stroke-width="1.5"/>
+<circle cx="408.5" cy="282.2" r="3" fill="var(--bg-white)" stroke="var(--text-secondary)" stroke-width="1.5"/>
+<circle cx="455.5" cy="319.9" r="3" fill="var(--bg-white)" stroke="var(--text-secondary)" stroke-width="1.5"/>
+<circle cx="502.5" cy="319.9" r="3" fill="var(--bg-white)" stroke="var(--text-secondary)" stroke-width="1.5"/>
+<circle cx="549.5" cy="319.9" r="3" fill="var(--bg-white)" stroke="var(--text-secondary)" stroke-width="1.5"/>
+<circle cx="596.5" cy="319.9" r="3" fill="var(--bg-white)" stroke="var(--text-secondary)" stroke-width="1.5"/>
+<text x="604.5" y="323.4" fill="var(--text-secondary)" font-weight="700" font-size="9.5">4.5</text>
+</svg>
+      <p class="note r">単位：百万円/月</p>
+      <p class="note">4〜5月は母の日。閑散月（6〜7月、1〜2月）の貢献利益は100万円を割り、家賃と人件費をまかなう程度。</p>
+    </div>
+    <div class="col">
+      <table>
+        <thead><tr><th>円/坪/月</th><th class="num">AND FLOWER</th><th class="num">ハナイチ</th><th class="num">2I 全体</th></tr></thead>
+        <tbody>
+          <tr><td>限界利益（粗利）</td><td class="num">75,997</td><td class="num">48,725</td><td class="num">64,644</td></tr>
+          <tr><td>拠点人件費</td><td class="num">▲42,861</td><td class="num">未反映</td><td class="num">▲30,962</td></tr>
+          <tr><td>家賃</td><td class="num">▲7,296</td><td class="num">▲7,296</td><td class="num">▲7,296</td></tr>
+          <tr class="total"><td>貢献利益</td><td class="num">25,840</td><td class="num">41,429</td><td class="num">26,386</td></tr>
+          <tr><td>使っている坪数</td><td class="num">93.07</td><td class="num">25.77</td><td class="num">128.84</td></tr>
+          <tr><td>月次の貢献利益（合計）</td><td class="num">240万円</td><td class="num">107万円</td><td class="num"><b>340万円</b></td></tr>
+        </tbody>
+      </table>
+      <p class="note">AND FLOWER は 93.07坪、ハナイチは 25.77坪で割っている。2I 全体は冷蔵庫を含む 128.84坪で割った値。ハナイチは拠点人件費が未反映のため上振れしている。FY2026 平均。</p>
+    </div>
+  </div>
+  </div>
+<div class="ft"><span>Copyright (C) Domuz inc, All Rights Reserved.</span><span>9</span></div></section>
+<section class="page divider">
+  <div class="num">03</div>
+  <div class="title-en">Scenarios</div>
+  <div class="title-ja">収益性の試算 — 単純3PL／高付加価値3PL／自社EC（AP&AF）</div>
+</section>
+<section class="page ">
+  <div class="hd"><span>Domuz inc.</span><span>Confidential</span></div>
+  <div class="sec-label">- PER TSUBO -</div>
+  <h2 class="page-title">同じ1坪でも、単純3PL +365円、高付加価値3PL +1.1万円、自社EC +2.6万円</h2>
+  <p class="page-title-sub">3つの用途を「1坪・1か月の貢献利益」で比べます。単純3PL と高付加価値3PL は前提値、自社EC（AP&AF）は AND FLOWER の FY2026 実績です。</p>
+  <div class="body top">
+  <div class="cols" style="gap:32px">
+    <div class="col" style="flex:1.3">
+      <table>
+        <thead><tr><th>円/坪/月</th><th class="num">単純3PL</th><th class="num">高付加価値3PL</th><th class="num">自社EC（AP&AF）</th></tr></thead>
+        <tbody>
+          <tr><td>限界利益</td><td class="num">11,600</td><td class="num">48,000</td><td class="num">75,997</td></tr>
+          <tr><td>拠点人件費</td><td class="num">▲3,939</td><td class="num">▲29,545</td><td class="num">▲42,861</td></tr>
+          <tr><td>家賃</td><td class="num">▲7,296</td><td class="num">▲7,296</td><td class="num">▲7,296</td></tr>
+          <tr class="total"><td>貢献利益</td><td class="num">+365</td><td class="num">+11,159</td><td class="num">+25,840</td></tr>
+          <tr><td>限界利益は家賃の何倍か</td><td class="num">1.6倍</td><td class="num">6.6倍</td><td class="num">10.4倍</td></tr>
+          <tr><td>限界利益の中身</td><td><span class="sub" style="font-size:10.5px;line-height:1.5;display:block">保管 6,600円＋出荷作業料 5,000円（20件）</span></td><td><span class="sub" style="font-size:10.5px;line-height:1.5;display:block">60件 × 800円（花オプション・同梱）</span></td><td><span class="sub" style="font-size:10.5px;line-height:1.5;display:block">AND FLOWER 実績 ÷ 93.07坪</span></td></tr>
+        </tbody>
+      </table>
+    </div>
+    <div class="col">
+      <h3 style="margin-bottom:16px">貢献利益（円/坪/月）</h3>
+      <div class="hbars hbars-wide"><div class="hbar"><div class="hb-label">単純3PL</div><div class="hb-track"><div class="hb-f w" style="width:1.4%"></div></div><div class="hb-total">+365</div></div>
+<div class="hbar"><div class="hb-label">高付加価値3PL</div><div class="hb-track"><div class="hb-f w" style="width:43.2%"></div></div><div class="hb-total">+11,159</div></div>
+<div class="hbar"><div class="hb-label">自社EC（AP&AF）</div><div class="hb-track"><div class="hb-f w" style="width:100.0%"></div></div><div class="hb-total">+25,840</div></div></div>
+      <div class="box" style="margin-top:20px">
+        <p style="font-size:12px">単純3PL は家賃をようやく賄う水準。保管単価が1割下がれば赤字になる。高付加価値3PL は作業が付く分だけ坪あたり貢献が大きく、自社EC は商品の粗利を含むため最も高い。</p>
+      </div>
+    </div>
+  </div>
+  <p class="note" style="margin-top:24px"><b>前提。</b>単純3PL：保管 3,300円/パレット/月 × 2パレット/坪、出荷作業料 250円/件 × 20件/坪/月、作業 60件/人/日（アルバイト26万円/人月・22日 → 197円/件）。高付加価値3PL：ギフト同梱・花オプション付き、限界利益 800円/件（保冷実費除く）× 60件/坪/月、作業 24件/人/日（→ 492円/件）。自社EC（AP&AF）：AND FLOWER の限界利益・人件費を 93.07坪で割った実績値で、商品の粗利を含むためサービス料だけの3PLとは性質が異なる。</p>
+  </div>
+<div class="ft"><span>Copyright (C) Domuz inc, All Rights Reserved.</span><span>11</span></div></section>
+<section class="page ">
+  <div class="hd"><span>Domuz inc.</span><span>Confidential</span></div>
+  <div class="sec-label">- IF APPLIED TO 2G -</div>
+  <h2 class="page-title">同じ用途を 2G（243.82坪）に当てはめると、月額の貢献利益はこう変わる</h2>
+  <p class="page-title-sub">前ページの「1坪あたり貢献利益」に 2G の坪数を掛けた値。実際に成立するかは、右の条件を満たす需要があるかで決まります。</p>
+  <div class="body">
+  <div class="kpis">
+    <div class="kpi"><div class="label">単純3PL</div><div class="num">+9<small>万円/月</small></div><div class="desc">年 107万円</div></div><div class="kpi"><div class="label">高付加価値3PL</div><div class="num">+272<small>万円/月</small></div><div class="desc">年 3,265万円</div></div><div class="kpi"><div class="label">自社EC（AP&AF）</div><div class="num">+630<small>万円/月</small></div><div class="desc">年 7,560万円</div></div>
+  </div>
+  <table style="margin-top:28px">
+    <thead><tr><th>用途</th><th class="num">月額（円）</th><th class="num">年額（円）</th><th>成立条件</th></tr></thead>
+    <tbody>
+      <tr><td>単純3PL</td><td class="num">+88,898</td><td class="num">+1,066,779</td><td style="font-size:11.5px">2パレット/坪が常時埋まり、出荷 20件/坪/月。保管単価が1割下がると赤字</td></tr><tr><td>高付加価値3PL</td><td class="num">+2,720,677</td><td class="num">+32,648,119</td><td style="font-size:11.5px">月 14,600件（60件/坪 × 243.82坪）の高付加価値案件の受注が前提</td></tr><tr><td>自社EC（AP&AF）</td><td class="num">+6,300,321</td><td class="num">+75,603,856</td><td style="font-size:11.5px">AND FLOWER の平均密度（22件/坪/月）で床が埋まる需要が前提。繁閑差5倍のため年間では成立しない</td></tr>
+    </tbody>
+  </table>
+  <p class="note r">単位：円・税抜。2G の家賃は 7,296円/坪で仮置き</p>
+  </div>
+<div class="ft"><span>Copyright (C) Domuz inc, All Rights Reserved.</span><span>12</span></div></section>
+<section class="page divider">
+  <div class="num">04</div>
+  <div class="title-en">Next Steps</div>
+  <div class="title-ja">今後 — 閑散月を埋める効率化と、2G の拡張</div>
+</section>
+<section class="page ">
+  <div class="hd"><span>Domuz inc.</span><span>Confidential</span></div>
+  <div class="sec-label">- EFFICIENCY -</div>
+  <h2 class="page-title">2I のままでも、閑散月の空き能力を埋めれば貢献利益は月約450万円まで伸びる</h2>
+  <p class="page-title-sub">効率化の2つの打ち手。① 母の日の出荷能力（4,480件/月）に対する閑散月の空きを高付加価値3PLで埋める。② ハナイチを直近2か月の水準で回す。</p>
+  <div class="body top">
+  <div class="cols" style="gap:32px">
+    <div class="col" style="flex:1.35">
+      <div class="legend"><span><i style="background:var(--brand-primary);"></i>AND FLOWER 注文数</span><span><i style="background:var(--bg-gray);"></i>空き能力（出荷能力 4,480件 との差）</span></div>
+      <svg viewBox="0 0 620 400" style="width:100%;height:auto;display:block" font-family="var(--font-en)" font-size="10">
+<line x1="56" x2="612" y1="372.0" y2="372.0" stroke="var(--border-light)" stroke-width="1"/>
+<text x="50" y="375.5" text-anchor="end" fill="var(--text-secondary)">0</text>
+<line x1="56" x2="612" y1="256.0" y2="256.0" stroke="var(--border-light)" stroke-width="1"/>
+<text x="50" y="259.5" text-anchor="end" fill="var(--text-secondary)">2,000</text>
+<line x1="56" x2="612" y1="140.0" y2="140.0" stroke="var(--border-light)" stroke-width="1"/>
+<text x="50" y="143.5" text-anchor="end" fill="var(--text-secondary)">4,000</text>
+<line x1="56" x2="612" y1="24.0" y2="24.0" stroke="var(--border-light)" stroke-width="1"/>
+<text x="50" y="27.5" text-anchor="end" fill="var(--text-secondary)">6,000</text>
+<text x="79.2" y="392" text-anchor="middle" fill="var(--text-secondary)" font-family="var(--font-ja)">10月</text>
+<text x="125.5" y="392" text-anchor="middle" fill="var(--text-secondary)" font-family="var(--font-ja)">11月</text>
+<text x="171.8" y="392" text-anchor="middle" fill="var(--text-secondary)" font-family="var(--font-ja)">12月</text>
+<text x="218.2" y="392" text-anchor="middle" fill="var(--text-secondary)" font-family="var(--font-ja)">1月</text>
+<text x="264.5" y="392" text-anchor="middle" fill="var(--text-secondary)" font-family="var(--font-ja)">2月</text>
+<text x="310.8" y="392" text-anchor="middle" fill="var(--text-secondary)" font-family="var(--font-ja)">3月</text>
+<text x="357.2" y="392" text-anchor="middle" fill="var(--text-secondary)" font-family="var(--font-ja)">4月</text>
+<text x="403.5" y="392" text-anchor="middle" fill="var(--text-secondary)" font-family="var(--font-ja)">5月</text>
+<text x="449.8" y="392" text-anchor="middle" fill="var(--text-secondary)" font-family="var(--font-ja)">6月</text>
+<text x="496.2" y="392" text-anchor="middle" fill="var(--text-secondary)" font-family="var(--font-ja)">7月</text>
+<text x="542.5" y="392" text-anchor="middle" fill="var(--text-secondary)" font-family="var(--font-ja)">8月</text>
+<text x="588.8" y="392" text-anchor="middle" fill="var(--text-secondary)" font-family="var(--font-ja)">9月</text>
+<rect x="66.2" y="247.7" width="25.9" height="124.3" fill="var(--brand-primary)"/>
+<rect x="66.2" y="112.2" width="25.9" height="134.0" fill="var(--bg-gray)"/>
+<text x="79.2" y="243.7" text-anchor="middle" fill="var(--text-primary)" font-weight="700" font-size="9.5">2,143</text>
+<text x="79.2" y="108.2" text-anchor="middle" fill="var(--text-secondary)" font-size="9.5">+2,337</text>
+<rect x="112.5" y="262.8" width="25.9" height="109.2" fill="var(--brand-primary)"/>
+<rect x="112.5" y="112.2" width="25.9" height="149.2" fill="var(--bg-gray)"/>
+<text x="125.5" y="258.8" text-anchor="middle" fill="var(--text-primary)" font-weight="700" font-size="9.5">1,882</text>
+<text x="125.5" y="108.2" text-anchor="middle" fill="var(--text-secondary)" font-size="9.5">+2,598</text>
+<rect x="158.9" y="278.4" width="25.9" height="93.6" fill="var(--brand-primary)"/>
+<rect x="158.9" y="112.2" width="25.9" height="164.8" fill="var(--bg-gray)"/>
+<text x="171.8" y="274.4" text-anchor="middle" fill="var(--text-primary)" font-weight="700" font-size="9.5">1,613</text>
+<text x="171.8" y="108.2" text-anchor="middle" fill="var(--text-secondary)" font-size="9.5">+2,867</text>
+<rect x="205.2" y="272.2" width="25.9" height="99.8" fill="var(--brand-primary)"/>
+<rect x="205.2" y="112.2" width="25.9" height="158.5" fill="var(--bg-gray)"/>
+<text x="218.2" y="268.2" text-anchor="middle" fill="var(--text-primary)" font-weight="700" font-size="9.5">1,721</text>
+<text x="218.2" y="108.2" text-anchor="middle" fill="var(--text-secondary)" font-size="9.5">+2,759</text>
+<rect x="251.5" y="289.6" width="25.9" height="82.4" fill="var(--brand-primary)"/>
+<rect x="251.5" y="112.2" width="25.9" height="176.0" fill="var(--bg-gray)"/>
+<text x="264.5" y="285.6" text-anchor="middle" fill="var(--text-primary)" font-weight="700" font-size="9.5">1,420</text>
+<text x="264.5" y="108.2" text-anchor="middle" fill="var(--text-secondary)" font-size="9.5">+3,060</text>
+<rect x="297.9" y="251.5" width="25.9" height="120.5" fill="var(--brand-primary)"/>
+<rect x="297.9" y="112.2" width="25.9" height="137.8" fill="var(--bg-gray)"/>
+<text x="310.8" y="247.5" text-anchor="middle" fill="var(--text-primary)" font-weight="700" font-size="9.5">2,078</text>
+<text x="310.8" y="108.2" text-anchor="middle" fill="var(--text-secondary)" font-size="9.5">+2,402</text>
+<rect x="344.2" y="145.8" width="25.9" height="226.2" fill="var(--brand-primary)"/>
+<rect x="344.2" y="112.2" width="25.9" height="32.1" fill="var(--bg-gray)"/>
+<text x="357.2" y="141.8" text-anchor="middle" fill="var(--text-primary)" font-weight="700" font-size="9.5">3,900</text>
+<text x="357.2" y="108.2" text-anchor="middle" fill="var(--text-secondary)" font-size="9.5">+580</text>
+<rect x="390.5" y="112.2" width="25.9" height="259.8" fill="var(--brand-primary)"/>
+<text x="403.5" y="108.2" text-anchor="middle" fill="var(--text-primary)" font-weight="700" font-size="9.5">4,480</text>
+<rect x="436.9" y="300.2" width="25.9" height="71.8" fill="var(--brand-primary)"/>
+<rect x="436.9" y="112.2" width="25.9" height="186.5" fill="var(--bg-gray)"/>
+<text x="449.8" y="296.2" text-anchor="middle" fill="var(--text-primary)" font-weight="700" font-size="9.5">1,238</text>
+<text x="449.8" y="108.2" text-anchor="middle" fill="var(--text-secondary)" font-size="9.5">+3,242</text>
+<rect x="483.2" y="310.0" width="25.9" height="62.0" fill="var(--brand-primary)"/>
+<rect x="483.2" y="112.2" width="25.9" height="196.3" fill="var(--bg-gray)"/>
+<text x="496.2" y="306.0" text-anchor="middle" fill="var(--text-primary)" font-weight="700" font-size="9.5">1,069</text>
+<text x="496.2" y="108.2" text-anchor="middle" fill="var(--text-secondary)" font-size="9.5">+3,411</text>
+<rect x="529.5" y="298.7" width="25.9" height="73.3" fill="var(--brand-primary)"/>
+<rect x="529.5" y="112.2" width="25.9" height="185.1" fill="var(--bg-gray)"/>
+<text x="542.5" y="294.7" text-anchor="middle" fill="var(--text-primary)" font-weight="700" font-size="9.5">1,263</text>
+<text x="542.5" y="108.2" text-anchor="middle" fill="var(--text-secondary)" font-size="9.5">+3,217</text>
+<rect x="575.9" y="278.1" width="25.9" height="93.9" fill="var(--brand-primary)"/>
+<rect x="575.9" y="112.2" width="25.9" height="164.4" fill="var(--bg-gray)"/>
+<text x="588.8" y="274.1" text-anchor="middle" fill="var(--text-primary)" font-weight="700" font-size="9.5">1,619</text>
+<text x="588.8" y="108.2" text-anchor="middle" fill="var(--text-secondary)" font-size="9.5">+2,861</text>
+</svg>
+      <p class="note r">単位：件/月</p>
+      <p class="note">空き能力＝母の日の最大月（2026年5月、4,480件）− 各月の実績。年間 29,334件、月平均 2,444件分の作業能力が空いている。</p>
+    </div>
+    <div class="col">
+      <table>
+        <thead><tr><th>項目</th><th class="num">月額（円）</th><th class="num">年額（円）</th></tr></thead>
+        <tbody>
+          <tr><td>現状の貢献利益（FY2026 平均）</td><td class="num">3,399,577</td><td class="num">40,794,920</td></tr>
+          <tr><td>① 空き能力を高付加価値3PLで埋める<span class="sub">2,444件 × 1件あたり貢献 308円</span></td><td class="num">+751,869</td><td class="num">+9,022,427</td></tr>
+          <tr><td>② ハナイチを直近2か月の粗利水準に<span class="sub">161万円 − 126万円（20%の床の中で成立）</span></td><td class="num">+350,390</td><td class="num">+4,204,677</td></tr>
+          <tr class="total"><td>効率化後の 2I 貢献利益</td><td class="num">4,501,835</td><td class="num">54,022,025</td></tr>
+          <tr><td>坪あたり（128.84坪）<span class="sub">円/坪/月、家賃との比</span></td><td class="num">34,941</td><td class="num">4.8倍</td></tr>
+        </tbody>
+      </table>
+      <p class="note">1件あたり貢献 = 限界利益 800円 − 人件費 492円（24件/人/日）。</p>
+    </div>
+  </div>
+  </div>
+<div class="ft"><span>Copyright (C) Domuz inc, All Rights Reserved.</span><span>14</span></div></section>
+<section class="page ">
+  <div class="hd"><span>Domuz inc.</span><span>Confidential</span></div>
+  <div class="sec-label">- 2G EXPANSION -</div>
+  <h2 class="page-title">2G を借りると 372.66坪。高付加価値3PL と AF の繁忙期増産で埋めれば、追加家賃を引いてもプラス</h2>
+  <p class="page-title-sub">判断基準はひとつ。2G を借りて増える貢献利益が、2G の追加家賃（178万円/月）を上回るか。単純3PL では床を使うほど赤字になるため、2G には使いません。</p>
+  <div class="body top">
+  <div class="stackbar"><div class="seg w" style="flex:30"><span>冷蔵　30坪</span></div><div class="seg m" style="flex:110"><span>保管　110坪</span></div><div class="seg c" style="flex:80"><span>AF 制作・梱包　80坪</span></div><div class="seg o" style="flex:90"><span>高付加価値3PL　90坪</span></div><div class="seg l" style="flex:62.66"><span>通路・撮影・事務　63坪</span></div></div>
+  <p class="note">2I＋2G の用途内訳（372.66坪・配置案）。2G の管理者1名（35万円/月）を固定費として控除。設備・什器・原状回復は含みません。</p>
+  <div class="cols" style="gap:32px;margin-top:20px">
+    <div class="col" style="flex:1.4">
+      <table>
+        <thead><tr><th>2G を借りた場合の増分</th><th class="num">月額（円）</th><th class="num">年額（円）</th></tr></thead>
+        <tbody>
+          <tr><td>① 高付加価値3PL（6,000件/月 × 308円）</td><td class="num">+1,845,455</td><td class="num">+22,145,455</td></tr><tr><td>② AF 繁忙期の追加出荷 3,000件（月額換算）</td><td class="num">+350,000</td><td class="num">+4,200,000</td></tr><tr><td>③ 預かり在庫の保管売上（40パレット）</td><td class="num">+132,000</td><td class="num">+1,584,000</td></tr><tr><td>2G 管理者 1名</td><td class="num">▲350,000</td><td class="num">▲4,200,000</td></tr><tr><td>2G 追加家賃（7,296円 × 243.82坪）</td><td class="num">▲1,778,911</td><td class="num">▲21,346,929</td></tr>
+          <tr class="total"><td>貢献利益の増分</td><td class="num">+198,544</td><td class="num">+2,382,526</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <div class="col">
+      <div class="box outline">
+        <span class="tag moss">判定</span>
+        <h3>借りてよい</h3>
+        <p>貢献利益ベースで月 20万円 のプラス。2I の効率化と合わせると拠点全体で月 470万円。</p>
+        <p style="margin-top:10px">高付加価値3PL だけで追加家賃と管理者を回収する場合の損益分岐は <b class="strong">5,354件/月</b>（1件あたり貢献 308円）。</p>
+      </div>
+      <p class="note">① 平常月 6,000件、1件あたり貢献 308円。② 母の日2か月で AF を 3,000件増産（限界利益 2,600円、人件費 1,200円/件）し、12で割って月額化。③ 預かり在庫 40パレット × 3,300円。</p>
+    </div>
+  </div>
+  </div>
+<div class="ft"><span>Copyright (C) Domuz inc, All Rights Reserved.</span><span>15</span></div></section>
+<section class="page ">
+  <div class="hd"><span>Domuz inc.</span><span>Confidential</span></div>
+  <div class="sec-label">- CONCLUSION -</div>
+  <h2 class="page-title">まとめと、次に確定する数字</h2>
+  <p class="page-title-sub">この資料の数字は、仮置きの坪数と前提値を含みます。右の項目が確定したら、そのまま置き換えて更新します。</p>
+  <div class="body top">
+  <div class="cards">
+    <div class="card cream">
+      <h3>結論</h3>
+      <ul class="dots">
+        <li><b>現状。</b>2I の貢献利益は FY2026 で月約340万円（年4,079万円）、家賃の3.6倍。AND FLOWER が床の7割を使って月707万円の限界利益、ハナイチが2割で月126万円の粗利。</li>
+        <li><b>用途の選び方。</b>1坪あたり貢献利益は 単純3PL +365円 ＜ 高付加価値3PL +1.1万円 ＜ 自社EC +2.6万円。単純3PL に床は使わない。</li>
+        <li><b>効率化。</b>閑散月の空き能力（月2,444件）を高付加価値3PLで埋め、ハナイチを直近水準にすると、2I のままで月約450万円。</li>
+        <li><b>2G。</b>高付加価値3PL 6,000件/月、母の日の増産、預かり在庫 40パレットで埋めれば追加家賃を引いて月約20万円のプラス。高付加価値3PL だけなら約5,354件/月が分岐点。</li>
+      </ul>
+    </div>
+    <div class="card">
+      <h3>次に確定する数字</h3>
+      <ul class="dots">
+        <li>冷蔵庫と各用途の実測坪数（P.5 の配分を置き換える）</li>
+        <li>2G の提示坪単価・契約期間・原状回復条件</li>
+        <li>2D のうちギフティ様が利用する坪数と、共同で使える設備（冷蔵・作業台）の有無</li>
+        <li>高付加価値3PL の受注見込み件数（平常月ベース）と1件あたり単価</li>
+        <li>AND FLOWER の拠点通過分の売上（直送品を除いた値）と、9月試算表の部門別人件費</li>
+      </ul>
+    </div>
+  </div>
+  </div>
+<div class="ft"><span>Copyright (C) Domuz inc, All Rights Reserved.</span><span>16</span></div></section>
+
+</body>
+</html>

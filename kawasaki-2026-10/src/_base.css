@@ -1,0 +1,202 @@
+/* Domuz デザインシステム v2.1 — 共通スタイル
+   全資料の src/*.src.html から /* @@BASE@@ */ で読み込む。ここだけ直せば全資料に効く。
+   色は必ず var(--…)。トークンを増やしたら domuz_design_system.md §2 に追記すること。 */
+
+  /* ========== 0. 欧文フォント Lato（build.py が data URI を注入） ========== */
+  /* @@FONTS@@ */
+
+  /* ========== 0. トークン（Figma準拠・変更禁止） ========== */
+  :root {
+    --brand-primary: #004347;      /* Moss Green。濃色の面は章扉・表ヘッダ・小ラベルのみ */
+    /* 文字色は 深緑 / 灰色 / 黒 の3系統だけ（2026-09ルール改定） */
+    --text-primary: #004347;
+    --text-black: #000000;
+    --text-secondary: #626262;
+    --text-muted: #999999;
+    --text-on-fill: #FFFFFF;
+    --text-link: #008888;          /* リンクのみ。本文の強調には使わない */
+    /* 面は 灰色 / 薄い茶色 / 白 だけ（2026-09ルール改定） */
+    --bg-white: #FFFFFF;
+    --bg-light: #F3F4F4;
+    --bg-gray: #CBD0D3;
+    --bg-cream: #F5F2E8;
+    --bg-moss: #004347;            /* 章扉のみ */
+    --watermark: #ECEEEE;
+    --border-strong: #004347;
+    --border-light: #C9CFCF;
+    --font-en: "Domuz EN", sans-serif;  /* = Century Gothic → Europa Gothic → 埋め込みLato */
+    --font-ja: "Hiragino Sans", "Hiragino Kaku Gothic ProN", "Yu Gothic", "Noto Sans JP", sans-serif;
+    --radius: 8px;
+  }
+
+  /* ========== 1. ベース ========== */
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  @page { size: 1128px 846px; margin: 0; }
+  html, body { font-family: var(--font-ja); color: var(--text-primary); background: var(--bg-gray); font-weight: 400; }
+  @media print { html, body { background: var(--bg-white); } }
+  .en { font-family: var(--font-en); }
+  .strong { color: var(--text-primary); font-weight: 700; }
+  .black { color: var(--text-black); }
+  .sub { color: var(--text-secondary); }
+  .r { text-align: right; } .c { text-align: center; }
+
+  .page {
+    width: 1128px; height: 846px; position: relative; overflow: hidden;
+    background: var(--bg-white); padding: 48px 56px 40px;
+    margin: 0 auto 24px; page-break-after: always; break-after: page;
+    display: flex; flex-direction: column;
+  }
+  /* 見出し以下の本文ブロック。残りの高さいっぱいに縦中央で置く（追加 / §6 追記済み） */
+  .body { flex: 1; display: flex; flex-direction: column; justify-content: center; min-height: 0; }
+  .body.top { justify-content: flex-start; }
+  .body.between { justify-content: space-between; }
+  @media print { .page { margin: 0; } .page:last-child { page-break-after: auto; } }
+
+  .hd { position: absolute; top: 16px; left: 56px; right: 56px; display: flex; justify-content: space-between;
+        font-family: var(--font-en); font-size: 9px; color: var(--text-muted); letter-spacing: 0.08em; }
+  .ft { position: absolute; bottom: 14px; left: 56px; right: 56px; display: flex; justify-content: space-between;
+        font-family: var(--font-en); font-size: 8.5px; color: var(--text-muted); letter-spacing: 0.05em; }
+
+  .sec-label { font-family: var(--font-en); font-size: 11px; color: var(--text-secondary); letter-spacing: 0.3em; margin-bottom: 8px; }
+  h2.page-title { font-size: 28px; font-weight: 600; letter-spacing: 0.06em; margin-bottom: 8px; }
+  .page-title-sub { font-size: 13px; color: var(--text-secondary); margin-bottom: 24px; line-height: 1.7; }
+  h3 { font-size: 15px; font-weight: 600; }
+  p, li { font-size: 13px; line-height: 1.8; }
+  .note { font-size: 10.5px; color: var(--text-secondary); line-height: 1.7; margin-top: 12px; }
+
+  /* ========== 2. B-1 表紙 ========== */
+  .cover { display: flex; flex-direction: column; justify-content: center; align-items: flex-start; padding: 0 84px; }
+  .cover .watermark { position: absolute; right: -30px; bottom: -55px; font-family: var(--font-en); font-size: 240px; font-weight: 700; color: var(--watermark); letter-spacing: -0.02em; z-index: 0; }
+  .cover > * { z-index: 1; }
+  .cover-eyebrow { font-family: var(--font-en); font-size: 14px; letter-spacing: 0.35em; color: var(--text-secondary); margin-bottom: 28px; }
+  .cover h1 { font-size: 42px; font-weight: 700; line-height: 1.5; letter-spacing: 0.05em; margin-bottom: 20px; }
+  .cover-en { font-family: var(--font-en); font-size: 15px; letter-spacing: 0.45em; margin-bottom: 40px; }
+  .cover-rule { width: 64px; height: 5px; background: var(--brand-primary); margin-bottom: 40px; }
+  .cover-meta { font-size: 13.5px; color: var(--text-secondary); line-height: 2.1; }
+  .cover-brand { margin-top: 40px; font-size: 17px; font-weight: 600; letter-spacing: 0.12em; }
+
+  /* ========== 3. B-2 章扉 ========== */
+  .divider { background: var(--bg-moss); color: var(--text-on-fill); display: flex; flex-direction: column; justify-content: center; align-items: center; text-align: center; }
+  .divider .num { position: absolute; top: 48px; left: 56px; font-family: var(--font-en); font-size: 56px; font-weight: 700; color: transparent; -webkit-text-stroke: 1px rgba(255,255,255,0.7); letter-spacing: 0.05em; }
+  .divider .title-en { font-family: var(--font-en); font-size: 48px; letter-spacing: 0.3em; text-transform: uppercase; margin-bottom: 24px; }
+  .divider .title-ja { font-size: 16px; letter-spacing: 0.2em; opacity: 0.9; }
+  .divider .x { font-family: var(--font-en); font-size: 28px; margin: 0 24px; opacity: 0.8; }
+
+  /* ========== 5. B-4 標準コンテンツ（1/2/3 段組み） ========== */
+  .cols { display: flex; gap: 24px; }
+  .col { flex: 1; min-width: 0; }
+  .col .idx { font-family: var(--font-en); font-size: 40px; font-weight: 700; line-height: 1; margin-bottom: 12px; color: var(--text-secondary); }
+  .col h3 { margin-bottom: 8px; padding-bottom: 8px; border-bottom: 1px solid var(--border-light); }
+
+  /* ========== 6. B-5 2カラム比較 / B-6 4カード / B-23 特長カード ========== */
+  .cards { display: flex; gap: 16px; }
+  .cards.grid2 { display: grid; grid-template-columns: 1fr 1fr; }
+  .card { flex: 1; min-width: 0; background: var(--bg-light); border-radius: var(--radius); padding: 20px 24px; }
+  .card.cream { background: var(--bg-cream); }
+  .card.outline { background: var(--bg-white); border: 1.5px solid var(--border-strong); }
+  .card h3 { font-size: 15px; margin-bottom: 10px; }
+  .card p { font-size: 12.5px; line-height: 1.8; }
+  .card .ph { width: 100%; aspect-ratio: 3 / 4; border-radius: 6px; display: block; margin-bottom: 12px;
+              background-color: var(--bg-white); background-size: contain; background-repeat: no-repeat; background-position: center; }
+
+  .str-cards { display: flex; gap: 20px; }
+  .str-card { flex: 1; min-width: 0; background: var(--bg-cream); border-radius: 12px; padding: 32px 26px; display: flex; flex-direction: column; }
+  .str-card .s-idx { font-family: var(--font-en); font-size: 13px; letter-spacing: 0.2em; color: var(--text-secondary); margin-bottom: 12px; }
+  .str-card h3 { font-size: 16px; margin-bottom: 12px; line-height: 1.5; }
+  .str-card p { font-size: 12.5px; line-height: 1.85; margin-bottom: 16px; }
+  .str-card .shot { width: 100%; aspect-ratio: 4 / 3; border-radius: 6px; margin-top: auto; display: block; background-color: var(--bg-white); background-size: cover; background-position: center; }
+  .str-card .shot.contain { background-size: contain; background-repeat: no-repeat; }
+
+  ul.dots { list-style: none; }
+  ul.dots li { padding-left: 18px; position: relative; margin-bottom: 6px; }
+  ul.dots li::before { content: ""; position: absolute; left: 0; top: 9px; width: 8px; height: 8px; border-radius: 50%; background: var(--brand-primary); }
+
+  /* ========== 7. B-7 数値ハイライト / B-14 KPI ========== */
+  .kpis { display: flex; gap: 16px; }
+  .kpi { flex: 1; background: var(--bg-light); border-radius: var(--radius); padding: 28px 24px 24px; text-align: center; }
+  .kpi .label { font-size: 13px; font-weight: 600; margin-bottom: 8px; }
+  .kpi .num { font-family: var(--font-en); font-size: 64px; font-weight: 700; line-height: 1.1; }
+  .kpi .num small { font-size: 20px; font-weight: 600; margin-left: 4px; }
+  .kpi .desc { font-size: 11px; color: var(--text-secondary); margin-top: 8px; line-height: 1.6; }
+
+  /* ========== 8. B-9 データ表 / B-25 条件表 ========== */
+  table { width: 100%; border-collapse: collapse; }
+  table th, table td { border: 1px solid var(--border-light); padding: 8px 14px; font-size: 12px; text-align: left; vertical-align: middle; line-height: 1.6; }
+  table thead th { background: var(--brand-primary); color: var(--text-on-fill); font-weight: 600; }
+  table td.rowhead, table th.rowhead { background: var(--bg-light); font-weight: 600; width: 170px; }
+  table td.num { text-align: right; font-family: var(--font-en); }
+  table tr.total td { background: var(--bg-light); font-weight: 700; }
+  table td .big { font-size: 16px; font-weight: 700; }
+  table td .sub { font-size: 10.5px; color: var(--text-secondary); display: block; margin-top: 2px; }
+  table s { color: var(--text-secondary); margin-right: 6px; }
+  /* 回答サマリー用の密度高めの表（追加 / §6 追記済み） */
+  table.dense th, table.dense td { padding: 9px 12px; font-size: 11px; line-height: 1.7; vertical-align: top; }
+  table.answers th, table.answers td { padding: 17px 14px; font-size: 11.5px; line-height: 1.85; }
+  table.dense td.q { background: var(--bg-light); font-weight: 600; width: 232px; }
+  table.dense td.pg { width: 62px; text-align: center; font-family: var(--font-en); color: var(--text-secondary); }
+
+  /* ========== 9. B-10 プロセスフロー ========== */
+  .flow { display: flex; align-items: stretch; }
+  .flow-step { flex: 1; background: var(--bg-light); border-radius: var(--radius); padding: 16px 18px; position: relative; margin-right: 32px; }
+  .flow-step:last-child { margin-right: 0; }
+  .flow-step::after { content: "▶"; position: absolute; right: -24px; top: 50%; transform: translateY(-50%); color: var(--brand-primary); font-size: 14px; }
+  .flow-step:last-child::after { content: none; }
+  .flow-step.goal { background: var(--bg-white); border: 1.5px solid var(--border-strong); }
+  .flow-step .f-title { font-size: 13.5px; font-weight: 600; margin-bottom: 8px; }
+  .flow-step .f-idx { font-family: var(--font-en); font-size: 11px; letter-spacing: 0.2em; color: var(--text-secondary); margin-bottom: 4px; }
+  .flow-step p { font-size: 11.5px; line-height: 1.75; }
+
+  /* ========== 10. B-24 タイムライン ========== */
+  .timeline { display: flex; }
+  .tl-item { flex: 1; position: relative; padding-top: 28px; margin-right: 24px; }
+  .tl-item:last-child { margin-right: 0; }
+  .tl-item::before { content: ""; position: absolute; top: 8px; left: 0; width: 16px; height: 16px; border-radius: 50%; background: var(--brand-primary); }
+  .tl-item::after { content: ""; position: absolute; top: 15px; left: 24px; right: -16px; height: 2px; background: var(--border-light); }
+  .tl-item:last-child::after { content: none; }
+  .tl-item.goal::before { background: var(--bg-white); border: 4px solid var(--brand-primary); }
+  .tl-date { font-family: var(--font-en); font-size: 17px; font-weight: 700; margin-bottom: 4px; }
+  .tl-label { font-size: 12px; line-height: 1.6; }
+
+  /* ========== 11. B-8 写真ギャラリー ========== */
+  .gallery { display: flex; gap: 16px; }
+  .gallery figure { flex: 1; min-width: 0; text-align: center; }
+  .gallery .shot { width: 100%; aspect-ratio: 3 / 4; background-color: var(--bg-light); background-size: contain; background-repeat: no-repeat; background-position: center; border-radius: 6px; display: block; }
+  .gallery figcaption { font-size: 11.5px; margin-top: 8px; line-height: 1.6; }
+  .gallery figcaption b { display: block; font-size: 13px; }
+  .badge { display: inline-block; background: var(--brand-primary); color: var(--text-on-fill); font-size: 10px; font-weight: 600; letter-spacing: 0.05em; padding: 3px 10px; border-radius: 3px; }
+  .badge.alt { background: var(--bg-white); color: var(--text-primary); border: 1px solid var(--border-light); }
+
+  /* ========== 12. B-15 拠点写真（追加 / §6 追記済み） ========== */
+  .photos { display: flex; gap: 16px; }
+  .photos .shot { flex: 1; aspect-ratio: 4 / 3; border-radius: 6px; background-color: var(--bg-light); background-size: cover; background-position: center; }
+
+  /* ========== 13. B-22 会社概要 ========== */
+  .company { display: flex; gap: 40px; align-items: flex-start; }
+  .company-left { flex: 1.1; } .company-right { flex: 1; }
+  .company p { font-size: 12px; line-height: 1.95; margin-bottom: 14px; }
+  table.corp th, table.corp td { border: none; border-bottom: 1px solid var(--border-light); padding: 9px 6px; font-size: 11.5px; }
+  table.corp th { width: 110px; color: var(--text-secondary); font-weight: 500; }
+
+  /* ========== 14. B-17 横棒グラフ（追加 / §6 追記済み） ========== */
+  .hbars { }
+  .hbar { display: flex; align-items: center; margin-bottom: 12px; }
+  .hbar .hb-label { width: 72px; font-size: 12.5px; font-weight: 600; }
+  .hbar .hb-track { flex: 1; height: 26px; display: flex; }
+  .hbar .hb-f { height: 100%; }
+  .hbar .hb-f.w { background: var(--brand-primary); }
+  .hbar .hb-f.m { background: var(--bg-gray); }
+  .hbar .hb-total { width: 72px; text-align: right; font-family: var(--font-en); font-size: 14px; font-weight: 700; }
+  .legend { display: flex; gap: 20px; justify-content: flex-end; font-size: 11px; color: var(--text-secondary); margin-top: 4px; }
+  .legend span { display: flex; align-items: center; gap: 6px; }
+  .legend i { width: 12px; height: 12px; display: block; border-radius: 2px; }
+
+  /* ========== 15. 汎用の補足ボックス（追加 / §6 追記済み） ========== */
+  .box { background: var(--bg-light); border-radius: var(--radius); padding: 20px 24px; }
+  .box.outline { background: var(--bg-white); border: 1.5px solid var(--border-strong); }
+  .box h3 { margin-bottom: 8px; }
+  .box p, .box li { font-size: 12.5px; }
+  .tag { display: inline-block; background: var(--bg-gray); color: var(--text-primary); font-size: 10.5px; font-weight: 600; letter-spacing: 0.08em; padding: 3px 10px; border-radius: 3px; margin-bottom: 10px; }
+  .tag.moss { background: var(--brand-primary); }
+
+  /* ========== 16. 画像（data URI）— build.py が注入 ========== */
+  /* @@IMAGES@@ */
