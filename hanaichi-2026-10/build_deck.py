@@ -10,7 +10,8 @@ sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 from deck_lib import *  # noqa
 from deck_lib import _set_font  # noqa
 from data_hanaichi import (YM, FY, mi, S, GP, AD, NET, ORDERS, FIXED, FIXED_IS_PLACEHOLDER, LTV25, NEW26, AOV26,
-                           GP_RATE26, REPEAT_RATE, REPEAT_SHARE, FB_S, FB_GP, REPEAT_CUSTOMERS, REPEAT_AOV, BIZ_CATEGORIES, fy_sum)
+                           GP_RATE26, REPEAT_RATE, REPEAT_SHARE, FB_S, FB_GP,
+                           REP_YM, REP_ORDERS, REP_REPEAT, REP_ACTIVE, REP_ACTIVE_REP, REP_NEW, REP_CUM, REP_CUM_REP, COHORT, REPEAT_CUSTOMERS, REPEAT_AOV, BIZ_CATEGORIES, fy_sum)
 
 N = len(S)
 HANA = RGBColor(0xF5, 0xB7, 0x00)  # ハナイチの色（黄）
@@ -49,7 +50,7 @@ text(s, 96, 640, 900, 120, ["2026年10月", "株式会社DOMUZ", "髙木 弘貴"
 s = content_slide("本資料の構成")
 items = [
     ("1", "ハナイチのエコノミクスの整理と経年推移", "24年9月期（2024年2月の開始）〜26年9月期"),
-    ("2", "今後の事業におけるエコノミクスの整理", "原価・全体ROAS・直接固定費、LTV/CAC、損益分岐の月商"),
+    ("2", "今後の事業におけるエコノミクスの整理", "原価・全体ROAS・直接固定費、LTV/CACとリピートの積み上がり、損益分岐の月商"),
     ("3", "中長期の可能性と事業間シナジー", "卸仕入れサイトからの広がり、アンドフラワー／アンドプランツとの連携"),
 ]
 y = 220
@@ -363,6 +364,128 @@ text(s, 56, 694, 1016, 60,
 footnote(s, "※ 自社サイトを顧客単位で集計。LTVは25年9月期に初回購入した顧客の初回から12か月の平均（売上は受注データ、粗利は期の粗利率で換算）。"
             "CACは広告費をすべて新規獲得にかかったとみなした値。LTV/CACは26年9月期のCACで計算")
 
+# ---- リピートの状況（卸のサービスなので、LTV/CACよりリピートの積み上がりで採算を見る）
+s = content_slide("リピートの状況：顧客基盤の積み上がり", "卸のサービスなので、LTV/CACよりもリピートの積み上がりで見る　※自社サイト、ボックス等は含まない")
+NM = len(REP_YM)
+rep_ratio = [r / o * 100 for r, o in zip(REP_REPEAT, REP_ORDERS)]
+cum_share = [r / c * 100 for r, c in zip(REP_CUM_REP, REP_CUM)]
+
+
+def panel(x, y, w, h, title):
+    text(s, x, y, w, 24, title, size=15, bold=True)
+    return x, y + 34, w, h - 34
+
+
+def month_axis(x, y, w, slot_w, n, base_y):
+    for i in range(n):
+        y_, m_ = REP_YM[i]
+        if m_ in (1, 4, 7, 10):
+            text(s, x + i * slot_w - 10, base_y + 4, slot_w + 20, 16, f"{str(y_)[2:]}/{m_}", size=9, color=MUTED, align=PP_ALIGN.CENTER, en=True)
+
+
+PW, PH_ = 488, 250
+# A: 月ごとのリピート注文数（棒）と、注文に占めるリピート比率（線）
+px_, py_, pw_, ph_ = panel(56, 150, PW, PH_, "月ごとのリピート注文数と、注文に占める比率")
+cx0, cx1 = px_ + 36, px_ + pw_ - 40
+top_, base_ = py_ + 20, py_ + ph_ - 30
+slot_ = (cx1 - cx0) / NM
+vmax_ = 220
+yv = lambda v: base_ - (base_ - top_) * v / vmax_
+for v in (0, 100, 200):
+    hline(s, cx0, yv(v), cx1 - cx0, BORDER_LIGHT if v == 0 else WATERMARK)
+    text(s, px_, yv(v) - 8, 32, 16, str(v), size=9, color=MUTED, align=PP_ALIGN.RIGHT, en=True)
+for i in range(NM):
+    rect(s, cx0 + i * slot_ + slot_ * 0.2, yv(REP_REPEAT[i]), slot_ * 0.6, base_ - yv(REP_REPEAT[i]), HANA)
+ry_ = lambda v: base_ - (base_ - top_) * v / 60
+L0 = 2  # 注文が少ない25年1〜2月は比率の線から外す
+polyline(s, [(cx0 + i * slot_ + slot_ / 2, ry_(rep_ratio[i])) for i in range(L0, NM)], MOSS, 2.0)
+for v in (20, 40, 60):
+    text(s, cx1 + 4, ry_(v) - 8, 36, 16, f"{v}%", size=9, color=MUTED, en=True)
+for i in (L0, NM - 1):
+    text(s, cx0 + i * slot_ - 16, ry_(rep_ratio[i]) - 20, slot_ + 32, 16, f"{rep_ratio[i]:.0f}%", size=10, bold=True, align=PP_ALIGN.CENTER, en=True)
+text(s, cx0 + (NM - 1) * slot_ - 16, yv(REP_REPEAT[-1]) + 2, slot_ + 32, 16, f"{REP_REPEAT[-1]}", size=10, bold=True, color=WHITE, align=PP_ALIGN.CENTER, en=True)
+month_axis(cx0, 0, 0, slot_, NM, base_)
+rect(s, cx0, py_ - 6, 10, 10, HANA)
+text(s, cx0 + 14, py_ - 10, 120, 18, "リピート注文数", size=10, color=SECONDARY)
+rect(s, cx0 + 110, py_ - 2, 20, 3, MOSS)
+text(s, cx0 + 134, py_ - 10, 160, 18, "リピート比率（右軸）", size=10, color=SECONDARY)
+
+# B: 月ごとの購入顧客数（新規／リピート）
+px_, py_, pw_, ph_ = panel(584, 150, PW, PH_, "月ごとの購入顧客数（新規とリピート）")
+cx0, cx1 = px_ + 36, px_ + pw_ - 40
+top_, base_ = py_ + 20, py_ + ph_ - 30
+vmax_ = 380
+yv = lambda v: base_ - (base_ - top_) * v / vmax_
+for v in (0, 100, 200, 300):
+    hline(s, cx0, yv(v), cx1 - cx0, BORDER_LIGHT if v == 0 else WATERMARK)
+    text(s, px_, yv(v) - 8, 32, 16, str(v), size=9, color=MUTED, align=PP_ALIGN.RIGHT, en=True)
+for i in range(NM):
+    bx = cx0 + i * slot_ + slot_ * 0.2
+    rect(s, bx, yv(REP_ACTIVE_REP[i]), slot_ * 0.6, base_ - yv(REP_ACTIVE_REP[i]), HANA)
+    rect(s, bx, yv(REP_ACTIVE[i]), slot_ * 0.6, yv(REP_ACTIVE_REP[i]) - yv(REP_ACTIVE[i]), HANA_LIGHT)
+text(s, cx0 + (NM - 1) * slot_ - 16, yv(REP_ACTIVE[-1]) - 18, slot_ + 32, 16, f"{REP_ACTIVE[-1]}", size=10, bold=True, align=PP_ALIGN.CENTER, en=True)
+month_axis(cx0, 0, 0, slot_, NM, base_)
+rect(s, cx0, py_ - 6, 10, 10, HANA)
+text(s, cx0 + 14, py_ - 10, 120, 18, "リピート購入", size=10, color=SECONDARY)
+rect(s, cx0 + 100, py_ - 6, 10, 10, HANA_LIGHT)
+text(s, cx0 + 114, py_ - 10, 120, 18, "初回購入", size=10, color=SECONDARY)
+
+# C: リピーター人数（累計）と全顧客に占める割合
+px_, py_, pw_, ph_ = panel(56, 418, PW, PH_, "リピーター（2回以上購入）の累計人数と、全顧客に占める割合")
+cx0, cx1 = px_ + 36, px_ + pw_ - 40
+top_, base_ = py_ + 20, py_ + ph_ - 30
+vmax_ = 600
+yv = lambda v: base_ - (base_ - top_) * v / vmax_
+for v in (0, 200, 400, 600):
+    hline(s, cx0, yv(v), cx1 - cx0, BORDER_LIGHT if v == 0 else WATERMARK)
+    text(s, px_, yv(v) - 8, 32, 16, str(v), size=9, color=MUTED, align=PP_ALIGN.RIGHT, en=True)
+for i in range(NM):
+    rect(s, cx0 + i * slot_ + slot_ * 0.2, yv(REP_CUM_REP[i]), slot_ * 0.6, base_ - yv(REP_CUM_REP[i]), HANA)
+ry_ = lambda v: base_ - (base_ - top_) * v / 60
+polyline(s, [(cx0 + i * slot_ + slot_ / 2, ry_(cum_share[i])) for i in range(L0, NM)], MOSS, 2.0)
+for v in (20, 40, 60):
+    text(s, cx1 + 4, ry_(v) - 8, 36, 16, f"{v}%", size=9, color=MUTED, en=True)
+for i in (L0, NM - 1):
+    text(s, cx0 + i * slot_ - 16, ry_(cum_share[i]) - 20, slot_ + 32, 16, f"{cum_share[i]:.0f}%", size=10, bold=True, align=PP_ALIGN.CENTER, en=True)
+text(s, cx0 + (NM - 1) * slot_ - 20, yv(REP_CUM_REP[-1]) - 18, slot_ + 40, 16, f"{REP_CUM_REP[-1]:,}", size=10, bold=True, align=PP_ALIGN.CENTER, en=True)
+month_axis(cx0, 0, 0, slot_, NM, base_)
+rect(s, cx0, py_ - 6, 10, 10, HANA)
+text(s, cx0 + 14, py_ - 10, 120, 18, "リピーター数（累計）", size=10, color=SECONDARY)
+rect(s, cx0 + 140, py_ - 2, 20, 3, MOSS)
+text(s, cx0 + 164, py_ - 10, 200, 18, "全顧客に占める割合（右軸）", size=10, color=SECONDARY)
+
+# D: 初回購入の四半期ごとのリピート率（90日／180日以内）
+px_, py_, pw_, ph_ = panel(584, 418, PW, PH_, "初回購入からのリピート率（初回購入の四半期ごと）")
+cx0, cx1 = px_ + 36, px_ + pw_ - 10
+top_, base_ = py_ + 20, py_ + ph_ - 44
+nq_ = len(COHORT)
+slotq = (cx1 - cx0) / nq_
+vmax_ = 30
+yv = lambda v: base_ - (base_ - top_) * v / vmax_
+for v in (0, 10, 20, 30):
+    hline(s, cx0, yv(v), cx1 - cx0, BORDER_LIGHT if v == 0 else WATERMARK)
+    text(s, px_, yv(v) - 8, 32, 16, f"{v}%", size=9, color=MUTED, align=PP_ALIGN.RIGHT, en=True)
+for i, (lab, n_, r90, r180) in enumerate(COHORT):
+    bx = cx0 + i * slotq + slotq * 0.15
+    bwq = slotq * 0.3
+    rect(s, bx, yv(r90), bwq, base_ - yv(r90), HANA)
+    rect(s, bx + bwq + 4, yv(r180), bwq, base_ - yv(r180), HANA_LIGHT)
+    text(s, bx - 10, yv(r90) - 16, bwq + 20, 14, f"{r90:.0f}", size=9, bold=True, align=PP_ALIGN.CENTER, en=True)
+    text(s, bx + bwq - 6, yv(r180) - 16, bwq + 20, 14, f"{r180:.0f}", size=9, bold=True, color=SECONDARY, align=PP_ALIGN.CENTER, en=True)
+    text(s, cx0 + i * slotq, base_ + 4, slotq, 16, lab, size=9, color=MUTED, align=PP_ALIGN.CENTER)
+    text(s, cx0 + i * slotq, base_ + 18, slotq, 16, f"{n_}人", size=9, color=MUTED, align=PP_ALIGN.CENTER)
+rect(s, cx0, py_ - 6, 10, 10, HANA)
+text(s, cx0 + 14, py_ - 10, 120, 18, "90日以内", size=10, color=SECONDARY)
+rect(s, cx0 + 80, py_ - 6, 10, 10, HANA_LIGHT)
+text(s, cx0 + 94, py_ - 10, 160, 18, "180日以内", size=10, color=SECONDARY)
+
+text(s, 56, 676, 1016, 60,
+     [f"リピート注文は月{REP_REPEAT[0]}→{REP_REPEAT[-1]}件、注文に占める比率は{rep_ratio[-1]:.0f}%。2回以上購入した顧客は累計{REP_CUM_REP[-1]:,}人（全顧客の{cum_share[-1]:.0f}%）まで積み上がった。",
+      f"初回から90日以内のリピート率は{min(c[2] for c in COHORT):.0f}〜{max(c[2] for c in COHORT):.0f}%で、26年1〜3月の新規が最も高い"],
+     size=16, bold=True, spacing=1.45)
+footnote(s, "※ BigQueryの受注を顧客単位で集計（キャンセル・テスト注文は除く）。リピート注文＝同じ顧客の2回目以降の注文。累計は2024年2月の開始から。比率の線は注文が少ない25年1〜2月を除く")
+
+
 # ---- 損益分岐に必要な月商
 s = content_slide("損益分岐に必要な月商", "貢献利益が0になる月商と、26年9月期の月平均の売上　単位：百万円/月" + PH)
 fixed_m = FIXED["LABOR"] + FIXED["RENT"]
@@ -409,6 +532,7 @@ draw_claims(summary_slide, [
         f"全体ROASは{fy_s[2] / fy_ad[2] * 100:.0f}%だが、広告対象の生花はサイト売上の一部で、初回の購入単価（{AOV26:,}円）が小さい"]),
     ("3", "収益化の鍵は、リピート顧客（事業者）の積み上げと広告費込み粗利率の改善", [
         f"売上の{REPEAT_SHARE[1]:.0f}%はリピート顧客で、客単価は初回の約{REPEAT_AOV[1] / AOV26:.0f}倍。法人・店舗・個人事業主の大口が利益の源泉",
+        f"リピート注文は月{REP_REPEAT[0]}→{REP_REPEAT[-1]}件、2回以上購入した顧客は累計{REP_CUM_REP[-1]:,}人（全顧客の{REP_CUM_REP[-1] / REP_CUM[-1] * 100:.0f}%）に積み上がっている",
         f"損益分岐の月商は約{be_fy:.0f}百万円（直接固定費は仮置き）で、26年9月期の月平均{act:.1f}百万円の約{mult:.1f}倍"]),
 ], color=HANA)
 footnote(summary_slide, "※ 数値は税抜。用語の定義と集計の前提は最終ページ。直接固定費は仮置きで、社内の集計に差し替える")
@@ -471,9 +595,9 @@ for k, (name, col, items_) in enumerate(COLS):
     yy = 220
     for j, (head, body) in enumerate(items_):
         tag = "現在" if (k == 0 and j < 2) else ("現在" if (k == 1 and j == 0) else "今後")
-        rect(s, x, yy, 56, 24, HANA if tag == "現在" else WATERMARK)
-        text(s, x, yy, 56, 24, tag, size=12, bold=True, color=MOSS, align=PP_ALIGN.CENTER, anchor=MSO_ANCHOR.MIDDLE)
-        text(s, x + 68, yy - 2, w - 68, 28, head, size=17, bold=True)
+        rect(s, x, yy, 56, 26, HANA if tag == "現在" else WATERMARK)
+        text(s, x, yy, 56, 26, tag, size=12, bold=True, color=MOSS, align=PP_ALIGN.CENTER, anchor=MSO_ANCHOR.MIDDLE, spacing=1.0)
+        text(s, x + 68, yy, w - 68, 26, head, size=17, bold=True, anchor=MSO_ANCHOR.MIDDLE, spacing=1.0)
         text(s, x, yy + 32, w, 80, body, size=14, color=SECONDARY, spacing=1.4)
         yy += 118
         if j < len(items_) - 1:
