@@ -1,7 +1,7 @@
 """ギフティ様向け ハナイチ 事業エコノミクス資料 — giftee-2026-10 と同じ型（Domuz デザインシステム「発表スライド」）。
 
 データは data_hanaichi.py（管理画面の売上・限界利益、Marketing Master の広告費、顧客単位の集計）。
-直接固定費は仮置き（FIXED）。社内の集計が出たら差し替える。
+直接固定費（FIXED）は発送人件費（現場の作業時間×時給の概算）と川崎拠点の家賃按分。
 """
 import os
 import sys
@@ -12,7 +12,7 @@ from deck_lib import _set_font  # noqa
 from data_hanaichi import (YM, FY, mi, S, GP, AD, NET, ORDERS, FIXED, FIXED_IS_PLACEHOLDER, LTV25, NEW26, AOV26,
                            GP_RATE26, REPEAT_RATE, REPEAT_SHARE, FB_S, FB_GP,
                            REP_YM, REP_ORDERS, REP_REPEAT, REP_ACTIVE, REP_ACTIVE_REP, REP_NEW, REP_CUM, REP_CUM_REP, COHORT,
-                           CAT_MARGIN, ACCOUNTS_TOTAL, ACCOUNTS_BOUGHT, KAWASAKI_RENT, RENT_SHARE, REPEAT_CUSTOMERS, REPEAT_AOV, BIZ_CATEGORIES, fy_sum)
+                           CAT_MARGIN, ACCOUNTS_TOTAL, ACCOUNTS_BOUGHT, KAWASAKI_RENT, RENT_SHARE, SHIP_LABOR_RATE, REPEAT_CUSTOMERS, REPEAT_AOV, BIZ_CATEGORIES, fy_sum)
 
 N = len(S)
 HANA = RGBColor(0xF5, 0xB7, 0x00)  # ハナイチの色（黄）
@@ -270,10 +270,9 @@ def econ(months):
     e = dict(S=sum(S[i] for i in idx), GP=sum(GP[i] for i in idx), AD=sum(AD[i] for i in idx))
     e["COGS"] = e["S"] - e["GP"]
     e["NET"] = e["GP"] - e["AD"]
-    e["LABOR"] = FIXED["LABOR"] * len(idx)
     e["SHIP"] = FIXED["SHIP"] * len(idx)
     e["OTHER"] = FIXED["RENT"] * len(idx)
-    e["FIXED"] = e["LABOR"] + e["SHIP"] + e["OTHER"]
+    e["FIXED"] = e["SHIP"] + e["OTHER"]
     e["CONTRIB"] = e["NET"] - e["FIXED"]
     e["ROAS"] = e["S"] / e["AD"] * 100
     e["N"] = len(idx)
@@ -289,21 +288,21 @@ PERIODS = {
     "fy": dict(label="26年9月期（通年）", short="26年9月期", e=econ(FY26), rep=REPEAT_RATE["fy"]),
     "fy25": dict(label="前期（25年9月期）", short="25年9月期", e=econ(FY25), rep=REPEAT_RATE["fy25"]),
 }
-PH = "（人件費は仮置き）" if FIXED_IS_PLACEHOLDER else ""
+PH = ""
 
 s = content_slide("エコノミクス：直近の四半期と通年", "棒の数字は売上を100としたときの割合（%）。金額は期間名の下　※税抜、ボックス等は含まない")
 for k, (key, x) in enumerate((("q", 150), ("fy", 640))):
     e = PERIODS[key]["e"]
-    waterfall(s, x, PERIODS[key]["label"], [("原価等", e["COGS"]), ("広告費", e["AD"]), ("人件費", e["LABOR"]), ("発送\n人件費", e["SHIP"]), ("拠点費", e["OTHER"])],
+    waterfall(s, x, PERIODS[key]["label"], [("原価等", e["COGS"]), ("広告費", e["AD"]), ("発送\n人件費", e["SHIP"]), ("拠点費", e["OTHER"])],
               "貢献\n利益", e["CONTRIB"], e["S"], MOSS, lo=-60, unit=f"（{e['N']}か月計）", bar=HANA)
 vline(s, 564, 160, 500)
 eq, ef = PERIODS["q"]["e"], PERIODS["fy"]["e"]
 text(s, 56, 678, 1016, 60,
      [f"広告費込み限界利益は四半期で{yen(eq['NET'])}百万円（売上比{eq['NET'] / eq['S'] * 100:.0f}%）、通年で{yen(ef['NET'])}百万円（同{ef['NET'] / ef['S'] * 100:.0f}%）。",
-      f"直接固定費（月{FIXED['LABOR'] + FIXED['SHIP'] + FIXED['RENT']:.2f}百万円）を引いた貢献利益は[[{yen(ef['CONTRIB'])}百万円]]（通年）"],
+      f"直接固定費（月{FIXED['SHIP'] + FIXED['RENT']:.2f}百万円）を引いた貢献利益は[[{('+' if ef['CONTRIB'] > 0 else '') + yen(ef['CONTRIB'])}百万円]]（通年）、直近四半期は{yen(eq['CONTRIB'])}百万円"],
      size=20, bold=True, spacing=1.4)
 footnote(s, "※ 原価等＝商品原価・送料・資材・決済手数料（管理画面の定義）。広告費はMarketing Master。"
-            f"人件費は仮置き（月{FIXED['LABOR']:.1f}百万円）、発送人件費は月{FIXED['SHIP']:.1f}百万円の前提、拠点費は川崎拠点の家賃（月{KAWASAKI_RENT:.2f}百万円）の{RENT_SHARE * 100:.0f}%（月{FIXED['RENT']:.2f}百万円）")
+            f"発送人件費は月{FIXED['SHIP']:.2f}百万円（26年8月の作業時間×時給からの概算、生花売上の約{SHIP_LABOR_RATE * 100:.0f}%）、拠点費は川崎拠点の家賃（月{KAWASAKI_RENT:.2f}百万円）の{RENT_SHARE * 100:.0f}%（月{FIXED['RENT']:.2f}百万円）")
 
 # ---- 主要指標（表）
 s = content_slide("エコノミクスの主要指標", "直近の四半期（26年7〜9月）と通年（26年9月期・25年9月期）　※税抜、ボックス等は含まない")
@@ -342,7 +341,7 @@ r2("リピート購入率", lambda e, P: f"{P['rep']:.1f}%", "2回目以降の�
 r2("原価率", lambda e, P: f"{e['COGS'] / e['S'] * 100:.0f}%", "商品原価・送料・資材・決済手数料を含む")
 r2("全体ROAS", lambda e, P: f"{e['ROAS']:.0f}%", "売上÷広告費（広告は生花のみ）")
 r2("広告費込み限界利益率", lambda e, P: f"{e['NET'] / e['S'] * 100:.1f}%", bold=True)
-r2("直接固定費（百万円）", lambda e, P: f"{e['FIXED']:.1f}", "人件費（仮置き）＋発送人件費＋拠点費")
+r2("直接固定費（百万円）", lambda e, P: f"{e['FIXED']:.1f}", "発送人件費＋拠点費")
 r2("貢献利益（百万円）", lambda e, P: yen(e["CONTRIB"]), bold=True)
 be_q = eq["FIXED"] / eq["N"] / (eq["NET"] / eq["S"])
 be_fy = ef["FIXED"] / ef["N"] / (ef["NET"] / ef["S"])
@@ -565,7 +564,7 @@ footnote(s, "※ BigQueryの受注を顧客単位で集計（キャンセル・�
 
 # ---- 損益分岐に必要な月商
 s = content_slide("損益分岐に必要な月商", "貢献利益が0になる月商と、26年9月期の月平均の売上　単位：百万円/月" + PH)
-fixed_m = FIXED["LABOR"] + FIXED["SHIP"] + FIXED["RENT"]
+fixed_m = FIXED["SHIP"] + FIXED["RENT"]
 act = fy_s[2] / 12
 peak = max(S[20:32])
 rows3 = [("通年の率（26年9月期）", ef["NET"] / ef["S"], be_fy), ("直近四半期の率（26年7〜9月）", eq["NET"] / eq["S"], be_q)]
@@ -573,7 +572,7 @@ bx0, bwid = 330, 600
 vmax_ = max(be_fy, be_q, peak) * 1.1
 y0 = 168
 text(s, 56, y0, 400, 36, "損益分岐の月商", size=24, bold=True, anchor=MSO_ANCHOR.MIDDLE)
-text(s, 460, y0, 612, 36, f"直接固定費 {fixed_m:.2f}百万円/月（人件費{FIXED['LABOR']:.1f}は仮置き、発送人件費{FIXED['SHIP']:.1f}、拠点費{FIXED['RENT']:.2f}）", size=15, color=SECONDARY, anchor=MSO_ANCHOR.MIDDLE)
+text(s, 460, y0, 612, 36, f"直接固定費 {fixed_m:.2f}百万円/月（発送人件費{FIXED['SHIP']:.2f}＋拠点費{FIXED['RENT']:.2f}）", size=15, color=SECONDARY, anchor=MSO_ANCHOR.MIDDLE)
 yy = y0 + 48
 for lab, m_, be in rows3:
     text(s, 56, yy, 270, 36, [lab, f"広告費込み限界利益率 {m_ * 100:.1f}%"], size=14, color=SECONDARY, anchor=MSO_ANCHOR.MIDDLE, spacing=1.2)
@@ -590,11 +589,11 @@ rs = REPEAT_SHARE[1] / 100
 new_need = be_fy * 1e6 * (1 - rs) / AOV26
 mult = be_fy / act
 text(s, 56, yy + 40, 1016, 160,
-     [f"損益分岐の月商は約{be_fy:.0f}百万円で、26年9月期の月平均{act:.1f}百万円の約{mult:.1f}倍。人件費が仮置きのため幅はあるが、",
-      f"現状の広告費込み限界利益率（{ef['NET'] / ef['S'] * 100:.0f}%）のままでは、売上を数倍にしないと貢献利益は黒字にならない。",
-      f"広告費込み限界利益率を高める（広告効率・限界利益率の改善）か、リピート顧客（事業者）の積み上げで固定費を吸収する売上規模に乗せるかが論点"],
+     [f"通年の率なら損益分岐の月商は約{be_fy:.1f}百万円で、26年9月期の月平均{act:.1f}百万円は[[わずかに上回る]]（貢献利益 +{ef['CONTRIB']:.1f}百万円）。",
+      f"直近四半期は広告費を増やして広告費込み限界利益率が{eq['NET'] / eq['S'] * 100:.0f}%に下がり、損益分岐は約{be_q:.0f}百万円に上がる。",
+      f"直接固定費が小さい事業なので、損益は広告効率と仕入れ原価（広告費込み限界利益率）でほぼ決まる。発送人件費は生花売上の約{SHIP_LABOR_RATE * 100:.0f}%で、売上とともに増える"],
      size=18, bold=True, spacing=1.5)
-footnote(s, f"※ 損益分岐＝直接固定費÷広告費込み限界利益率。直接固定費＝人件費{FIXED['LABOR']:.1f}（仮置き）＋発送人件費{FIXED['SHIP']:.1f}＋拠点費{FIXED['RENT']:.2f}百万円/月")
+footnote(s, f"※ 損益分岐＝直接固定費÷広告費込み限界利益率。直接固定費＝発送人件費{FIXED['SHIP']:.2f}＋拠点費{FIXED['RENT']:.2f}百万円/月。発送人件費は26年8月の作業時間×時給からの概算")
 
 # =====================================================================
 # 要約（数字が出そろってから）
@@ -610,9 +609,9 @@ draw_claims(summary_slide, [
     ("3", "収益化の鍵は、リピート顧客（事業者）の積み上げと広告費込み限界利益率の改善", [
         f"売上の{REPEAT_SHARE[1]:.0f}%は2回目以降の注文。1注文あたりの売上はリピート{REPEAT_AOV[1]:,}円、初回{AOV26:,}円（約{REPEAT_AOV[1] / AOV26:.0f}倍）",
         f"リピート注文は月{REP_REPEAT[0]} → {REP_REPEAT[-1]}件（25年1月 → 26年9月）、2回以上購入は{REP_CUM_REP[-1]:,}アカウント（{REP_CUM_REP[-1] / ACCOUNTS_BOUGHT * 100:.0f}%）",
-        f"損益分岐の月商は約{be_fy:.0f}百万円（人件費は仮置き）で、26年9月期の月平均{act:.1f}百万円の約{mult:.1f}倍"]),
+        f"直接固定費は月{fixed_m:.2f}百万円と小さく、通年では貢献利益+{ef['CONTRIB']:.1f}百万円。損益は広告効率と仕入れ原価で決まる"]),
 ], y=124, color=HANA)
-footnote(summary_slide, "※ 数値は税抜。用語の定義と集計の前提は最終ページ。直接固定費は仮置きで、社内の集計に差し替える")
+footnote(summary_slide, "※ 数値は税抜。用語の定義と集計の前提は最終ページ")
 
 # =====================================================================
 # 章 03：中長期の可能性とシナジー
@@ -738,7 +737,7 @@ TERMS = [
     ("広告費", "Google・Meta・Yahoo!・Microsoft・Pinterest の広告費（税抜）。広告は生花のみ"),
     ("広告費込み限界利益", "限界利益 − 広告費"),
     ("全体ROAS", "売上 ÷ 広告費。分子は生花以外（植木鉢・資材）も含むサイト全体の売上"),
-    ("直接固定費", "人件費（担当者、仮置き月0.6百万円）＋発送人件費（月0.3百万円）＋拠点費（川崎拠点の家賃の20%＝月0.19百万円）"),
+    ("直接固定費", "発送人件費（月0.33百万円。26年8月の作業時間×時給の概算、生花売上の約11%）＋拠点費（川崎拠点の家賃の20%＝月0.19百万円）"),
     ("貢献利益", "広告費込み限界利益 − 直接固定費。本社の人件費・共通費は含まない"),
     ("アカウント", "登録3,728アカウントのうち、2024年2月以降に購入のある2,542を顧客として集計（受注データの顧客ID）"),
     ("出典", "ハナイチ管理画面（売上・限界利益・顧客）、Marketing Master（広告費）、受注データ（顧客単位のLTV）"),
