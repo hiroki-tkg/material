@@ -11,7 +11,8 @@ from deck_lib import *  # noqa
 from deck_lib import _set_font  # noqa
 from data_hanaichi import (YM, FY, mi, S, GP, AD, NET, ORDERS, FIXED, FIXED_IS_PLACEHOLDER, LTV25, NEW26, AOV26,
                            GP_RATE26, REPEAT_RATE, REPEAT_SHARE, FB_S, FB_GP,
-                           REP_YM, REP_ORDERS, REP_REPEAT, REP_ACTIVE, REP_ACTIVE_REP, REP_NEW, REP_CUM, REP_CUM_REP, COHORT, REPEAT_CUSTOMERS, REPEAT_AOV, BIZ_CATEGORIES, fy_sum)
+                           REP_YM, REP_ORDERS, REP_REPEAT, REP_ACTIVE, REP_ACTIVE_REP, REP_NEW, REP_CUM, REP_CUM_REP, COHORT,
+                           CAT_MARGIN, ACCOUNTS_TOTAL, ACCOUNTS_BOUGHT, KAWASAKI_RENT, RENT_SHARE, REPEAT_CUSTOMERS, REPEAT_AOV, BIZ_CATEGORIES, fy_sum)
 
 N = len(S)
 HANA = RGBColor(0xF5, 0xB7, 0x00)  # ハナイチの色（黄）
@@ -270,8 +271,10 @@ def econ(months):
     e["COGS"] = e["S"] - e["GP"]
     e["NET"] = e["GP"] - e["AD"]
     e["LABOR"] = FIXED["LABOR"] * len(idx)
+    e["SHIP"] = FIXED["SHIP"] * len(idx)
     e["OTHER"] = FIXED["RENT"] * len(idx)
-    e["CONTRIB"] = e["NET"] - e["LABOR"] - e["OTHER"]
+    e["FIXED"] = e["LABOR"] + e["SHIP"] + e["OTHER"]
+    e["CONTRIB"] = e["NET"] - e["FIXED"]
     e["ROAS"] = e["S"] / e["AD"] * 100
     e["N"] = len(idx)
     e["ORDERS"] = sum(ORDERS[i] for i in idx)
@@ -286,21 +289,21 @@ PERIODS = {
     "fy": dict(label="26年9月期（通年）", short="26年9月期", e=econ(FY26), rep=REPEAT_RATE["fy"]),
     "fy25": dict(label="前期（25年9月期）", short="25年9月期", e=econ(FY25), rep=REPEAT_RATE["fy25"]),
 }
-PH = "（直接固定費は仮置き）" if FIXED_IS_PLACEHOLDER else ""
+PH = "（人件費は仮置き）" if FIXED_IS_PLACEHOLDER else ""
 
 s = content_slide("エコノミクス：直近の四半期と通年", "棒の数字は売上を100としたときの割合（%）。金額は期間名の下　※税抜、ボックス等は含まない")
 for k, (key, x) in enumerate((("q", 150), ("fy", 640))):
     e = PERIODS[key]["e"]
-    waterfall(s, x, PERIODS[key]["label"], [("原価等", e["COGS"]), ("広告費", e["AD"]), ("人件費", e["LABOR"]), ("拠点費", e["OTHER"])],
+    waterfall(s, x, PERIODS[key]["label"], [("原価等", e["COGS"]), ("広告費", e["AD"]), ("人件費", e["LABOR"]), ("発送\n人件費", e["SHIP"]), ("拠点費", e["OTHER"])],
               "貢献\n利益", e["CONTRIB"], e["S"], MOSS, lo=-60, unit=f"（{e['N']}か月計）", bar=HANA)
 vline(s, 564, 160, 500)
 eq, ef = PERIODS["q"]["e"], PERIODS["fy"]["e"]
 text(s, 56, 678, 1016, 60,
      [f"広告費込み限界利益は四半期で{yen(eq['NET'])}百万円（売上比{eq['NET'] / eq['S'] * 100:.0f}%）、通年で{yen(ef['NET'])}百万円（同{ef['NET'] / ef['S'] * 100:.0f}%）。",
-      f"直接固定費（月{FIXED['LABOR'] + FIXED['RENT']:.1f}百万円）を引いた貢献利益は[[{yen(ef['CONTRIB'])}百万円]]（通年）"],
+      f"直接固定費（月{FIXED['LABOR'] + FIXED['SHIP'] + FIXED['RENT']:.2f}百万円）を引いた貢献利益は[[{yen(ef['CONTRIB'])}百万円]]（通年）"],
      size=20, bold=True, spacing=1.4)
 footnote(s, "※ 原価等＝商品原価・送料・資材・決済手数料（管理画面の定義）。広告費はMarketing Master。"
-            "人件費・拠点費は仮置き（月" + f"{FIXED['LABOR']:.1f}／{FIXED['RENT']:.1f}百万円" + "）で、社内の集計に差し替える前提")
+            f"人件費は仮置き（月{FIXED['LABOR']:.1f}百万円）、発送人件費は月{FIXED['SHIP']:.1f}百万円の前提、拠点費は川崎拠点の家賃（月{KAWASAKI_RENT:.2f}百万円）の{RENT_SHARE * 100:.0f}%（月{FIXED['RENT']:.2f}百万円）")
 
 # ---- 主要指標（表）
 s = content_slide("エコノミクスの主要指標", "直近の四半期（26年7〜9月）と通年（26年9月期・25年9月期）　※税抜、ボックス等は含まない")
@@ -339,10 +342,10 @@ r2("リピート購入率", lambda e, P: f"{P['rep']:.1f}%", "2回目以降の�
 r2("原価率", lambda e, P: f"{e['COGS'] / e['S'] * 100:.0f}%", "商品原価・送料・資材・決済手数料を含む")
 r2("全体ROAS", lambda e, P: f"{e['ROAS']:.0f}%", "売上÷広告費（広告は生花のみ）")
 r2("広告費込み限界利益率", lambda e, P: f"{e['NET'] / e['S'] * 100:.1f}%", bold=True)
-r2("直接固定費（百万円）", lambda e, P: f"{e['LABOR'] + e['OTHER']:.1f}", "人件費＋拠点費（仮置き）" if FIXED_IS_PLACEHOLDER else "人件費＋拠点費")
+r2("直接固定費（百万円）", lambda e, P: f"{e['FIXED']:.1f}", "人件費（仮置き）＋発送人件費＋拠点費")
 r2("貢献利益（百万円）", lambda e, P: yen(e["CONTRIB"]), bold=True)
-be_q = (eq["LABOR"] + eq["OTHER"]) / eq["N"] / (eq["NET"] / eq["S"])
-be_fy = (ef["LABOR"] + ef["OTHER"]) / ef["N"] / (ef["NET"] / ef["S"])
+be_q = eq["FIXED"] / eq["N"] / (eq["NET"] / eq["S"])
+be_fy = ef["FIXED"] / ef["N"] / (ef["NET"] / ef["S"])
 text(s, 56, y + 16, 1016, 70,
      [f"損益分岐の月商は、通年の広告費込み限界利益率（{ef['NET'] / ef['S'] * 100:.1f}%）なら約[[{be_fy:.0f}百万円]]、"
       f"直近四半期の率（{eq['NET'] / eq['S'] * 100:.1f}%）なら約{be_q:.0f}百万円。",
@@ -396,31 +399,44 @@ for lab, v1, v2 in rows_:
     yy += 34
     hline(s, x, yy - 8, w)
 vline(s, 564, 150, 550)
-# 右：リピート顧客（事業者）の重み
+# 右：業態別の1顧客あたりの採算（26年9月期の売上÷顧客数×限界利益率をLTVの代わりに使う）
+BIZ_ROWS = [(n_, c_, v_) for n_, c_, v_ in BIZ_CATEGORIES]
+biz_names = ("法人・店舗", "個人事業主", "スクール・ワークショップ", "オンライン販売")
+biz_c = sum(c_ for n_, c_, v_ in BIZ_ROWS if n_ in biz_names)
+biz_v = sum(v_ for n_, c_, v_ in BIZ_ROWS if n_ in biz_names)
+ltv_of = lambda v_, c_: v_ * 1e6 / c_ * GP_RATE26 / 100
+ratio_biz = ltv_of(biz_v, biz_c) / cac26
+unset_c, unset_v = [(c_, v_) for n_, c_, v_ in BIZ_ROWS if n_ == "未設定"][0]
+ratio_unset = ltv_of(unset_v, unset_c) / cac26
 x2 = 584
 rect(s, x2, 150, w, 6, MOSS)
-text(s, x2, 172, w, 34, "売上の大半はリピート顧客（事業者）", size=23, bold=True)
+text(s, x2, 172, w, 34, "業態別に見た1顧客あたりの採算", size=23, bold=True)
 text(s, x2, 216, w, 60,
-     [f"26年9月期の売上{fy_s[2]:.1f}百万円のうち、2回目以降の注文が{REPEAT_SHARE[1]:.0f}%。",
-      f"1注文あたりの売上は、リピート購入{REPEAT_AOV[1]:,}円（{REPEAT_CUSTOMERS[1]}人）と初回{AOV26:,}円の約{REPEAT_AOV[1] / AOV26:.0f}倍"],
-     size=15, color=SECONDARY, spacing=1.45)
-yy = 300
-text(s, x2, yy, w, 24, "26年9月期の顧客の業態（登録区分）", size=14, color=SECONDARY, bold=True)
-text(s, x2 + w - 230, yy, 110, 24, "顧客数", size=14, color=SECONDARY, bold=True, align=PP_ALIGN.RIGHT)
-text(s, x2 + w - 110, yy, 110, 24, "売上（百万円）", size=14, color=SECONDARY, bold=True, align=PP_ALIGN.RIGHT)
+     [f"売上の{REPEAT_SHARE[1]:.0f}%は2回目以降の注文（リピート1件{REPEAT_AOV[1]:,}円、初回の約{REPEAT_AOV[1] / AOV26:.0f}倍）。",
+      "事業者ほど1顧客あたりの売上が大きいので、業態別に年間の限界利益とCACを比べる"],
+     size=13, color=SECONDARY, spacing=1.45)
+yy = 296
+CB = [(x2, 170, PP_ALIGN.LEFT), (x2 + 170, 60, PP_ALIGN.RIGHT), (x2 + 230, 60, PP_ALIGN.RIGHT), (x2 + 290, 110, PP_ALIGN.RIGHT), (x2 + 400, 88, PP_ALIGN.RIGHT)]
+for (xx, ww, al), lab in zip(CB, ("業態（26年9月期）", "顧客数", "売上", "年間限界利益", "LTV/CAC")):
+    text(s, xx, yy, ww, 24, lab, size=12, color=SECONDARY, bold=True, align=al)
 hline(s, x2, yy + 30, w, MOSS, 1.5)
-yy += 38
-for name, cnt, sales in BIZ_CATEGORIES:
-    text(s, x2, yy, w - 240, 30, name, size=15)
-    text(s, x2 + w - 230, yy, 110, 30, f"{cnt:,}", size=16, align=PP_ALIGN.RIGHT, en=True)
-    text(s, x2 + w - 110, yy, 110, 30, f"{sales:.1f}", size=16, align=PP_ALIGN.RIGHT, en=True)
-    yy += 34
-    hline(s, x2, yy - 8, w)
-text(s, x2, yy + 4, w, 60, "「未設定」が売上の大半で、法人・店舗や個人事業主の大口顧客が含まれる。業態の登録を進めると、どの顧客層を増やすべきかが見える",
-     size=13, color=SECONDARY, spacing=1.4)
+yy += 36
+rows_b = [(n_, c_, v_) for n_, c_, v_ in BIZ_ROWS if n_ in biz_names] + [("事業者 計（登録区分あり）", biz_c, biz_v)] + \
+         [(n_, c_, v_) for n_, c_, v_ in BIZ_ROWS if n_ not in biz_names]
+for n_, c_, v_ in rows_b:
+    bold_ = n_.startswith("事業者 計")
+    l_ = ltv_of(v_, c_)
+    vals_ = (n_ if n_ != "事業者 計（登録区分あり）" else "事業者 計", f"{c_:,}", f"{v_:.1f}", f"{l_:,.0f}円", f"{l_ / cac26:.1f}倍")
+    for (xx, ww, al), v_s in zip(CB, vals_):
+        text(s, xx, yy, ww, 28, v_s, size=13, bold=bold_ or al != PP_ALIGN.LEFT and v_s.endswith("倍"), align=al, anchor=MSO_ANCHOR.MIDDLE,
+             spacing=1.0, color=(MOSS if l_ / cac26 >= 1 else STRONG) if v_s.endswith("倍") else MOSS)
+    yy += 32
+    hline(s, x2, yy - 4, w, MOSS if bold_ else BORDER_LIGHT, 1.0 if bold_ else 0.75)
+text(s, x2, yy + 4, w, 60, "売上は百万円。1顧客の年間限界利益＝26年9月期の売上÷顧客数×限界利益率（32.2%）で、12か月のLTVに相当。"
+     "CACは左と同じ値。未設定には業態を登録していない大口の卸顧客が含まれる", size=11, color=SECONDARY, spacing=1.4)
 text(s, 56, 694, 1016, 60,
-     [f"初回購入の限界利益（{first_gp26:,.0f}円）ではCAC（{cac26:,.0f}円）を回収できず、12か月の限界利益LTV（{gp12:,.0f}円）でも{ratio:.1f}倍。",
-      "新規の採算は、2年目以降のリピートか、初回の購入単価・限界利益率の改善で成り立たせる必要がある"],
+     [f"全顧客の平均ではLTV/CAC {ratio:.1f}倍だが、事業者（登録区分あり）は{ratio_biz:.1f}倍、未設定（大口の卸を含む）は{ratio_unset:.1f}倍。",
+      "採算は事業者とリピートで成り立っており、新規獲得は事業者につながる層に寄せるほど効く"],
      size=16, bold=True, spacing=1.45)
 footnote(s, "※ 自社サイトを顧客単位で集計。LTVは25年9月期に初回購入した顧客の初回から12か月の平均（売上は受注データ、限界利益は期の限界利益率で換算）。"
             "CACは広告費をすべて新規獲得にかかったとみなした値。LTV/CACは26年9月期のCACで計算")
@@ -492,7 +508,7 @@ rect(s, cx0 + 100, py_ - 6, 10, 10, HANA_LIGHT)
 text(s, cx0 + 114, py_ - 12, 120, 22, "初回購入", size=10, color=SECONDARY, anchor=MSO_ANCHOR.MIDDLE, spacing=1.0)
 
 # C: リピーター人数（累計）と全顧客に占める割合
-px_, py_, pw_, ph_ = panel(56, 418, PW, PH_, f"リピーター（2回以上購入）の累計と、累計顧客{REP_CUM[-1]:,}人に占める割合")
+px_, py_, pw_, ph_ = panel(56, 418, PW, PH_, f"リピーター（2回以上購入）の累計と、購入あり{ACCOUNTS_BOUGHT:,}アカウントに占める割合")
 cx0, cx1 = px_ + 36, px_ + pw_ - 40
 top_, base_ = py_ + 20, py_ + ph_ - 30
 vmax_ = 600
@@ -541,7 +557,7 @@ rect(s, cx0 + 80, py_ - 6, 10, 10, HANA_LIGHT)
 text(s, cx0 + 94, py_ - 12, 160, 22, "180日以内", size=10, color=SECONDARY, anchor=MSO_ANCHOR.MIDDLE, spacing=1.0)
 
 text(s, 56, 676, 1016, 60,
-     [f"リピート注文は月{REP_REPEAT[0]}件（25年1月）→ {REP_REPEAT[-1]}件（26年9月）、比率は{rep_ratio[-1]:.0f}%。2回以上購入は{REP_CUM_REP[-1]:,}人（累計顧客{REP_CUM[-1]:,}人の{cum_share[-1]:.0f}%）。",
+     [f"リピート注文は月{REP_REPEAT[0]}件（25年1月）→ {REP_REPEAT[-1]}件（26年9月）、比率は{rep_ratio[-1]:.0f}%。2回以上購入は{REP_CUM_REP[-1]:,}（購入あり{ACCOUNTS_BOUGHT:,}アカウントの{cum_share[-1]:.0f}%、登録は{ACCOUNTS_TOTAL:,}）。",
       f"初回から90日以内のリピート率は{min(c[2] for c in COHORT):.0f}〜{max(c[2] for c in COHORT):.0f}%で、26年1〜3月の新規が最も高い"],
      size=16, bold=True, spacing=1.45)
 footnote(s, "※ BigQueryの受注を顧客単位で集計（キャンセル・テスト注文は除く）。リピート注文＝同じ顧客の2回目以降の注文。累計は2024年2月の開始から。比率の線は注文が少ない25年1〜2月を除く")
@@ -549,7 +565,7 @@ footnote(s, "※ BigQueryの受注を顧客単位で集計（キャンセル・�
 
 # ---- 損益分岐に必要な月商
 s = content_slide("損益分岐に必要な月商", "貢献利益が0になる月商と、26年9月期の月平均の売上　単位：百万円/月" + PH)
-fixed_m = FIXED["LABOR"] + FIXED["RENT"]
+fixed_m = FIXED["LABOR"] + FIXED["SHIP"] + FIXED["RENT"]
 act = fy_s[2] / 12
 peak = max(S[20:32])
 rows3 = [("通年の率（26年9月期）", ef["NET"] / ef["S"], be_fy), ("直近四半期の率（26年7〜9月）", eq["NET"] / eq["S"], be_q)]
@@ -557,7 +573,7 @@ bx0, bwid = 330, 600
 vmax_ = max(be_fy, be_q, peak) * 1.1
 y0 = 168
 text(s, 56, y0, 400, 36, "損益分岐の月商", size=24, bold=True, anchor=MSO_ANCHOR.MIDDLE)
-text(s, 460, y0, 612, 36, f"直接固定費 {fixed_m:.1f}百万円/月（仮置き）", size=15, color=SECONDARY, anchor=MSO_ANCHOR.MIDDLE)
+text(s, 460, y0, 612, 36, f"直接固定費 {fixed_m:.2f}百万円/月（人件費{FIXED['LABOR']:.1f}は仮置き、発送人件費{FIXED['SHIP']:.1f}、拠点費{FIXED['RENT']:.2f}）", size=15, color=SECONDARY, anchor=MSO_ANCHOR.MIDDLE)
 yy = y0 + 48
 for lab, m_, be in rows3:
     text(s, 56, yy, 270, 36, [lab, f"広告費込み限界利益率 {m_ * 100:.1f}%"], size=14, color=SECONDARY, anchor=MSO_ANCHOR.MIDDLE, spacing=1.2)
@@ -574,28 +590,27 @@ rs = REPEAT_SHARE[1] / 100
 new_need = be_fy * 1e6 * (1 - rs) / AOV26
 mult = be_fy / act
 text(s, 56, yy + 40, 1016, 160,
-     [f"損益分岐の月商は約{be_fy:.0f}百万円で、26年9月期の月平均{act:.1f}百万円の約{mult:.1f}倍。固定費が仮置きのため幅はあるが、",
+     [f"損益分岐の月商は約{be_fy:.0f}百万円で、26年9月期の月平均{act:.1f}百万円の約{mult:.1f}倍。人件費が仮置きのため幅はあるが、",
       f"現状の広告費込み限界利益率（{ef['NET'] / ef['S'] * 100:.0f}%）のままでは、売上を数倍にしないと貢献利益は黒字にならない。",
       f"広告費込み限界利益率を高める（広告効率・限界利益率の改善）か、リピート顧客（事業者）の積み上げで固定費を吸収する売上規模に乗せるかが論点"],
      size=18, bold=True, spacing=1.5)
-footnote(s, "※ 損益分岐＝直接固定費÷広告費込み限界利益率。直接固定費は仮置き（人件費1.2＋拠点費0.3百万円/月）。社内の集計で差し替える")
+footnote(s, f"※ 損益分岐＝直接固定費÷広告費込み限界利益率。直接固定費＝人件費{FIXED['LABOR']:.1f}（仮置き）＋発送人件費{FIXED['SHIP']:.1f}＋拠点費{FIXED['RENT']:.2f}百万円/月")
 
 # =====================================================================
 # 要約（数字が出そろってから）
 # =====================================================================
 draw_claims(summary_slide, [
     ("1", "売上は3期で拡大、限界利益率は30%台を維持", [
-        f"売上は{fy_s[0]:.0f} → {fy_s[1]:.0f} → {fy_s[2]:.0f}百万円（24年9月期は8か月）。26年9月期は前期比+{(fy_s[2] / fy_s[1] - 1) * 100:.0f}%。"
-        f"フラワーボックス等を含めると{fy_tot[1]:.0f} → {fy_tot[2]:.0f}百万円",
-        f"限界利益率は{fy_gp[1] / fy_s[1] * 100:.0f} → {fy_gp[2] / fy_s[2] * 100:.0f}%。広告費込み限界利益は{fy_net[1]:.1f} → {fy_net[2]:.1f}百万円（同率{fy_net[2] / fy_s[2] * 100:.0f}%）"]),
+        f"売上は{fy_s[0]:.0f} → {fy_s[1]:.0f} → {fy_s[2]:.0f}百万円（24年9月期は8か月）。ボックス等を含めると{fy_tot[1]:.0f} → {fy_tot[2]:.0f}百万円",
+        f"限界利益率は{fy_gp[1] / fy_s[1] * 100:.0f} → {fy_gp[2] / fy_s[2] * 100:.0f}%（生花 約{CAT_MARGIN['生花']:.0f}%、植木鉢 約{CAT_MARGIN['植木鉢']:.0f}%）。広告費込み限界利益は{fy_net[1]:.1f} → {fy_net[2]:.1f}百万円"]),
     ("2", "広告は生花の新規獲得に集中。1人あたりの採算はまだ成立していない", [
         f"CAC {cac26:,.0f}円に対し、初回の限界利益{first_gp26:,.0f}円、12か月の限界利益LTV {gp12:,.0f}円（LTV/CAC {ratio:.1f}倍）",
         f"全体ROASは{fy_s[2] / fy_ad[2] * 100:.0f}%だが、広告対象の生花はサイト売上の一部で、初回の購入単価（{AOV26:,}円）が小さい",
-        "ただ無策ではなく、現状の仕入れを卸や海外輸入に変えることにより、限界利益率を大幅に高めることが可能"]),
+        f"事業者（登録区分あり）のLTV/CACは{ratio_biz:.1f}倍、未設定（大口の卸を含む）は{ratio_unset:.1f}倍"]),
     ("3", "収益化の鍵は、リピート顧客（事業者）の積み上げと広告費込み限界利益率の改善", [
         f"売上の{REPEAT_SHARE[1]:.0f}%は2回目以降の注文。1注文あたりの売上はリピート{REPEAT_AOV[1]:,}円、初回{AOV26:,}円（約{REPEAT_AOV[1] / AOV26:.0f}倍）",
-        f"リピート注文は月{REP_REPEAT[0]} → {REP_REPEAT[-1]}件（25年1月 → 26年9月）。2回以上購入は{REP_CUM_REP[-1]:,}人（全{REP_CUM[-1]:,}人の{REP_CUM_REP[-1] / REP_CUM[-1] * 100:.0f}%）",
-        f"損益分岐の月商は約{be_fy:.0f}百万円（直接固定費は仮置き）で、26年9月期の月平均{act:.1f}百万円の約{mult:.1f}倍"]),
+        f"リピート注文は月{REP_REPEAT[0]} → {REP_REPEAT[-1]}件（25年1月 → 26年9月）、2回以上購入は{REP_CUM_REP[-1]:,}アカウント（{REP_CUM_REP[-1] / ACCOUNTS_BOUGHT * 100:.0f}%）",
+        f"損益分岐の月商は約{be_fy:.0f}百万円（人件費は仮置き）で、26年9月期の月平均{act:.1f}百万円の約{mult:.1f}倍"]),
 ], y=124, color=HANA)
 footnote(summary_slide, "※ 数値は税抜。用語の定義と集計の前提は最終ページ。直接固定費は仮置きで、社内の集計に差し替える")
 
@@ -723,8 +738,9 @@ TERMS = [
     ("広告費", "Google・Meta・Yahoo!・Microsoft・Pinterest の広告費（税抜）。広告は生花のみ"),
     ("広告費込み限界利益", "限界利益 − 広告費"),
     ("全体ROAS", "売上 ÷ 広告費。分子は生花以外（植木鉢・資材）も含むサイト全体の売上"),
-    ("直接固定費", "ハナイチに直接かかる人件費と、拠点の家賃・水道光熱費。本資料では仮置き（月1.2＋0.3百万円）"),
+    ("直接固定費", "人件費（担当者、仮置き月0.6百万円）＋発送人件費（月0.3百万円）＋拠点費（川崎拠点の家賃の20%＝月0.19百万円）"),
     ("貢献利益", "広告費込み限界利益 − 直接固定費。本社の人件費・共通費は含まない"),
+    ("アカウント", "登録3,728アカウントのうち、2024年2月以降に購入のある2,542を顧客として集計（受注データの顧客ID）"),
     ("出典", "ハナイチ管理画面（売上・限界利益・顧客）、Marketing Master（広告費）、受注データ（顧客単位のLTV）"),
 ]
 y = 150
