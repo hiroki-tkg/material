@@ -462,14 +462,14 @@ L0 = 2  # 注文が少ない25年1〜2月は比率の線から外す
 polyline(s, [(cx0 + i * slot_ + slot_ / 2, ry_(rep_ratio[i])) for i in range(L0, NM)], MOSS, 2.0)
 for v in (20, 40, 60):
     text(s, cx1 + 4, ry_(v) - 8, 36, 16, f"{v}%", size=9, color=MUTED, en=True)
-for i in (L0, NM - 1):
-    text(s, cx0 + i * slot_ - 16, ry_(rep_ratio[i]) - 20, slot_ + 32, 16, f"{rep_ratio[i]:.0f}%", size=10, bold=True, align=PP_ALIGN.CENTER, en=True)
-text(s, cx0 + (NM - 1) * slot_ - 16, yv(REP_REPEAT[-1]) + 2, slot_ + 32, 16, f"{REP_REPEAT[-1]}", size=10, bold=True, color=WHITE, align=PP_ALIGN.CENTER, en=True)
+text(s, cx0 + L0 * slot_ - 16, ry_(rep_ratio[L0]) - 20, slot_ + 32, 16, f"{rep_ratio[L0]:.0f}%", size=10, bold=True, align=PP_ALIGN.CENTER, en=True)
+text(s, cx0 + (NM - 1) * slot_ - 60, ry_(rep_ratio[-1]) - 8, 56, 16, f"{rep_ratio[-1]:.0f}%", size=10, bold=True, align=PP_ALIGN.RIGHT, en=True)
+text(s, cx0 + (NM - 1) * slot_ - 16, yv(REP_REPEAT[-1]) - 18, slot_ + 32, 16, f"{REP_REPEAT[-1]}", size=10, bold=True, align=PP_ALIGN.CENTER, en=True)
 month_axis(cx0, 0, 0, slot_, NM, base_)
 rect(s, cx0, py_ - 6, 10, 10, HANA)
-text(s, cx0 + 14, py_ - 10, 120, 18, "リピート注文数", size=10, color=SECONDARY)
+text(s, cx0 + 14, py_ - 12, 120, 22, "リピート注文数", size=10, color=SECONDARY, anchor=MSO_ANCHOR.MIDDLE, spacing=1.0)
 rect(s, cx0 + 110, py_ - 2, 20, 3, MOSS)
-text(s, cx0 + 134, py_ - 10, 160, 18, "リピート比率（右軸）", size=10, color=SECONDARY)
+text(s, cx0 + 134, py_ - 12, 160, 22, "リピート比率（右軸）", size=10, color=SECONDARY, anchor=MSO_ANCHOR.MIDDLE, spacing=1.0)
 
 # B: 月ごとの購入顧客数（新規／リピート）
 px_, py_, pw_, ph_ = panel(584, 150, PW, PH_, "月ごとの購入顧客数（新規とリピート）")
@@ -487,12 +487,12 @@ for i in range(NM):
 text(s, cx0 + (NM - 1) * slot_ - 16, yv(REP_ACTIVE[-1]) - 18, slot_ + 32, 16, f"{REP_ACTIVE[-1]}", size=10, bold=True, align=PP_ALIGN.CENTER, en=True)
 month_axis(cx0, 0, 0, slot_, NM, base_)
 rect(s, cx0, py_ - 6, 10, 10, HANA)
-text(s, cx0 + 14, py_ - 10, 120, 18, "リピート購入", size=10, color=SECONDARY)
+text(s, cx0 + 14, py_ - 12, 120, 22, "リピート購入", size=10, color=SECONDARY, anchor=MSO_ANCHOR.MIDDLE, spacing=1.0)
 rect(s, cx0 + 100, py_ - 6, 10, 10, HANA_LIGHT)
-text(s, cx0 + 114, py_ - 10, 120, 18, "初回購入", size=10, color=SECONDARY)
+text(s, cx0 + 114, py_ - 12, 120, 22, "初回購入", size=10, color=SECONDARY, anchor=MSO_ANCHOR.MIDDLE, spacing=1.0)
 
 # C: リピーター人数（累計）と全顧客に占める割合
-px_, py_, pw_, ph_ = panel(56, 418, PW, PH_, f"リピーター（2回以上購入）の累計人数と、累計顧客（{REP_CUM[-1]:,}人）に占める割合")
+px_, py_, pw_, ph_ = panel(56, 418, PW, PH_, f"リピーター（2回以上購入）の累計と、累計顧客{REP_CUM[-1]:,}人に占める割合")
 cx0, cx1 = px_ + 36, px_ + pw_ - 40
 top_, base_ = py_ + 20, py_ + ph_ - 30
 vmax_ = 600
@@ -511,9 +511,9 @@ for i in (L0, NM - 1):
 text(s, cx0 + (NM - 1) * slot_ - 20, yv(REP_CUM_REP[-1]) - 18, slot_ + 40, 16, f"{REP_CUM_REP[-1]:,}", size=10, bold=True, align=PP_ALIGN.CENTER, en=True)
 month_axis(cx0, 0, 0, slot_, NM, base_)
 rect(s, cx0, py_ - 6, 10, 10, HANA)
-text(s, cx0 + 14, py_ - 10, 120, 18, "リピーター数（累計）", size=10, color=SECONDARY)
+text(s, cx0 + 14, py_ - 12, 120, 22, "リピーター数（累計）", size=10, color=SECONDARY, anchor=MSO_ANCHOR.MIDDLE, spacing=1.0)
 rect(s, cx0 + 140, py_ - 2, 20, 3, MOSS)
-text(s, cx0 + 164, py_ - 10, 200, 18, "全顧客に占める割合（右軸）", size=10, color=SECONDARY)
+text(s, cx0 + 164, py_ - 12, 200, 22, "全顧客に占める割合（右軸）", size=10, color=SECONDARY, anchor=MSO_ANCHOR.MIDDLE, spacing=1.0)
 
 # D: 初回購入の四半期ごとのリピート率（90日／180日以内）
 px_, py_, pw_, ph_ = panel(584, 418, PW, PH_, "初回購入からのリピート率（初回購入の四半期ごと）")
@@ -536,12 +536,12 @@ for i, (lab, n_, r90, r180) in enumerate(COHORT):
     text(s, cx0 + i * slotq, base_ + 4, slotq, 16, lab, size=9, color=MUTED, align=PP_ALIGN.CENTER)
     text(s, cx0 + i * slotq, base_ + 18, slotq, 16, f"{n_}人", size=9, color=MUTED, align=PP_ALIGN.CENTER)
 rect(s, cx0, py_ - 6, 10, 10, HANA)
-text(s, cx0 + 14, py_ - 10, 120, 18, "90日以内", size=10, color=SECONDARY)
+text(s, cx0 + 14, py_ - 12, 120, 22, "90日以内", size=10, color=SECONDARY, anchor=MSO_ANCHOR.MIDDLE, spacing=1.0)
 rect(s, cx0 + 80, py_ - 6, 10, 10, HANA_LIGHT)
-text(s, cx0 + 94, py_ - 10, 160, 18, "180日以内", size=10, color=SECONDARY)
+text(s, cx0 + 94, py_ - 12, 160, 22, "180日以内", size=10, color=SECONDARY, anchor=MSO_ANCHOR.MIDDLE, spacing=1.0)
 
 text(s, 56, 676, 1016, 60,
-     [f"リピート注文は月{REP_REPEAT[0]}件（25年1月）→ {REP_REPEAT[-1]}件（26年9月）、注文に占める比率は{rep_ratio[-1]:.0f}%。2回以上購入した顧客は累計{REP_CUM_REP[-1]:,}人（累計顧客{REP_CUM[-1]:,}人の{cum_share[-1]:.0f}%）。",
+     [f"リピート注文は月{REP_REPEAT[0]}件（25年1月）→ {REP_REPEAT[-1]}件（26年9月）、比率は{rep_ratio[-1]:.0f}%。2回以上購入は{REP_CUM_REP[-1]:,}人（累計顧客{REP_CUM[-1]:,}人の{cum_share[-1]:.0f}%）。",
       f"初回から90日以内のリピート率は{min(c[2] for c in COHORT):.0f}〜{max(c[2] for c in COHORT):.0f}%で、26年1〜3月の新規が最も高い"],
      size=16, bold=True, spacing=1.45)
 footnote(s, "※ BigQueryの受注を顧客単位で集計（キャンセル・テスト注文は除く）。リピート注文＝同じ顧客の2回目以降の注文。累計は2024年2月の開始から。比率の線は注文が少ない25年1〜2月を除く")
