@@ -447,7 +447,7 @@ footnote(s, "※ 匿名化した受注・顧客データを顧客単位で集計
             "CACは広告費をすべて新規獲得にかかったとみなした値で、セグメント別には分けられないため共通")
 
 # ---- リピートの状況（卸のサービスなので、LTV/CACよりリピートの積み上がりで採算を見る）
-s = content_slide("リピートの状況：顧客基盤の積み上がり", "卸のサービスなので、LTV/CACよりもリピートの積み上がりで見る　※自社サイト、ボックス等は含まない")
+s = content_slide("リピートの状況：顧客基盤の積み上がり", "卸のサービスなので、LTV/CACよりもリピートの積み上がりで見る　※自社サイトの受注のみ")
 NM = len(REP_YM)
 rep_ratio = [r / o * 100 for r, o in zip(REP_REPEAT, REP_ORDERS)]
 cum_share = [r / c * 100 for r, c in zip(REP_CUM_REP, REP_CUM)]
@@ -455,7 +455,7 @@ cum_share = [r / c * 100 for r, c in zip(REP_CUM_REP, REP_CUM)]
 
 def panel(x, y, w, h, title):
     text(s, x, y, w, 24, title, size=15, bold=True)
-    return x, y + 34, w, h - 34
+    return x, y + 50, w, h - 50
 
 
 def month_axis(x, y, w, slot_w, n, base_y):
@@ -513,7 +513,7 @@ rect(s, cx0 + 100, py_ - 6, 10, 10, HANA_LIGHT)
 text(s, cx0 + 114, py_ - 12, 120, 22, "初回購入", size=10, color=SECONDARY, anchor=MSO_ANCHOR.MIDDLE, spacing=1.0)
 
 # C: リピーター人数（累計）と全顧客に占める割合
-px_, py_, pw_, ph_ = panel(56, 418, PW, PH_, f"リピーター（2回以上購入）の累計と、購入あり{ACCOUNTS_BOUGHT:,}アカウントに占める割合")
+px_, py_, pw_, ph_ = panel(56, 418, PW, PH_, "リピーターの累計と、購入ありアカウントに占める割合")
 cx0, cx1 = px_ + 36, px_ + pw_ - 40
 top_, base_ = py_ + 20, py_ + ph_ - 30
 vmax_ = 600
@@ -534,7 +534,7 @@ month_axis(cx0, 0, 0, slot_, NM, base_)
 rect(s, cx0, py_ - 6, 10, 10, HANA)
 text(s, cx0 + 14, py_ - 12, 120, 22, "リピーター数（累計）", size=10, color=SECONDARY, anchor=MSO_ANCHOR.MIDDLE, spacing=1.0)
 rect(s, cx0 + 140, py_ - 2, 20, 3, MOSS)
-text(s, cx0 + 164, py_ - 12, 200, 22, "全顧客に占める割合（右軸）", size=10, color=SECONDARY, anchor=MSO_ANCHOR.MIDDLE, spacing=1.0)
+text(s, cx0 + 164, py_ - 12, 200, 22, "購入ありに占める割合（右軸）", size=10, color=SECONDARY, anchor=MSO_ANCHOR.MIDDLE, spacing=1.0)
 
 # D: 初回購入の四半期ごとのリピート率（90日／180日以内）
 px_, py_, pw_, ph_ = panel(584, 418, PW, PH_, "初回購入からのリピート率（初回購入の四半期ごと）")
@@ -565,7 +565,7 @@ text(s, 56, 676, 1016, 60,
      [f"リピート注文は月{REP_REPEAT[0]}件（25年1月）→ {REP_REPEAT[-1]}件（26年9月）、比率は{rep_ratio[-1]:.0f}%。2回以上購入は{REP_CUM_REP[-1]:,}（購入あり{ACCOUNTS_BOUGHT:,}アカウントの{cum_share[-1]:.0f}%、登録は{ACCOUNTS_TOTAL:,}）。",
       f"初回から90日以内のリピート率は{min(c[2] for c in COHORT):.0f}〜{max(c[2] for c in COHORT):.0f}%で、26年1〜3月の新規が最も高い"],
      size=16, bold=True, spacing=1.45)
-footnote(s, "※ BigQueryの受注を顧客単位で集計（キャンセル・テスト注文は除く）。リピート注文＝同じ顧客の2回目以降の注文。累計は2024年2月の開始から。比率の線は注文が少ない25年1〜2月を除く")
+footnote(s, "※ 自社サイトの受注を顧客単位で集計（キャンセル・テスト注文は除く。フラワーボックス等のイネイブラー事業は含まない）。リピーター＝2回以上購入した顧客。リピート注文＝同じ顧客の2回目以降の注文。180日以内は90日以内を含む。累計は2024年2月の開始から。比率の線は注文が少ない25年1〜2月を除く")
 
 
 # ---- 損益分岐に必要な月商
