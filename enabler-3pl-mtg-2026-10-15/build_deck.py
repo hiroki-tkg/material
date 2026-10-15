@@ -245,12 +245,12 @@ add(
   <div class="h3" style="margin-top:6px">フラワーギフトオプションとは</div>
   <p style="font-size:20px;margin-top:10px;width:1000px">他社のECで買い物をするときに、お花をセットで贈れる仕組みです。EC事業者が自社で花の在庫や品質管理を持たなくても、お花付きギフトを提供できるようになります。生花パターンとプリパターンの2種類があります。</p>
   <div class="hr" style="margin:28px 0 26px"></div>
-  <div class="key">BtoBで進める理由：[[他社の力を借りて、一気に裾野を広げられる]]から</div>
+  <div class="h3" style="font-size:26px">イネイブラーのメリット<span class="sec" style="font-size:18px;font-weight:400;margin-left:14px">他社の力を借りて、一気に裾野を広げられる</span></div>
   <div class="cards" style="margin-top:28px">{cards}</div>
 </div>''',
     title="イネイブラー事業の方針",
     sub="他社ECで、お花付きギフトが買える。その仕組みを提供し、お花を楽しむ人の「裾野」を広げる事業です。",
-    notes="出典：10/9合宿資料。BtoBで進める理由は、他社の力を借りて一気に裾野を広げられるため。",
+    notes="出典：10/9合宿資料。イネイブラーのメリットは、他社の力を借りて一気に裾野を広げられること。",
 )
 
 # =====================================================================
@@ -269,14 +269,22 @@ mrows = "".join(
 )
 add(
     f'''
-<div class="body" style="display:flex;gap:48px">
-  <div style="width:480px">
+<div class="body" style="display:flex;gap:40px">
+  <div style="width:496px">
     <div class="h3">お花とのセット販売を実現</div>
     <div class="bar4"></div>
-    <img src="{img('set_gift.jpg')}" style="width:480px;display:block">
-    <p class="sec" style="font-size:16px;margin-top:14px">飲料、食品、コスメなど様々な事業者様に向けて、ギフトシーンにおける花のセット販売機能を提供し、より高いギフト体験を実現します。</p>
+    <div style="display:flex;gap:14px;align-items:flex-start">
+      <img src="{img('fgo_example.jpg')}" style="width:300px;display:block;border:1px solid var(--border)">
+      <div style="width:182px">
+        <div class="label">EXAMPLE</div>
+        <p style="font-size:15px;font-weight:700;margin-top:4px;line-height:1.5">他社ECの商品ページで、花を選んでそのまま同梱できる</p>
+        <p class="sec" style="font-size:13px;margin-top:8px">導入先のカートに「Flower Gift」の選択画面が出て、花の種類・配達希望日・メッセージを入力。花の在庫や品質管理はDomuz側で持ちます。</p>
+        <img src="{img('set_gift.jpg')}" style="width:182px;display:block;margin-top:12px">
+      </div>
+    </div>
+    <p class="sec" style="font-size:15px;margin-top:12px">飲料、食品、コスメなど様々な事業者様に向けて、ギフトシーンにおける花のセット販売機能を提供し、より高いギフト体験を実現します。</p>
   </div>
-  <div style="width:488px">
+  <div style="width:480px">
     <div class="h3">導入のメリット</div>
     <div class="bar4"></div>
     {mrows}
@@ -292,52 +300,75 @@ add(
 # =====================================================================
 
 
-def node(x, y, label, fill=False):
-    w, h = 118, 60
-    bg = "var(--moss)" if fill else "var(--white)"
-    fg = "var(--white)" if fill else "var(--moss)"
-    return (f'<rect x="{x - w / 2}" y="{y - h / 2}" width="{w}" height="{h}" fill="{bg}" stroke="var(--moss)" stroke-width="1.5"/>'
-            f'<text x="{x}" y="{y + 6}" text-anchor="middle" font-size="16" font-weight="700" fill="{fg}">{label}</text>')
+ICON = {k: img(f"icon_{k}.png") for k in ("box", "warehouse", "bouquet", "person")}
+ICON_W = {k: img(f"icon_{k}_white.png") for k in ("box", "warehouse", "bouquet", "person")}
+ICON_G = {k: img(f"icon_{k}_gray.png") for k in ("box", "warehouse", "bouquet", "person")}
 
 
-def tag(x, y, label, color):
-    w = 16 * len(label) + 16
-    return (f'<rect x="{x - w / 2}" y="{y - 12}" width="{w}" height="24" rx="12" fill="{color}"/>'
-            f'<text x="{x}" y="{y + 5}" text-anchor="middle" font-size="13" font-weight="700" fill="#fff">{label}</text>')
+def node(x, y, icon, label, kind="plain"):
+    """アイコン＋ラベルのノード。kind: moss（Domuz）/ plain（導入企業様）/ person（消費者）。"""
+    r = 40
+    if kind == "moss":
+        bg = f'<circle cx="{x}" cy="{y}" r="{r}" fill="var(--moss)"/>'
+        im = f'<image href="{ICON_W[icon]}" x="{x - 24}" y="{y - 24}" width="48" height="48"/>'
+    else:
+        bg = f'<circle cx="{x}" cy="{y}" r="{r}" fill="var(--white)" stroke="var(--moss)" stroke-width="1.5"/>'
+        im = f'<image href="{ICON[icon]}" x="{x - 24}" y="{y - 24}" width="48" height="48"/>'
+    return bg + im + f'<text x="{x}" y="{y + r + 20}" text-anchor="middle" font-size="15" font-weight="700" fill="var(--moss)">{label}</text>'
 
 
-def arrow(x1, y1, x2, y2):
-    return f'<line x1="{x1}" y1="{y1}" x2="{x2}" y2="{y2}" stroke="var(--moss)" stroke-width="1.5" marker-end="url(#ah)"/>'
+def tag(x, y, icons, label):
+    """矢印の上に載せる「何が動くか」: 小アイコン（花束・段ボール）＋ラベル。"""
+    n = len(icons)
+    w = n * 30 + 10 + 15 * len(label) + 10
+    out = [f'<rect x="{x - w / 2}" y="{y - 18}" width="{w}" height="36" rx="18" fill="var(--white)" stroke="var(--border)" stroke-width="1"/>']
+    ix = x - w / 2 + 8
+    for ic in icons:
+        out.append(f'<image href="{ICON[ic]}" x="{ix}" y="{y - 13}" width="26" height="26"/>')
+        ix += 30
+    out.append(f'<text x="{ix + 4}" y="{y + 5}" font-size="14" font-weight="700" fill="var(--moss)">{label}</text>')
+    return "".join(out)
+
+
+def arrow(x1, y1, x2, y2, bend=None):
+    """直線、または bend=(x,y) 経由の折れ線。"""
+    st = 'fill="none" stroke="var(--moss)" stroke-width="2" marker-end="url(#ah)"'
+    if bend:
+        return f'<polyline points="{x1},{y1} {bend[0]},{bend[1]} {x2},{y2}" {st}/>'
+    return f'<line x1="{x1}" y1="{y1}" x2="{x2}" y2="{y2}" {st}/>'
 
 
 DEFS = '<defs><marker id="ah" markerWidth="8" markerHeight="8" refX="7" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="var(--moss)"/></marker></defs>'
-LIGHT, FLOWER = "var(--light)", "var(--flower)"
-p1 = (f'<svg viewBox="0 0 320 230" width="320" height="230">{DEFS}'
-      + node(70, 190, "導入企業様") + arrow(70, 160, 70, 72) + tag(70, 116, "商品", LIGHT)
-      + node(70, 42, "Domuz 倉庫", True) + arrow(129, 42, 190, 42) + tag(160, 42, "花＋商品", FLOWER)
-      + node(250, 42, "消費者") + '</svg>')
-p2 = (f'<svg viewBox="0 0 320 230" width="320" height="230">{DEFS}'
-      + node(70, 42, "Domuz 倉庫", True) + node(70, 190, "導入企業様")
-      + arrow(129, 42, 190, 70) + tag(165, 40, "花", FLOWER)
-      + arrow(129, 190, 190, 150) + tag(165, 190, "商品", LIGHT)
-      + node(250, 116, "消費者") + '</svg>')
-p3 = (f'<svg viewBox="0 0 320 230" width="320" height="230">{DEFS}'
-      + node(70, 42, "Domuz 倉庫", True) + arrow(70, 72, 70, 160) + tag(70, 116, "花", FLOWER)
-      + node(70, 190, "導入企業様") + arrow(129, 190, 190, 190) + tag(160, 190, "花＋商品", LIGHT)
-      + node(250, 190, "消費者") + '</svg>')
+SVG = '<svg viewBox="0 0 320 330" width="320" height="330">' + DEFS
+# ① 導入企業様 →(商品)→ Domuz倉庫 →(花＋商品)→ 消費者
+p1 = (SVG + node(70, 270, "warehouse", "導入企業様") + arrow(70, 226, 70, 138) + tag(70, 182, ["box"], "商品")
+      + node(70, 64, "warehouse", "Domuz 倉庫", "moss") + arrow(114, 64, 208, 64) + tag(161, 26, ["bouquet", "box"], "花＋商品")
+      + node(252, 64, "person", "消費者") + '</svg>')
+# ② Domuz倉庫 →(花)→ 消費者 ←(商品)← 導入企業様（同じ配送業者・配送日時）
+p2 = (SVG + node(70, 64, "warehouse", "Domuz 倉庫", "moss") + node(70, 270, "warehouse", "導入企業様")
+      + arrow(118, 64, 212, 150) + tag(150, 64, ["bouquet"], "花")
+      + arrow(118, 270, 212, 184) + tag(150, 270, ["box"], "商品")
+      + node(252, 167, "person", "消費者")
+      + '<text x="252" y="252" text-anchor="middle" font-size="12" fill="var(--secondary)">同じ配送業者・配送日時</text>' + '</svg>')
+# ③ Domuz倉庫 →(花)→ 導入企業様 →(花＋商品)→ 消費者
+p3 = (SVG + node(70, 64, "warehouse", "Domuz 倉庫", "moss") + arrow(70, 134, 70, 226) + tag(70, 180, ["bouquet"], "花")
+      + node(70, 270, "warehouse", "導入企業様") + arrow(114, 270, 208, 270) + tag(161, 232, ["bouquet", "box"], "花＋商品")
+      + node(252, 270, "person", "消費者") + '</svg>')
 patterns = [
     ("1", "弊社から同梱して送る", "弊社へ導入企業様の商品を事前に納入いただき、弊社から同梱して発送するパターン", p1),
     ("2", "同じタイミングで送る", "注文情報を連携し、ギフトの送り先住所へ同じ配送業者・配送日時で届けるパターン。発送拠点が関東エリアにあり、サイズが大きく異ならない場合に限られます（佐川急便、ヤマト運輸の場合）", p2),
     ("3", "導入企業様から送る", "事前に導入企業様へ花を卸しておき、配送していただくパターン。ドライフラワーやプリザーブドフラワーに限られます", p3),
 ]
 cols = "".join(
-    f'<div style="width:320px">{svg}<div class="hr" style="margin:10px 0 14px"></div>'
-    f'<div style="font-size:22px;font-weight:700"><span class="circ">{n}</span>{h}</div>'
-    f'<p class="sec" style="font-size:15px;margin-top:8px">{b}</p></div>'
+    f'<div style="width:320px;display:flex;flex-direction:column">'
+    f'<div style="font-size:22px;font-weight:700;height:40px"><span class="circ">{n}</span>{h}</div>'
+    f'<div class="hr" style="margin:8px 0 14px"></div>'
+    f'<div style="background:var(--bg-tint);padding:10px 0">{svg}</div>'
+    f'<p class="sec" style="font-size:15px;margin-top:14px">{b}</p></div>'
     for n, h, b, svg in patterns
 )
 add(
-    f'<div class="body" style="display:flex;gap:28px;top:172px">{cols}</div>',
+    f'<div class="body" style="display:flex;gap:28px;top:160px">{cols}</div>',
     title="フラワーギフトオプションの実現パターン",
     sub="導入企業様の販売方法や状況に合わせて、配送オペレーションのパターンを複数ご用意しています。",
     notes="出典：村上さん共有資料 P8。図は同資料をもとに描き直し。",
@@ -415,49 +446,72 @@ add(
 # =====================================================================
 # 8. 利益の構造（Mサイズの例）— 横の積み上げ棒
 # =====================================================================
-SCALE = 1016 / 4900  # px / 円（下代4,900円 = 1016px）
+SCALE = 1016 / 13500  # px / 円（セット上代 13,500円 = 1016px）。3本の棒とも同じ目盛り
+SCALE2 = 1016 / 6000  # 花の内訳だけ拡大（6,000円 = 1016px）
 
 
-def hbar(label, total, segs, y):
-    """segs: (名前, 円, 色, 文字色)。幅は共通スケール（1円=同じ長さ）。"""
-    x = 0
-    out = [f'<div style="position:absolute;left:0;top:{y}px;font-size:20px;font-weight:700">{label}</div>']
-    for name, yen, col, fg in segs:
-        w = yen * SCALE
-        lab = (f'<div style="font-size:15px;font-weight:700">{name}</div>'
-               f'<div class="en" style="font-size:24px;font-weight:700;margin-top:2px">{yen:,}'
-               f'<span style="font-size:13px;font-weight:400;margin-left:4px">円 ({round(yen / total * 100)}%)</span></div>')
-        out.append(f'<div style="position:absolute;left:{x}px;top:{y + 40}px;width:{w - 3}px;height:84px;background:{col};'
-                   f'display:flex;flex-direction:column;justify-content:center;align-items:center;color:{fg}">'
-                   + (lab if w >= 200 else "") + '</div>')
-        if w < 200:  # 狭いセグメントは棒の下にラベル
-            out.append(f'<div style="position:absolute;left:{x}px;top:{y + 132}px;width:160px;color:var(--moss);'
-                       f'border-left:2px solid {col};padding-left:8px">{lab}</div>')
+def seg(x, y, w, h, name, yen, total, col, fg, border=None):
+    """積み上げ棒の1区画。狭いときはラベルを棒の下に出す。"""
+    bd = f"border:1.5px solid {border};" if border else ""
+    lab = (f'<div style="font-size:14px;font-weight:700;white-space:nowrap">{name}</div>'
+           f'<div class="en" style="font-size:21px;font-weight:700;margin-top:1px;white-space:nowrap">{yen:,}'
+           f'<span style="font-size:12px;font-weight:400;margin-left:3px">円 ({round(yen / total * 100)}%)</span></div>')
+    out = (f'<div style="position:absolute;left:{x}px;top:{y}px;width:{w - 3}px;height:{h}px;background:{col};{bd}'
+           f'display:flex;flex-direction:column;justify-content:center;align-items:center;color:{fg}">'
+           + (lab if w >= 150 else "") + '</div>')
+    if w < 150:
+        out += (f'<div style="position:absolute;left:{x}px;top:{y + h + 8}px;width:150px;color:var(--moss);'
+                f'border-left:2px solid {col if col != "var(--white)" else border};padding-left:8px">{lab}</div>')
+    return out
+
+
+def hbar(label, total, segs, y, scale, h=64, x0=0, note=""):
+    x = x0
+    out = [f'<div style="position:absolute;left:{x0}px;top:{y}px;font-size:18px;font-weight:700">{label}'
+           f'<span class="sec" style="font-size:14px;font-weight:400;margin-left:10px">{note}</span></div>']
+    for name, yen, col, fg, *bd in segs:
+        w = yen * scale
+        out.append(seg(x, y + 32, w, h, name, yen, total, col, fg, bd[0] if bd else None))
         x += w
     return "".join(out)
 
 
-b1 = hbar("商品（下代 4,900円）", 4900,
-          [("原価＆変動費", 2762, "var(--bg-gray)", "var(--moss)"), ("作業費", 725, "var(--bg-gray2)", "#fff"),
-           ("貢献利益", 1413, "var(--light)", "#fff")], 0)
-b2 = hbar("送料（収入 960円）", 960,
-          [("佐川実費", 546, "var(--bg-gray)", "var(--moss)"), ("送料差益", 414, "var(--light)", "#fff")], 150)
+GRAY, GRAY2, MOSS, WHITE = "var(--bg-gray)", "var(--bg-gray2)", "var(--moss)", "var(--white)"
+# ① セット全体（消費者が払う 13,500円）
+b1 = hbar("セット上代（消費者が払う）13,500円", 13500,
+          [("高級スイーツ（事業者様の商品）", 7500, GRAY, MOSS), ("フラワーブーケ Mサイズ", 6000, MOSS, WHITE)], 0, SCALE, h=56)
+# ② 花 6,000円の内訳（拡大）
+b2 = hbar("花 6,000円の内訳", 6000,
+          [("事業者様の粗利", 1100, WHITE, MOSS, MOSS), ("原価＆変動費", 2762, GRAY, MOSS), ("作業費", 725, GRAY2, WHITE),
+           ("貢献利益", 1413, "var(--light)", WHITE)], 134, SCALE2, note="右の3区画がDomuzの下代 4,900円")
+# ③ 配送料 960円（事業者様へ請求。同梱ならセット全体の送料を兼ねる）
+b3 = hbar("配送料 960円（事業者様へ請求）", 960,
+          [("佐川実費", 546, GRAY, MOSS), ("送料差益", 414, "var(--light)", WHITE)], 300, SCALE2, h=48,
+          note="同梱の場合、スイーツぶんの送料も兼ねる")
 add(
     f'''
-<div class="body" style="top:166px;height:300px">{b1}{b2}</div>
-<div class="body" style="top:560px">
+<div class="body" style="top:150px;height:420px">
+  {b1}
+  <div style="position:absolute;left:{7500 * SCALE}px;top:88px;width:{6000 * SCALE}px;height:0;border-top:1.5px dashed var(--moss)"></div>
+  <div style="position:absolute;left:{7500 * SCALE}px;top:88px;height:40px;border-left:1.5px dashed var(--moss)"></div>
+  <div style="position:absolute;left:1013px;top:88px;height:40px;border-left:1.5px dashed var(--moss)"></div>
+  <div style="position:absolute;left:0;top:88px;height:40px;border-left:1.5px dashed var(--moss)"></div>
+  <div style="position:absolute;left:0;top:88px;width:{7500 * SCALE}px;border-top:1.5px dashed var(--moss)"></div>
+  {b2}{b3}
+</div>
+<div class="body" style="top:590px">
   <div class="hr"></div>
-  <div style="display:flex;align-items:baseline;gap:18px;margin-top:30px;flex-wrap:wrap">
-    <span style="font-size:26px;font-weight:700">貢献利益 <span class="en">1,413</span>円 ＋ 送料差益 <span class="en">414</span>円</span>
-    <span style="font-size:26px;font-weight:700">＝</span>
-    <span class="hl en" style="font-size:64px;line-height:1">1,827</span><span class="hl" style="font-size:28px">円</span>
-    <span style="font-size:22px;color:var(--secondary)">（下代の約37%）</span>
+  <div style="display:flex;align-items:baseline;gap:16px;margin-top:22px;flex-wrap:wrap">
+    <span style="font-size:17px;color:var(--secondary)">Domuzの利益（1セットあたり）</span>
+    <span style="font-size:24px;font-weight:700">貢献利益 <span class="en">1,413</span>円 ＋ 送料差益 <span class="en">414</span>円 ＝</span>
+    <span class="hl en" style="font-size:56px;line-height:1">1,827</span><span class="hl" style="font-size:26px">円</span>
+    <span style="font-size:18px;color:var(--secondary)">（下代の約37%）</span>
   </div>
 </div>''',
-    title="利益の構造（Mサイズの例）",
-    sub="下代のうち貢献利益は約29%。これに送料差益（+414円）が上乗せされ、1商品あたりの利益は1,827円になります。",
-    foot="※ 上代はお客様側で設定。事業者様の粗利は20〜30%を想定。直接固定費（作業費）は発送個数が多いほど効率化できます。",
-    notes="出典：Notion「イネイブラー エコノミクス比較表」。フラワーブーケMサイズ（下代4,900円、100サイズ）。花材2,310円＋資材452円＝原価・変動費2,762円（56%）、作業費725円（15%）、貢献利益1,413円（29%）。送料は配送料収入960円に対し佐川実費546円、差益414円（43%）。上代はお客様側で設定し、事業者様の粗利は20〜30%を想定。",
+    title="利益の構造（高級スイーツ＋Mサイズの花の例）",
+    sub="例：高級スイーツ 7,500円 ＋ フラワーブーケM 6,000円 ＝ 13,500円のセット。花の下代4,900円のうち貢献利益は1,413円、送料差益414円を加えて1セットあたり1,827円です。",
+    foot="※ 上代は事業者様側で設定（例は花6,000円・税込表示）。配送料960円は事業者様へ請求し、同梱の場合はセット全体の送料を兼ねます。直接固定費（作業費）は発送個数が多いほど効率化できます。",
+    notes="出典：Notion「イネイブラー エコノミクス比較表」。フラワーブーケMサイズ（下代4,900円、100サイズ）。花材2,310円＋資材452円＝原価・変動費2,762円（56%）、作業費725円（15%）、貢献利益1,413円（29%）。送料は配送料収入960円に対し佐川実費546円、差益414円（43%）。上代は事業者様側で設定。例の花6,000円では事業者様の粗利は1,100円（約18%）。",
 )
 
 # =====================================================================
@@ -613,7 +667,7 @@ lic = [
     ("酒類販売業免許", "酒類の発送", ("取得予定", "plan"), "中", "荷主の酒の保管・発送のみなら不要。自社で仕入れて販売する場合は必要"),
 ]
 ltrs = "".join(
-    f'<tr><td style="font-weight:700;font-size:17px">{a}</td><td style="font-size:15px">{b}</td>'
+    f'<tr><td style="font-weight:700;font-size:16px;white-space:nowrap">{a}</td><td style="font-size:15px">{b}</td>'
     f'<td><span class="pill {k}">{s}</span></td><td style="font-size:15px;text-align:center">{d}</td>'
     f'<td class="sec" style="font-size:14px">{e}</td></tr>'
     for a, b, (s, k), d, e in lic
@@ -633,49 +687,69 @@ add(
 )
 
 # =====================================================================
-# 13. 拠点・用地の状況
+# 13. 拠点・用地の状況（川崎拠点の図面に 2I / 2G / 2H を重ねる）
 # =====================================================================
+# 図面は Drive「川崎拠点_倉庫_2I.png」(1732×800)。区画の矩形は図面上のおおよその位置（px）
+PLAN_W, PLAN_H = 1732, 800
+zones = [  # (区画, 坪, 矩形(x1,y1,x2,y2), 塗り, 線, 説明)
+    ("2I", "128.84坪", (72, 445, 205, 780), "rgba(0,67,71,.45)", "var(--moss)", "現在の花拠点"),
+    ("2G", "243.82坪", (72, 290, 600, 440), "rgba(0,215,156,.40)", "var(--light)", "賃借を検討（最短12月）"),
+    ("2H", "326.36坪", (335, 445, 600, 780), "rgba(239,102,125,.18)", "var(--flower)", "佐川（SGL）スペース・方式Aで段階的に"),
+]
+PW = 740
+PS = PW / PLAN_W
+overlays = "".join(
+    f'<div style="position:absolute;left:{x1 * PS}px;top:{y1 * PS}px;width:{(x2 - x1) * PS}px;height:{(y2 - y1) * PS}px;'
+    f'background:{fill};border:2px solid {line};"></div>'
+    for z, t, (x1, y1, x2, y2), fill, line, d in zones
+)
+legend = "".join(
+    f'<div style="display:flex;gap:12px;align-items:flex-start">'
+    f'<div style="width:22px;height:22px;flex:none;background:{fill};border:2px solid {line};margin-top:3px"></div>'
+    f'<div><div style="font-size:19px;font-weight:700"><span class="en">{z}</span><span class="sec" style="font-size:14px;font-weight:400;margin-left:8px">{t}</span></div>'
+    f'<div class="sec" style="font-size:14px;margin-top:2px">{d}</div></div></div>'
+    for z, t, (x1, y1, x2, y2), fill, line, d in zones
+)
 options = [
     ("A", "SGL一部を少し借りて佐川へ業務委託し、2Hの一部、2H全部へと段階的に広げる"),
     ("B", "2Gを最初から丸ごと借りる"),
     ("C", "佐川以外の倉庫を借りる"),
 ]
 orows = "".join(
-    f'<div style="display:flex;gap:16px;align-items:flex-start;padding:10px 0;border-bottom:1px solid var(--border)">'
-    f'<div class="num" style="font-size:30px;width:36px;flex:none">{k}</div>'
-    f'<p style="font-size:18px;padding-top:4px">{t}</p></div>'
+    f'<div style="display:flex;gap:10px;align-items:flex-start;padding:8px 0;border-bottom:1px solid var(--border)">'
+    f'<div class="num" style="font-size:24px;width:28px;flex:none">{k}</div>'
+    f'<p style="font-size:15px;padding-top:3px">{t}</p></div>'
     for k, t in options
 )
 add(
     f'''
-<div class="body" style="top:156px">
-  <div class="cards" style="gap:28px">
-    <div class="card" style="padding:22px 26px">
-      <div class="label">KAWASAKI</div>
-      <h4 style="font-size:24px;margin-top:4px">川崎拠点（花）</h4>
-      <div style="display:flex;gap:22px;margin-top:12px;align-items:baseline">
-        <div><span class="en" style="font-size:32px;font-weight:700">128.84</span><span class="sec" style="font-size:14px;margin-left:3px">坪</span></div>
-        <div><span class="sec" style="font-size:14px">家賃</span> <span class="en" style="font-size:32px;font-weight:700">94</span><span class="sec" style="font-size:14px;margin-left:3px">万円／月</span></div>
-        <div><span class="sec" style="font-size:14px">限界利益率</span> <span class="en" style="font-size:32px;font-weight:700">約45</span><span class="sec" style="font-size:14px;margin-left:3px">%</span></div>
-      </div>
-      <p style="font-size:16px;margin-top:10px">2Iが手狭になり、坪あたりの発送効率の目標を定めて改善しつつ、新しい場所も探します。</p>
+<div class="body" style="top:150px">
+  <div style="display:flex;gap:28px;align-items:flex-start">
+    <div style="position:relative;width:{PW}px;height:{PLAN_H * PS}px;flex:none">
+      <img src="{img('kawasaki_2I.png')}" style="width:{PW}px;height:{PLAN_H * PS}px;display:block">
+      {overlays}
     </div>
-    <div class="card fill" style="padding:22px 26px">
-      <div class="label">2G</div>
-      <h4 style="font-size:24px;margin-top:4px">2Gの賃借</h4>
-      <p style="font-size:17px;margin-top:12px">借りる方向で、最短で<b>12月</b>。川崎の場所を空けるため、2I自体の効率化も急務で進めたい</p>
+    <div style="display:flex;flex-direction:column;gap:22px;padding-top:12px">
+      <div class="label">KAWASAKI 2F</div>
+      {legend}
     </div>
   </div>
-  <div style="margin-top:30px">
-    <div class="h3">佐川スペースの確保方式（ラフ）</div>
-    <div class="bar4"></div>
-    {orows}
-    <p class="sec" style="font-size:16px;margin-top:14px">段階論も含め検討しております。倉庫業をとる場合Aではできないと想定されるため要検討</p>
+  <div class="hr" style="margin:20px 0 16px"></div>
+  <div style="display:flex;gap:36px">
+    <div style="width:430px">
+      <div style="font-size:18px;font-weight:700">川崎拠点（花）<span class="sec" style="font-size:14px;font-weight:400;margin-left:8px">2I・家賃94万円／月</span></div>
+      <p class="sec" style="font-size:14px;margin-top:6px">2Iが手狭になり、坪あたりの発送効率の目標を定めて改善しつつ、新しい場所も探します。2Gは借りる方向で最短12月。川崎の場所を空けるため、2I自体の効率化も急務で進めたい。</p>
+    </div>
+    <div style="width:550px">
+      <div style="font-size:18px;font-weight:700">佐川スペースの確保方式（ラフ）</div>
+      {orows}
+      <p class="sec" style="font-size:13px;margin-top:8px">段階論も含め検討しております。倉庫業をとる場合Aではできないと想定されるため要検討</p>
+    </div>
   </div>
 </div>''',
     title="拠点・用地の状況",
     sub="川崎拠点は手狭になりつつあり、2Gの賃借と佐川スペースの活用を並行して検討しています。",
-    notes="出典：経営MTG（10/14）、Notion「3PL事業立ち上げまとめ」のバックログ（拠点確保方式A/B/C）。方式の整理は7月時点。",
+    notes="出典：経営MTG（10/14）、Notion「3PL事業立ち上げまとめ」のバックログ（拠点確保方式A/B/C）。方式の整理は7月時点。図面は Drive「川崎拠点_倉庫_2I.png」。",
 )
 
 # =====================================================================
