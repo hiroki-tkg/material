@@ -14,6 +14,6 @@ for i in $(seq 1 "$N"); do
   pdftocairo -svg -f "$i" -l "$i" "$NAME.pdf" "preview/svg/s$(printf %02d "$i").svg"
 done
 python3 "$HERE/build_html.py" preview/svg "$NAME.html" "${TITLE:-$NAME}" "$SUB"
-# 目視確認用の PNG（低解像度）
-mkdir -p preview/png && pdftoppm -r 60 -png "$NAME.pdf" preview/png/p >/dev/null
+# 目視確認用の PNG（100dpi。ラベルの重なりは 60dpi では見えない）
+mkdir -p preview/png && pdftoppm -r 100 -png "$NAME.pdf" preview/png/p >/dev/null
 echo "pages: $N  pdf: $DIR/$NAME.pdf  html: $DIR/$NAME.html  png: $DIR/preview/png/"

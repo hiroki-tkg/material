@@ -26,7 +26,7 @@ description: >-
 2. **数字を先に固める**。`data_xxx.py` に月次や期別の数列と定数（税抜・百万円）を置き、出典をコメントで残す。
    本文の数字はすべて f-string でデータから組み立てる。手打ちの数字は、後で数字が変わったときに食い違いの原因になる。
 3. **`build_deck.py` を書く**。`scripts/deck_lib.py` を `sys.path` に足して `from deck_lib import *`、
-   `use_theme("hanaichi")` の後にページを順に追加する。部品の使い方は `scripts/example_deck.py` が全部の見本
+   `use_theme("hanaichi")`（例。事業に合わせる）の後にページを順に追加する。部品の使い方は `scripts/example_deck.py` が全部の見本
    （3つのテーマで動く）。ページの中身の決め方は `references/pages.md`。
 4. **要約ページは最後に書く**。`content_slide(タイトル)` で枠だけ先に作っておき、全ページの数字が出てから
    `draw_claims` で埋める（例の `summary = content_slide(...)` → 末尾で `draw_claims(summary, ...)`）。
@@ -69,8 +69,8 @@ Pillow があると確認用の一覧画像が作れる。
 | `message(s, 結論)` | タイトル直下の結論1行（サブの代わり） |
 | `divider(num, EN_LABEL, 和文タイトル, sub)` | 章扉 |
 | `draw_claims(s, [(番号, 主張, [根拠...])])` | 要約。根拠は全角47字までなら1行 |
-| `kpi_table(s, x, y, w, header, rows)` | 主要指標の表（値は右寄せ、— は灰） |
-| `bar_chart(s, x, y, w, h, labels, series, ...)` | 縦棒（並べる／積み上げ）。戻り値の `(slot, yv)` で線を重ねる |
+| `kpi_table(s, x, y, w, header, rows, col_w, bold_rows)` | 主要指標の表（値は右寄せ、— は灰）。row_h は 32 以上 |
+| `bar_chart(s, x, y, w, h, labels, series, vmax, ticks, ...)` | 縦棒（並べる／積み上げ）。戻り値 `ax` の `ax.x(i)`・`ax.yv2(右軸の最大)` で線を重ねる。線を重ねるときは vmax を最大値の1.5倍にして上を空ける |
 | `polyline(s, pts, color)` | 折れ線（ROAS、比率など右軸の系列） |
 | `waterfall(s, x, name, steps, end_label, end_val, sales)` | 売上=100 の控除ウォーターフォール（1ページに2〜3本） |
 | `ranked_bars(s, x, y, w, rows, ref=1.0)` | 基準線つき横棒ランキング（LTV/CAC など） |

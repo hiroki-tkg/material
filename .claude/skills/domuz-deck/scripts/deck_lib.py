@@ -121,7 +121,7 @@ def _set_font(run, size_px, color, bold, en=None):
 
 def text(slide, x, y, w, h, lines, size=25, color=MOSS, bold=False, align=PP_ALIGN.LEFT,
          anchor=MSO_ANCHOR.TOP, spacing=1.5, en=None, letter=None, para_gap=0):
-    """lines: 文字列 or 文字列のリスト（1要素＝1段落）。
+    """lines: 文字列 or 文字列のリスト（1要素＝1段落）。en は互換のための引数で、フォントは常に英数字 Montserrat＋和文 Zen Kaku。
     インライン装飾: [[語]] はテーマのアクセント色で太字、!!語!! は赤で太字、**語** は太字。"""
     tb = slide.shapes.add_textbox(px(x), px(y), px(w), px(h))
     tf = tb.text_frame
@@ -407,7 +407,8 @@ def bar_chart(s, x, y, w, h, labels, series, vmax=None, ticks=None, stacked=Fals
               value_labels=False, label_every=1, unit=""):
     """縦棒グラフ。series: [(名前, [値...])]。stacked=True で積み上げ、False で棒を並べる。
     棒の上の数値は value_labels=True のとき。横軸ラベルは label_every ごとに描く（月次が長いときは 3 など）。
-    戻り値: (slot_w, yv) で、線や注釈を重ねるときに使う。"""
+    戻り値は Axis（ax.slot, ax.yv(v), ax.x(i)=i番目の棒の中心, ax.top, ax.base, ax.yv2(vmax2)=右軸の変換）。
+    線を重ねるときは vmax を広げて上1/3を空け（例: 最大値×1.5）、右軸の線はその帯に収めると値ラベルが衝突しない。"""
     n = len(labels)
     colors = colors or [T.accent, T.light, BG_GRAY, PALE]
     if vmax is None:
@@ -445,12 +446,28 @@ def bar_chart(s, x, y, w, h, labels, series, vmax=None, ticks=None, stacked=Fals
                          color=MOSS if j == 0 else SECONDARY, align=PP_ALIGN.CENTER, en=True)
         if i % label_every == 0:
             text(s, cx0 + i * slot - 10, base_ + 4, slot + 20, 30, labels[i].split("\n"), size=9, color=MUTED, align=PP_ALIGN.CENTER, spacing=1.2)
-    return slot, yv
+    return Axis(slot, yv, cx0, top_, base_)
+
+
+class Axis:
+    """bar_chart の座標系。slot=1本分の幅、yv(v)=左軸の値→y、x(i)=i番目の棒の中心x、yv2(vmax2)=右軸（0〜vmax2）の変換。"""
+
+    def __init__(self, slot, yv, cx0, top, base):
+        self.slot, self.yv, self.cx0, self.top, self.base = slot, yv, cx0, top, base
+
+    def __iter__(self):  # 旧来の (slot, yv) 受け取りも通す
+        return iter((self.slot, self.yv))
+
+    def x(self, i):
+        return self.cx0 + i * self.slot + self.slot / 2
+
+    def yv2(self, vmax2):
+        return lambda v: self.base - (self.base - self.top) * min(v, vmax2) / vmax2
 
 
 def kpi_table(s, x, y, w, header, rows, col_w=None, bold_rows=(), row_h=34, num_color=None):
     """主要指標の表。header: 列見出しのリスト（先頭は空でよい）。rows: [[ラベル, 値1, 値2, ...]]。
-    値の列は右寄せ。bold_rows に入れた行番号は太字。"""
+    値の列は右寄せ。bold_rows に入れた行番号は太字。row_h は 32 以上（文字16px×行間1.5で24px必要）。"""
     ncol = len(header)
     col_w = col_w or [w - 120 * (ncol - 1)] + [120] * (ncol - 1)
     xs = [x]
@@ -464,11 +481,11 @@ def kpi_table(s, x, y, w, header, rows, col_w=None, bold_rows=(), row_h=34, num_
     for i, row in enumerate(rows):
         b = i in bold_rows
         for j, v in enumerate(row):
-            text(s, xs[j], y, col_w[j], row_h - 4, v, size=15 if j == 0 else 16, bold=b,
-                 align=PP_ALIGN.LEFT if j == 0 else PP_ALIGN.RIGHT,
+            text(s, xs[j], y, col_w[j], row_h - 6, v, size=15 if j == 0 else 16, bold=b, spacing=1.0,
+                 anchor=MSO_ANCHOR.MIDDLE, align=PP_ALIGN.LEFT if j == 0 else PP_ALIGN.RIGHT,
                  color=MOSS if j == 0 or v != "—" else MUTED)
         y += row_h
-        hline(s, x, y - 8, w)
+        hline(s, x, y - 3, w)
     return y
 
 

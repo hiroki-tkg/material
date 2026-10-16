@@ -71,13 +71,15 @@ footnote(s, "※ 税抜。24年9月期は2024年2月〜9月の8か月")
 s = content_slide("広告投資：新規獲得に広告を投下", "四半期の売上・広告費・ROAS　単位：百万円")
 legend(s, 214, 154, [("売上", PALE), ("広告費", T.accent)])
 legend(s, 420, 154, [("ROAS（右軸）", T.dark)], line=True)
-slot, yv = bar_chart(s, 200, 180, 720, 330, Q_LABELS, [("売上", Q_S), ("広告費", Q_AD)], colors=[PALE, T.accent],
-                     ticks=(0, 5, 10, 15), value_labels=True)
+# 棒は vmax を広げて上1/3を空け、ROAS の線はその帯（右軸 0〜1200%）に収める
+ax = bar_chart(s, 200, 180, 720, 330, Q_LABELS, [("売上", Q_S), ("広告費", Q_AD)], colors=[PALE, T.accent],
+               vmax=24, ticks=(0, 5, 10, 15), value_labels=True)
 roas = [s_ / a_ * 100 for s_, a_ in zip(Q_S, Q_AD)]
-ry = lambda v: 180 + 20 + (330 - 50) * (1 - min(v, 1200) / 1200)
-polyline(s, [(236 + i * slot + slot / 2, ry(roas[i])) for i in range(1, len(roas))], T.dark, 2.0)
-text(s, 236 + (len(roas) - 1) * slot - 10, ry(roas[-1]) - 22, slot + 20, 16, f"{roas[-1]:.0f}%", size=10, bold=True,
-     color=T.dark, align=PP_ALIGN.CENTER, en=True)
+ry = ax.yv2(1200)
+L0 = 1  # 広告費が小さい最初の四半期は線から外す
+polyline(s, [(ax.x(i), ry(roas[i])) for i in range(L0, len(roas))], T.dark, 2.0)
+for i in (L0, len(roas) - 1):
+    text(s, ax.x(i) - 30, ry(roas[i]) - 22, 60, 16, f"{roas[i]:.0f}%", size=10, bold=True, color=T.dark, align=PP_ALIGN.CENTER, en=True)
 text(s, 56, 560, 1016, 60, ["26年7月〜 広告費を増やし、ROASは下がった。", "広告効率と限界利益率の両方で損益が決まる"],
      size=18, bold=True, spacing=1.5)
 footnote(s, "※ ROAS＝売上÷広告費。24年10〜12月は広告費が小さいためROASの線は25年1〜3月から")
