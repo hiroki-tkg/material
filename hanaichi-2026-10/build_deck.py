@@ -614,7 +614,7 @@ draw_claims(summary_slide, [
         f"限界利益の{BIG['gp_share']}%は営業で獲得した大口{BIG['n']}社（広告CACなし）。広告で獲得する層の限界利益率は約{GP_RATE26_SMALL:.0f}%"]),
     ("3", "収益化の鍵は、リピート顧客（事業者）の積み上げと広告費込み限界利益率の改善", [
         f"売上の{REPEAT_SHARE[1]:.0f}%は2回目以降の注文。1注文あたりの売上はリピート{REPEAT_AOV[1]:,}円、初回{AOV26:,}円（約{REPEAT_AOV[1] / AOV26:.0f}倍）",
-        f"リピート注文は月{REP_REPEAT[0]} → {REP_REPEAT[-1]}件、2回以上購入は{REP_CUM_REP[-1]:,}アカウント（全アカウント数{ACCOUNTS_TOTAL:,}の{REP_CUM_REP[-1] / ACCOUNTS_TOTAL * 100:.0f}%）",
+        f"リピート注文は月{REP_REPEAT[0]} → {REP_REPEAT[-1]}件、2回以上購入は{REP_CUM_REP[-1]:,}アカウント（購入ありアカウントの{REP_CUM_REP[-1] / ACCOUNTS_BOUGHT * 100:.0f}%）",
         f"現状は直接固定費は月{fixed_m:.2f}百万円と小さく、通年の貢献利益は+{ef['CONTRIB']:.1f}百万円。損益は広告効率と原価で決まる"]),
 ], y=124, color=HANA)
 footnote(summary_slide, "※ 数値は税抜。生花の限界利益率は花材により変動（15%前後）。現状は少量仕入れのため仲卸などからも仕入れており、原価率が高くなっている。用語の定義と集計の前提は最終ページ")
