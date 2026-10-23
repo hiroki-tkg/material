@@ -12,7 +12,7 @@ from deck_lib import _set_font  # noqa
 from data_hanaichi import (YM, FY, mi, S, GP, AD, NET, ORDERS, FIXED, FIXED_IS_PLACEHOLDER, LTV25, NEW26, AOV26,
                            GP_RATE26, GP_RATE26_SMALL, FIRST_GP26, SEGMENTS, BIG, SMALL, REPEAT_RATE, REPEAT_SHARE, FB_S, FB_GP,
                            REP_YM, REP_ORDERS, REP_REPEAT, REP_ACTIVE, REP_ACTIVE_REP, REP_NEW, REP_CUM, REP_CUM_REP, COHORT,
-                           CAT_MARGIN, ACCOUNTS_TOTAL, ACCOUNTS_BOUGHT, KAWASAKI_RENT, RENT_SHARE, SHIP_LABOR_RATE, REPEAT_CUSTOMERS, REPEAT_AOV, BIZ_CATEGORIES, fy_sum)
+                           CAT_MARGIN, POT_MARGIN_SBS, FLOWER_S, ACCOUNTS_TOTAL, ACCOUNTS_BOUGHT, KAWASAKI_RENT, RENT_SHARE, SHIP_LABOR_RATE, REPEAT_CUSTOMERS, REPEAT_AOV, BIZ_CATEGORIES, fy_sum)
 
 N = len(S)
 HANA = RGBColor(0xF5, 0xB7, 0x00)  # ハナイチの色（黄）
@@ -82,6 +82,7 @@ q_gp = [sum(GP[a_:b_]) for _, a_, b_, _ in QTR]
 q_ad = [sum(AD[a_:b_]) for _, a_, b_, _ in QTR]
 q_net = [sum(NET[a_:b_]) for _, a_, b_, _ in QTR]
 q_orders = [sum(ORDERS[a_:b_]) for _, a_, b_, _ in QTR]
+q_fs = [sum(FLOWER_S[a_:b_]) for _, a_, b_, _ in QTR]
 q_fb = [sum(FB_S[a_:b_]) for _, a_, b_, _ in QTR]
 NQ = len(QTR)
 fy_fb, fy_fbgp = fy_sum(FB_S), fy_sum(FB_GP)
@@ -176,10 +177,14 @@ for v in (0, 400, 800, 1200):
     hline(s, x0 - 4, ry(v), x1 - x0 + 4, BORDER_LIGHT if v == 0 else WATERMARK)
     text(s, x0 - 70, ry(v) - 10, 60, 20, f"{v}%", size=11, color=MUTED, align=PP_ALIGN.RIGHT, en=True)
 q_roas = [q_s[qi] / q_ad[qi] * 100 if q_ad[qi] > 0 else None for qi in range(NQ)]
+q_froas = [q_fs[qi] / q_ad[qi] * 100 if q_ad[qi] > 0 else None for qi in range(NQ)]
 polyline(s, [(cx(qi), ry(q_roas[qi])) for qi in range(Q0 + 1, NQ)], MOSS, 2.5)  # 広告が本格化した25年1〜3月から
+polyline(s, [(cx(qi), ry(q_froas[qi])) for qi in range(Q0 + 1, NQ)], HANA_DARK, 2.5)
 for qi in range(Q0, NQ):
     if qi > Q0:
         text(s, cx(qi) - 40, ry(q_roas[qi]) - 22, 80, 18, f"{q_roas[qi]:,.0f}%", size=11, bold=True, align=PP_ALIGN.CENTER, en=True)
+        fy_ = ry(q_froas[qi]) + 4 if ry(q_froas[qi]) + 22 <= rb else ry(q_froas[qi]) - 22  # 軸ラベルに掛かるなら点の上
+        text(s, cx(qi) - 40, fy_, 80, 18, f"{q_froas[qi]:,.0f}%", size=11, bold=True, color=HANA_DARK, align=PP_ALIGN.CENTER, en=True)
     text(s, cx(qi) - 50, rb + 4, 100, 18, QTR[qi][0], size=11, color=MUTED, align=PP_ALIGN.CENTER)
 for lab, qi in (("25年9月期", 3), ("26年9月期", 7)):
     text(s, cx(qi) - slot / 2, rb + 22, 4 * slot, 20, lab, size=13, color=SECONDARY, bold=True, align=PP_ALIGN.CENTER)
@@ -192,14 +197,16 @@ text(s, x0 + 22, 146, 80, 24, "売上", size=14, color=SECONDARY)
 rect(s, x0 + 86, 156, 28, 4, HANA_DARK)
 text(s, x0 + 120, 146, 80, 24, "広告費", size=14, color=SECONDARY)
 rect(s, x0 + 190, 156, 28, 4, MOSS)
-text(s, x0 + 224, 146, 80, 24, "ROAS", size=14, color=SECONDARY)
+text(s, x0 + 224, 146, 90, 24, "全体ROAS", size=14, color=SECONDARY)
+rect(s, x0 + 310, 156, 28, 4, HANA_DARK)
+text(s, x0 + 344, 146, 120, 24, "生花ROAS", size=14, color=SECONDARY)
 qa_ = (q_ad[6], q_ad[10])
 qs_ = (q_s[6], q_s[10])
 text(s, 56, 660, 1016, 70,
      [f"26年7〜9月は広告費を{qa_[1]:.1f}百万円（前年同期{qa_[0]:.1f}）に増やし、注文数は{q_orders[10]:,}件（前年同期の約{q_orders[10] / q_orders[6]:.1f}倍）。",
-      f"売上は{qs_[0]:.1f} → {qs_[1]:.1f}百万円（{(qs_[1] / qs_[0] - 1) * 100:+.0f}%）、全体ROASは{qs_[0] / qa_[0] * 100:.0f} → {qs_[1] / qa_[1] * 100:.0f}%"],
+      f"売上は{qs_[0]:.1f} → {qs_[1]:.1f}百万円（{(qs_[1] / qs_[0] - 1) * 100:+.0f}%）。広告対象の生花だけのROASは{q_fs[6] / qa_[0] * 100:.0f} → {q_fs[10] / qa_[1] * 100:.0f}%（全体は{qs_[1] / qa_[1] * 100:.0f}%）"],
      size=18, bold=True, spacing=1.45)
-footnote(s, "※ フラワーボックス等は含まない。広告は生花のみ（植木鉢・資材は広告なし）。ROASは生花以外も含むサイト全体の売上÷広告費。24年10〜12月は広告費が小さいためROASの線は25年1〜3月から")
+footnote(s, "※ フラワーボックス等は含まない。広告は生花のみ（植木鉢・資材は広告なし）。全体ROASは植木鉢も含むサイト全体の売上÷広告費、生花ROASは生花の売上÷広告費。24年10〜12月は広告費が小さいためROASの線は25年1〜3月から")
 
 # ---- 花き市場とハナイチのターゲット層
 s = content_slide("花き市場とハナイチのターゲット層", "国内の花き消費のどこにアクセスしているか、どの順で広げるか")
@@ -275,6 +282,8 @@ def econ(months):
     e["FIXED"] = e["SHIP"] + e["OTHER"]
     e["CONTRIB"] = e["NET"] - e["FIXED"]
     e["ROAS"] = e["S"] / e["AD"] * 100
+    e["FS"] = sum(FLOWER_S[i] for i in idx)
+    e["FROAS"] = e["FS"] / e["AD"] * 100
     e["N"] = len(idx)
     e["ORDERS"] = sum(ORDERS[i] for i in idx)
     return e
@@ -339,7 +348,8 @@ r2("売上（百万円）", lambda e, P: f"{e['S']:.1f}", "期間の合計")
 r2("購入数（注文数）", lambda e, P: f"{e['ORDERS']:,}件")
 r2("リピート購入率", lambda e, P: f"{P['rep']:.1f}%", "2回目以降の購入が注文に占める割合")
 r2("原価率", lambda e, P: f"{e['COGS'] / e['S'] * 100:.0f}%", "商品原価・送料・資材・決済手数料を含む")
-r2("全体ROAS", lambda e, P: f"{e['ROAS']:.0f}%", "売上÷広告費（広告は生花のみ）")
+r2("全体ROAS", lambda e, P: f"{e['ROAS']:.0f}%", "サイト全体の売上÷広告費（植木鉢を含む）")
+r2("生花ROAS", lambda e, P: f"{e['FROAS']:.0f}%", "生花の売上÷広告費（広告は生花のみ）")
 r2("広告費込み限界利益率", lambda e, P: f"{e['NET'] / e['S'] * 100:.1f}%", bold=True)
 r2("直接固定費（百万円）", lambda e, P: f"{e['FIXED']:.1f}", "発送人件費＋拠点費")
 r2("貢献利益（百万円）", lambda e, P: yen(e["CONTRIB"]), bold=True)
@@ -360,7 +370,7 @@ ratio = gp12 / cac26
 ratio_s = LTV25["sales12"] / cac26
 seg_best = SEGMENTS[0]
 seg_ratio = {n_: g_ / cac26 for n_, t_, nw_, c_, a_, r_, g_, f_ in SEGMENTS}
-s = content_slide("LTV/CAC：広告で獲得する層と、成り立つセグメント", "自社サイトの顧客単位。大口（請求書払いの契約先）は広告を使わないので分けて見る　※税抜")
+s = content_slide("LTV/CAC：広告で獲得する層と、成り立つセグメント", "自社サイトの顧客単位。園芸店への植木鉢の卸は広告を使わないので分けて見る　※税抜")
 x, w = 56, 470
 rect(s, x, 150, w, 6, HANA)
 text(s, x, 172, w, 34, "広告で獲得する層：新規顧客1人あたりの採算", size=21, bold=True)
@@ -408,9 +418,9 @@ text(s, x2, 214, w2, 22, "LTV＝26年9月期の顧客1人あたりの年間限�
 # 大口の帯
 by = 246
 rect(s, x2, by, w2, 64, HANA_LIGHT)
-text(s, x2 + 14, by + 6, 200, 26, "大口（請求書払い・営業で獲得）", size=13, bold=True, anchor=MSO_ANCHOR.MIDDLE, spacing=1.0)
+text(s, x2 + 14, by + 6, 320, 26, "園芸店への植木鉢の卸（営業で獲得）", size=13, bold=True, anchor=MSO_ANCHOR.MIDDLE, spacing=1.0)
 text(s, x2 + 14, by + 32, w2 - 28, 24,
-     f"{BIG['n']}社で限界利益の{BIG['gp_share']}%（{BIG['gp']:.1f}百万円、1社あたり年{BIG['gp'] / BIG['n'] * 100:.0f}万円）。広告CACはかからない。前期の{BIG['n25']}社中{BIG['retained']}社が継続",
+     f"garage・オザキフラワーパークなど{BIG['n']}社で限界利益の{BIG['gp_share']}%（{BIG['gp']:.1f}百万円、1社あたり年{BIG['gp'] / BIG['n'] * 100:.0f}万円）。広告CACなし。前期の{BIG['n25']}社中{BIG['retained']}社が継続",
      size=11, color=SECONDARY, anchor=MSO_ANCHOR.MIDDLE, spacing=1.0)
 # 表頭
 ty = by + 80
@@ -440,9 +450,9 @@ text(s, cac_x - 50, ry0 + RH_ * len(SEGMENTS) + 4, 100, 18, "CAC＝LTV", size=10
 text(s, 56, 694, 1016, 60,
      [f"広告で獲得する層でCACを上回るのは{seg_best[0]}（{seg_ratio[seg_best[0]]:.1f}倍）だけで、レッスン・お稽古が{seg_ratio['レッスン・お稽古']:.1f}倍。"
       f"新規の半分を占める自宅鑑賞用・ギフトは{seg_ratio['自宅鑑賞用・ギフト']:.1f}倍。",
-      f"限界利益の{BIG['gp_share']}%は営業で獲得した大口{BIG['n']}社。広告は販売・レッスンなど事業者セグメントに寄せ、個人向けはオーガニック中心にする"],
+      f"限界利益の{BIG['gp_share']}%は園芸店への植木鉢の卸（{BIG['n']}社）。広告は販売・レッスンなど事業者セグメントに寄せ、個人向けはオーガニック中心にする"],
      size=16, bold=True, spacing=1.45)
-footnote(s, "※ 匿名化した受注・顧客データを顧客単位で集計（社内アカウント・返金は除外）。広告で獲得する層＝会員・ゲスト（割引区分A・Z）、大口＝請求書払いの契約先（区分B〜E）。"
+footnote(s, "※ 匿名化した受注・顧客データを顧客単位で集計（社内アカウント・返金は除外）。広告で獲得する層＝会員・ゲスト（割引区分A・Z）、園芸店＝植木鉢を卸す園芸店（請求書払い、区分B〜E）。"
             f"12か月LTVは25年9月期に初回購入した顧客の12か月の売上×この層の限界利益率{GP_RATE26_SMALL:.1f}%。セグメントは顧客登録の用途・主な使い方から分類（マーケダッシュボードと同じ7区分、未分類は除く）。"
             "CACは広告費をすべて新規獲得にかかったとみなした値で、セグメント別には分けられないため共通")
 
@@ -611,13 +621,13 @@ draw_claims(summary_slide, [
     ("2", "広告は生花の新規獲得に集中。植木鉢はホームセンターへの営業等を実施", [
         f"CAC {cac26:,.0f}円に対し、初回の限界利益{first_gp26:,.0f}円、12か月の限界利益LTV {gp12:,.0f}円（LTV/CAC {ratio:.1f}倍）",
         f"CACを上回るセグメントは販売（{seg_ratio['販売']:.1f}倍）だけ。レッスン・お稽古{seg_ratio['レッスン・お稽古']:.1f}倍、自宅鑑賞用・ギフト{seg_ratio['自宅鑑賞用・ギフト']:.1f}倍",
-        f"限界利益の{BIG['gp_share']}%は営業で獲得した大口{BIG['n']}社（広告CACなし）。広告で獲得する層の限界利益率は約{GP_RATE26_SMALL:.0f}%"]),
+        f"限界利益の{BIG['gp_share']}%は園芸店への植木鉢の卸（{BIG['n']}社）。広告対象の生花だけのROASは{ef['FROAS']:.0f}%（全体{ef['ROAS']:.0f}%）"]),
     ("3", "収益化の鍵は、リピート顧客（事業者）の積み上げと広告費込み限界利益率の改善", [
         f"売上の{REPEAT_SHARE[1]:.0f}%は2回目以降の注文。1注文あたりの売上はリピート{REPEAT_AOV[1]:,}円、初回{AOV26:,}円（約{REPEAT_AOV[1] / AOV26:.0f}倍）",
         f"リピート注文は月{REP_REPEAT[0]} → {REP_REPEAT[-1]}件、2回以上購入は{REP_CUM_REP[-1]:,}アカウント（購入ありアカウントの{REP_CUM_REP[-1] / ACCOUNTS_BOUGHT * 100:.0f}%）",
         f"現状は直接固定費は月{fixed_m:.2f}百万円と小さく、通年の貢献利益は+{ef['CONTRIB']:.1f}百万円。損益は広告効率と原価で決まる"]),
 ], y=124, color=HANA)
-footnote(summary_slide, "※ 数値は税抜。生花の限界利益率は花材により変動（15%前後）。現状は少量仕入れのため仲卸などからも仕入れており、原価率が高くなっている。用語の定義と集計の前提は最終ページ")
+footnote(summary_slide, f"※ 数値は税抜。生花の限界利益率は花材により変動（15%前後）。現状は少量仕入れのため仲卸などからも仕入れており、原価率が高くなっている。植木鉢は倉庫費用を含めると約{POT_MARGIN_SBS:.0f}%。用語の定義と集計の前提は最終ページ")
 
 # =====================================================================
 # 章 03：中長期の可能性とシナジー
@@ -742,11 +752,11 @@ TERMS = [
     ("限界利益", "売上 − 商品原価・送料・資材・決済手数料。ハナイチ管理画面の「粗利」と同じ定義で、AP/AFの限界利益に相当"),
     ("広告費", "Google・Meta・Yahoo!・Microsoft・Pinterest の広告費（税抜）。広告は生花のみ"),
     ("広告費込み限界利益", "限界利益 − 広告費"),
-    ("全体ROAS", "売上 ÷ 広告費。分子は生花以外（植木鉢・資材）も含むサイト全体の売上"),
+    ("ROAS", "全体ROAS＝サイト全体の売上（植木鉢を含む）÷ 広告費。生花ROAS＝生花の売上 ÷ 広告費。広告は生花のみ"),
     ("直接固定費", "発送人件費（月0.33百万円。26年8月の作業時間×時給の概算、生花売上の約11%）＋拠点費（川崎拠点の家賃の20%＝月0.19百万円）"),
     ("貢献利益", "広告費込み限界利益 − 直接固定費。本社の人件費・共通費は含まない"),
     ("アカウント", "登録3,728アカウントのうち、2024年2月以降に購入のある2,542を顧客として集計（受注データの顧客ID）"),
-    ("大口／セグメント", "大口＝請求書払いの契約先（割引区分B〜E、営業で獲得）。広告で獲得する層＝会員・ゲスト（区分A・Z）。セグメントは顧客登録の用途・主な使い方から分類（マーケダッシュボードの7区分）"),
+    ("園芸店／セグメント", "園芸店＝植木鉢を卸す園芸店（garage、オザキフラワーパークなど。請求書払い）。広告で獲得する層＝会員・ゲスト。セグメントは顧客登録の用途から分類（ダッシュボードの7区分）"),
     ("出典", "ハナイチ管理画面（売上・限界利益）、Marketing Master（広告費）、匿名化した受注・顧客データ（顧客単位のLTV・セグメント）"),
 ]
 y = 150
