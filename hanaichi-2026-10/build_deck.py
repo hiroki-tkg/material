@@ -51,7 +51,7 @@ text(s, 96, 640, 900, 120, ["2026年10月", "株式会社DOMUZ", "髙木 弘貴"
 s = content_slide("本資料の構成")
 items = [
     ("1", "ハナイチのエコノミクスの整理と経年推移", "24年9月期（2024年2月の開始）〜26年9月期の売上・限界利益・広告投資"),
-    ("2", "今後の事業におけるエコノミクスの整理", "原価・全体ROAS・直接固定費、LTV/CACとリピートの積み上がり、損益分岐の月商"),
+    ("2", "今後の事業におけるエコノミクスの整理", "原価・ROAS・直接固定費、リピートの積み上がりとセグメント別の採算、損益分岐の月商"),
     ("3", "中長期の可能性と事業間シナジー", "ハナイチ経済圏、アンドフラワー／アンドプランツとの連携、仕入れのスケールメリット、花き市場とターゲット層"),
 ]
 y = 220
@@ -262,7 +262,7 @@ cx2 = [56, 430, 650, 870]
 CW2 = 180
 y = 160
 RH = 50
-NROWS = 10
+NROWS = 9
 rect(s, cx2[3] - 12, 150, CW2 + 24, 50 + RH * NROWS + 4, WATERMARK)  # 直近の四半期は通年ではないので、列ごと薄い帯で区別
 for j, key in enumerate(cols):
     text(s, cx2[1 + j], y - 6, CW2, 28, PERIODS[key]["short"], size=17, bold=True, align=PP_ALIGN.RIGHT)
@@ -300,10 +300,10 @@ r2("直接固定費（百万円）", lambda e, P: f"{e['FIXED']:.1f}", "発送�
 r2("貢献利益（百万円）", lambda e, P: yen(e["CONTRIB"]), bold=True)
 be_q = eq["FIXED"] / eq["N"] / (eq["NET"] / eq["S"])
 be_fy = ef["FIXED"] / ef["N"] / (ef["NET"] / ef["S"])
-text(s, 56, y + 16, 1016, 70,
-     [f"損益分岐の月商は、通年の広告費込み限界利益率（{ef['NET'] / ef['S'] * 100:.1f}%）なら約[[{be_fy:.0f}百万円]]、"
-      f"直近四半期の率（{eq['NET'] / eq['S'] * 100:.1f}%）なら約{be_q:.0f}百万円。",
-      f"26年9月期の月平均は{fy_s[2] / 12:.1f}百万円"], size=19, bold=True, spacing=1.45)
+text(s, 56, y + 36, 1016, 70,
+     f"損益分岐の月商は、通年の広告費込み限界利益率（{ef['NET'] / ef['S'] * 100:.1f}%）なら約[[{be_fy:.0f}百万円]]、"
+     f"直近四半期の率（{eq['NET'] / eq['S'] * 100:.1f}%）なら約{be_q:.0f}百万円。26年9月期の月平均は{fy_s[2] / 12:.1f}百万円",
+     size=19, bold=True, spacing=1.45)
 footnote(s, "※ 損益分岐＝直接固定費÷広告費込み限界利益率。固定費が売上に比例して増えない前提の概算")
 
 # ---- リピートの状況（卸のサービスなので、LTV/CACよりリピートの積み上がりで採算を見る）
@@ -437,93 +437,53 @@ ratio = gp12 / cac26
 ratio_s = LTV25["sales12"] / cac26
 seg_best = SEGMENTS[0]
 seg_ratio = {n_: g_ / cac26 for n_, t_, nw_, c_, a_, r_, g_, f_ in SEGMENTS}
-s = content_slide("LTV/CAC：広告で獲得する層と、成り立つセグメント", "自社サイトの顧客単位。園芸店への植木鉢の卸は広告を使わないので分けて見る　※税抜")
-x, w = 56, 470
-rect(s, x, 150, w, 6, HANA)
-text(s, x, 172, w, 34, "広告で獲得する層：新規顧客1人あたりの採算", size=21, bold=True)
-text(s, x, 214, 230, 22, "LTV/CAC（限界利益ベース）", size=13, color=SECONDARY, bold=True)
-tb = text(s, x, 236, 230, 66, f"{ratio:.1f}", size=56, bold=True, color=STRONG, en=True, spacing=1.0, anchor=MSO_ANCHOR.BOTTOM)
-r = tb.text_frame.paragraphs[0].add_run()
-r.text = "倍"
-_set_font(r, 22, STRONG, True, en=False)
-text(s, x + 236, 214, w - 236, 22, "売上ベース", size=13, color=SECONDARY, bold=True)
-tb = text(s, x + 236, 236, w - 236, 60, f"{ratio_s:.1f}", size=30, bold=True, color=SECONDARY, en=True, spacing=1.0,
-          anchor=MSO_ANCHOR.BOTTOM)
-r = tb.text_frame.paragraphs[0].add_run()
-r.text = "倍"
-_set_font(r, 14, SECONDARY, True, en=False)
-text(s, x, 300, w, 22, f"LTV {gp12:,.0f}円 ÷ CAC {cac26:,.0f}円　／　売上ベースは12か月の売上{LTV25['sales12']:,}円 ÷ CAC", size=12, color=SECONDARY)
-rows_ = [
-    ("CAC（広告費÷新規顧客数）", f"{cac25:,.0f}円", f"{cac26:,.0f}円"),
-    ("初回の購入単価", f"{LTV25['aov']:,}円", f"{AOV26:,}円"),
-    ("初回購入の限界利益", "—", f"{first_gp26:,.0f}円"),
-    ("限界利益率（この層）", "—", f"{GP_RATE26_SMALL:.1f}%"),
-    ("12か月の購入回数", f"{LTV25['orders12']:.2f}回", "—"),
-    ("12か月の売上（LTV・売上）", f"{LTV25['sales12']:,}円", "—"),
-    ("12か月の限界利益（LTV）", f"{gp12:,.0f}円", "—"),
-    ("リピート率（3か月以内）", f"{LTV25['rep3']:.1f}%", "—"),
-    ("リピート率（12か月以内）", f"{LTV25['rep12']:.1f}%", "—"),
-]
-yy = 334
-text(s, x + w - 250, yy, 120, 24, "25年9月期", size=14, color=SECONDARY, bold=True, align=PP_ALIGN.RIGHT)
-text(s, x + w - 120, yy, 120, 24, "26年9月期", size=14, color=SECONDARY, bold=True, align=PP_ALIGN.RIGHT)
-hline(s, x, yy + 30, w, MOSS, 1.5)
-yy += 38
-for lab, v1, v2 in rows_:
-    bold_ = lab.startswith("12か月の限界利益") or lab.startswith("CAC")
-    text(s, x, yy, w - 250, 30, lab, size=15, bold=bold_)
-    text(s, x + w - 250, yy, 120, 30, v1, size=16, bold=bold_, align=PP_ALIGN.RIGHT, color=MUTED if v1 == "—" else MOSS)
-    text(s, x + w - 120, yy, 120, 30, v2, size=16, bold=bold_, align=PP_ALIGN.RIGHT, color=MUTED if v2 == "—" else MOSS)
-    yy += 32
-    hline(s, x, yy - 7, w)
-vline(s, 548, 150, 540)
-# 右：セグメント別の1顧客あたりの採算（LTV/CACの高い順）。大口は別枠
-x2, w2 = 568, 504
-rect(s, x2, 150, w2, 6, MOSS)
-text(s, x2, 172, w2, 34, "セグメント別の採算（LTV/CACの高い順）", size=21, bold=True)
-text(s, x2, 214, w2, 22, "LTV＝26年9月期の顧客1人あたりの年間限界利益。CACは左と同じ値", size=12, color=SECONDARY)
-# 大口の帯
-by = 246
+s = content_slide("セグメント別の採算：CACを上回るのは販売だけ", f"LTV＝26年9月期の顧客1人あたりの年間限界利益、CAC＝広告費÷新規顧客数（{cac26:,.0f}円）　※税抜")
+x2, w2 = 56, 1016
+# 園芸店の帯（広告を使わない層）
+by = 158
 rect(s, x2, by, w2, 64, HANA_LIGHT)
-text(s, x2 + 14, by + 6, 320, 26, "園芸店への植木鉢の卸（営業で獲得）", size=13, bold=True, anchor=MSO_ANCHOR.MIDDLE, spacing=1.0)
-text(s, x2 + 14, by + 32, w2 - 28, 24,
-     f"garage・オザキフラワーパークなど{BIG['n']}社で限界利益の{BIG['gp_share']}%（{BIG['gp']:.1f}百万円、1社あたり年{BIG['gp'] / BIG['n'] * 100:.0f}万円）。広告CACなし。前期の{BIG['n25']}社中{BIG['retained']}社が継続",
-     size=11, color=SECONDARY, anchor=MSO_ANCHOR.MIDDLE, spacing=1.0)
-# 表頭
-ty = by + 80
-C_NAME, C_BAR, C_BARW, C_NEW, C_GP = x2, x2 + 164, 190, x2 + 372, x2 + 430
-text(s, C_NAME, ty, 160, 22, "セグメント", size=11, color=SECONDARY, bold=True)
-text(s, C_BAR, ty, C_BARW, 22, "LTV/CAC", size=11, color=SECONDARY, bold=True)
-text(s, C_NEW, ty, 56, 22, "新規", size=11, color=SECONDARY, bold=True, align=PP_ALIGN.RIGHT)
-text(s, C_GP, ty, 74, 22, "年間限界利益", size=11, color=SECONDARY, bold=True, align=PP_ALIGN.RIGHT)
+text(s, x2 + 16, by + 6, 400, 26, "園芸店への植木鉢の卸（営業で獲得・広告CACなし）", size=14, bold=True, anchor=MSO_ANCHOR.MIDDLE, spacing=1.0)
+text(s, x2 + 16, by + 32, w2 - 32, 24,
+     f"garage・オザキフラワーパークなど{BIG['n']}社で限界利益の{BIG['gp_share']}%（{BIG['gp']:.1f}百万円、1社あたり年{BIG['gp'] / BIG['n'] * 100:.0f}万円）。前期の{BIG['n25']}社中{BIG['retained']}社が継続",
+     size=12, color=SECONDARY, anchor=MSO_ANCHOR.MIDDLE, spacing=1.0)
+# 広告で獲得する層：セグメント別のランキング
+text(s, x2, by + 86, w2, 26, "広告で獲得する層（会員・ゲスト）：セグメント別のLTV/CAC（高い順）", size=15, bold=True)
+ty = by + 118
+C_NAME, C_BAR, C_BARW, C_NEW, C_AOV, C_GP = x2, x2 + 250, 420, x2 + 730, x2 + 830, x2 + 930
+text(s, C_NAME, ty, 240, 22, "セグメント", size=12, color=SECONDARY, bold=True)
+text(s, C_BAR, ty, C_BARW, 22, "LTV/CAC", size=12, color=SECONDARY, bold=True)
+text(s, C_NEW, ty, 80, 22, "新規顧客", size=12, color=SECONDARY, bold=True, align=PP_ALIGN.RIGHT)
+text(s, C_AOV, ty, 80, 22, "初回単価", size=12, color=SECONDARY, bold=True, align=PP_ALIGN.RIGHT)
+text(s, C_GP, ty, 86, 22, "年間限界利益", size=12, color=SECONDARY, bold=True, align=PP_ALIGN.RIGHT)
 hline(s, x2, ty + 26, w2, MOSS, 1.5)
-RH_ = 38
+RH_ = 40
 ry0 = ty + 32
 rmax = 1.5
 cac_x = C_BAR + C_BARW * (1.0 / rmax)
 for i, (n_, t_, nw_, c_, a_, r_, g_, f_) in enumerate(SEGMENTS):
     ry = ry0 + i * RH_
     rt = g_ / cac26
-    text(s, C_NAME, ry, 120, RH_, n_, size=13, bold=rt >= 1, anchor=MSO_ANCHOR.MIDDLE, spacing=1.0)
-    text(s, C_NAME + 122, ry, 40, RH_, t_, size=9, color=SECONDARY, anchor=MSO_ANCHOR.MIDDLE, spacing=1.0, en=True)
+    text(s, C_NAME, ry, 180, RH_, n_, size=14, bold=rt >= 1, anchor=MSO_ANCHOR.MIDDLE, spacing=1.0)
+    text(s, C_NAME + 186, ry, 50, RH_, t_, size=10, color=SECONDARY, anchor=MSO_ANCHOR.MIDDLE, spacing=1.0, en=True)
     bw2 = C_BARW * min(rt, rmax) / rmax
-    rect(s, C_BAR, ry + 9, bw2, RH_ - 18, HANA if rt >= 1 else HANA_LIGHT)
-    text(s, C_BAR + bw2 + 6, ry, 60, RH_, f"{rt:.1f}倍", size=12, bold=True, color=MOSS if rt >= 1 else STRONG, anchor=MSO_ANCHOR.MIDDLE, spacing=1.0)
-    text(s, C_NEW, ry, 56, RH_, f"{nw_:,}", size=13, align=PP_ALIGN.RIGHT, anchor=MSO_ANCHOR.MIDDLE, spacing=1.0, en=True)
-    text(s, C_GP, ry, 74, RH_, f"{g_:,}円", size=13, align=PP_ALIGN.RIGHT, anchor=MSO_ANCHOR.MIDDLE, spacing=1.0)
+    rect(s, C_BAR, ry + 10, bw2, RH_ - 20, HANA if rt >= 1 else HANA_LIGHT)
+    text(s, C_BAR + bw2 + 8, ry, 70, RH_, f"{rt:.1f}倍", size=13, bold=True, color=MOSS if rt >= 1 else STRONG, anchor=MSO_ANCHOR.MIDDLE, spacing=1.0)
+    text(s, C_NEW, ry, 80, RH_, f"{nw_:,}人", size=13, align=PP_ALIGN.RIGHT, anchor=MSO_ANCHOR.MIDDLE, spacing=1.0)
+    text(s, C_AOV, ry, 80, RH_, f"{a_:,}円", size=13, align=PP_ALIGN.RIGHT, anchor=MSO_ANCHOR.MIDDLE, spacing=1.0)
+    text(s, C_GP, ry, 86, RH_, f"{g_:,}円", size=13, align=PP_ALIGN.RIGHT, anchor=MSO_ANCHOR.MIDDLE, spacing=1.0)
     hline(s, x2, ry + RH_, w2, BORDER_LIGHT, 0.75)
 vline(s, cac_x, ry0 - 4, RH_ * len(SEGMENTS) + 8, STRONG, 1.25, dash=True)
-text(s, cac_x - 50, ry0 + RH_ * len(SEGMENTS) + 4, 100, 18, "CAC＝LTV", size=10, color=STRONG, align=PP_ALIGN.CENTER, bold=True)
+text(s, cac_x - 50, ry0 + RH_ * len(SEGMENTS) + 2, 100, 18, "CAC＝LTV", size=10, color=STRONG, align=PP_ALIGN.CENTER, bold=True)
 rect(s, 56, 730, 1016, 26, HANA_LIGHT)
 text(s, 68, 730, 1000, 26, "LTVに寄与する施策を準備中：アンドフラワーでの販売・発送委託手数料、人材紹介フィー、イベント出店料 など（卸仕入れ以外の収益を同じ顧客基盤に重ねる）",
      size=12, bold=True, anchor=MSO_ANCHOR.MIDDLE, spacing=1.0)
-text(s, 56, 664, 1016, 50,
+text(s, 56, 668, 1016, 50,
      [f"広告で獲得する層でCACを上回るのは{seg_best[0]}（{seg_ratio[seg_best[0]]:.1f}倍）だけで、レッスン・お稽古が{seg_ratio['レッスン・お稽古']:.1f}倍。"
       f"新規の半分を占める自宅鑑賞用・ギフトは{seg_ratio['自宅鑑賞用・ギフト']:.1f}倍。",
       f"限界利益の{BIG['gp_share']}%は園芸店への植木鉢の卸（{BIG['n']}社）。広告は販売・レッスンなど事業者セグメントに寄せ、個人向けはオーガニック中心にする"],
      size=16, bold=True, spacing=1.45)
 footnote(s, "※ 匿名化した受注・顧客データを顧客単位で集計（社内アカウント・返金は除外）。広告で獲得する層＝会員・ゲスト、園芸店＝植木鉢を卸す園芸店（請求書払い）。"
-            f"12か月LTVは25年9月期に初回購入した顧客の12か月の売上×この層の限界利益率{GP_RATE26_SMALL:.1f}%。セグメントは顧客登録の用途から分類（ダッシュボードの7区分）。CACは広告費÷新規顧客数で全セグメント共通")
+            "セグメントは顧客登録の用途から分類（マーケダッシュボードと同じ7区分、未分類は除く）。CACは広告費をすべて新規獲得にかかったとみなした値で、セグメント別には分けられないため共通")
 
 # ---- 損益分岐に必要な月商
 s = content_slide("損益分岐に必要な月商", "貢献利益が0になる月商と、26年9月期の月平均の売上　単位：百万円/月" + PH)
@@ -567,13 +527,14 @@ draw_claims(summary_slide, [
         f"売上は{fy_s[0]:.0f} → {fy_s[1]:.0f} → {fy_s[2]:.0f}百万円（24年9月期は8か月）。ボックス等を含めると{fy_tot[0]:.0f} → {fy_tot[1]:.0f} → {fy_tot[2]:.0f}百万円",
         f"限界利益率は{fy_gp[1] / fy_s[1] * 100:.0f} → {fy_gp[2] / fy_s[2] * 100:.0f}%（生花 約{CAT_MARGIN['生花']:.0f}%※、植木鉢 約{CAT_MARGIN['植木鉢']:.0f}%）。広告費込み限界利益は{fy_net[1]:.1f} → {fy_net[2]:.1f}百万円"]),
     ("2", "広告は生花の新規獲得に集中。植木鉢はホームセンターへの営業等を実施", [
-        f"CAC {cac26:,.0f}円に対し、初回の限界利益{first_gp26:,.0f}円、12か月の限界利益LTV {gp12:,.0f}円（LTV/CAC {ratio:.1f}倍）",
+        f"CACは{cac26:,.0f}円（広告費{fy_ad[2]:.1f}百万円÷新規{NEW26:,}人）。初回の限界利益{first_gp26:,.0f}円では回収できない",
         f"CACを上回るセグメントは販売（{seg_ratio['販売']:.1f}倍）だけ。レッスン・お稽古{seg_ratio['レッスン・お稽古']:.1f}倍、自宅鑑賞用・ギフト{seg_ratio['自宅鑑賞用・ギフト']:.1f}倍",
         f"限界利益の{BIG['gp_share']}%は園芸店への植木鉢の卸（{BIG['n']}社）。広告対象の生花だけのROASは{ef['FROAS']:.0f}%（全体{ef['ROAS']:.0f}%）"]),
     ("3", "収益化の鍵は、リピート顧客（事業者）の積み上げと広告費込み限界利益率の改善", [
         f"売上の{REPEAT_SHARE[1]:.0f}%は2回目以降の注文。1注文あたりの売上はリピート{REPEAT_AOV[1]:,}円、初回{AOV26:,}円（約{REPEAT_AOV[1] / AOV26:.0f}倍）",
         f"リピート注文は月{REP_REPEAT[0]} → {REP_REPEAT[-1]}件、2回以上購入は{REP_CUM_REP[-1]:,}アカウント（全購入ありアカウントの{REP_CUM_REP[-1] / ACCOUNTS_BOUGHT * 100:.0f}%）",
-        f"現状は直接固定費は月{fixed_m:.2f}百万円と小さく、通年の貢献利益は+{ef['CONTRIB']:.1f}百万円。損益は広告効率と原価で決まる"]),
+        f"現状は直接固定費は月{fixed_m:.2f}百万円と小さく、通年の貢献利益+{ef['CONTRIB']:.1f}百万円。損益は広告効率と原価で決まる",
+        "アンドフラワーと合わせて大量に花を仕入れる体制ができれば、仕入れ原価を大幅に下げられる"]),
 ], y=124, color=HANA)
 footnote(summary_slide, f"※ 数値は税抜。生花の限界利益率は花材により変動（15%前後）。現状は少量仕入れのため仲卸などからも仕入れており、原価率が高くなっている。植木鉢は倉庫費用を含めると約{POT_MARGIN_SBS:.0f}%。用語の定義と集計の前提は最終ページ")
 
