@@ -36,13 +36,16 @@ jp = dict(rows)[JAPAN]
 diff = jp - WORLD_AVG[1]
 
 # ---- ページ ----
-s = content_slide("世界と比べ、日本のEC市場はまだまだ伸び代がある", "国別のEC化率　単位：%")
-s.shapes._spTree.remove(s.shapes[-1]._element)  # 1枚ものなのでページ番号は出さない
+# 1枚ものなので content_slide は使わず、タイトルとサブの間を広めに取る（ページ番号なし）
+s = new_slide()
+rect(s, 0, 0, 8, H_PX, T.accent)
+text(s, MARGIN, 44, 1000, 56, "世界と比べ、日本のEC市場はまだまだ伸び代がある", size=38, bold=True)
+text(s, MARGIN, 122, 1000, 36, "国別のEC化率　単位：%", size=20, color=SECONDARY)
 
 # グラフの枠
 name_w = 150
-gx, gy = MARGIN + name_w + 20, 176     # 棒の左端・上端
-bar_w, row_h = 430, 38
+gx, gy = MARGIN + name_w + 20, 216     # 棒の左端・上端
+bar_w, row_h = 430, 40
 vmax, ticks = 50, (0, 10, 20, 30, 40, 50)
 gh = row_h * len(rows)
 
@@ -53,7 +56,11 @@ for t in ticks:
     vline(s, tx, gy, gh, WATERMARK if t else BORDER_LIGHT, 1.0)
 
 # 凡例（グラフのタイトル行と同じ高さ）
-legend(s, 470, 108, [("日本", T.accent), ("世界平均", T.dark), ("その他の国", BG_GRAY)])
+lx = 470
+for lab, col in [("日本", T.accent), ("世界平均", T.dark), ("その他の国", BG_GRAY)]:
+    rect(s, lx, 166, 10, 10, col)
+    text(s, lx + 16, 160, 120, 22, lab, size=11, color=SECONDARY, anchor=MSO_ANCHOR.MIDDLE, spacing=1.0)
+    lx += 16 + len(lab) * 11 + 28
 
 # 横棒
 for i, (name, v) in enumerate(rows):
@@ -69,16 +76,16 @@ for i, (name, v) in enumerate(rows):
          anchor=MSO_ANCHOR.MIDDLE, en=True, spacing=1.0)
 
 # 右側：日本の数字の見せ場
-bx, by = 800, 300
+bx, by = 800, 316
 big_number(s, bx, by, "日本のEC化率", f"{jp:.1f}", "%", size=72, w=300)
-text(s, bx, by + 112, 300, 26, f"世界平均 {WORLD_AVG[1]:.1f}% との差", size=14, color=SECONDARY, spacing=1.0)
-text(s, bx, by + 138, 300, 40, f"▲{abs(diff):.1f}pt", size=30, bold=True, color=STRONG, en=True, spacing=1.0)
-hline(s, bx, by + 196, 240, BORDER_LIGHT)
-text(s, bx, by + 210, 300, 26, f"中国（{dict(rows)['中国']:.1f}%）と比べると", size=14, color=SECONDARY, spacing=1.0)
-text(s, bx, by + 236, 300, 40, "3分の1以下", size=24, bold=True, color=MOSS, spacing=1.0)
+text(s, bx, by + 134, 300, 26, f"世界平均 {WORLD_AVG[1]:.1f}% との差", size=14, color=SECONDARY, spacing=1.0)
+text(s, bx, by + 160, 300, 40, f"▲{abs(diff):.1f}pt", size=30, bold=True, color=STRONG, en=True, spacing=1.0)
+hline(s, bx, by + 222, 240, BORDER_LIGHT)
+text(s, bx, by + 240, 300, 26, f"中国（{dict(rows)['中国']:.1f}%）と比べると", size=14, color=SECONDARY, spacing=1.0)
+text(s, bx, by + 266, 300, 40, "3分の1以下", size=24, bold=True, color=MOSS, spacing=1.0)
 
 # 結論の1行と脚注
-text(s, MARGIN, 676, CONTENT_W, 44,
+text(s, MARGIN, 694, CONTENT_W, 44,
      f"日本は[[{jp:.1f}%]]。世界平均の{WORLD_AVG[1]:.1f}%を下回り、中国の3分の1以下", size=28, bold=True)
 footnote(s, "※ 出所：経済産業省「令和5年度電子商取引に関する市場調査報告書」。物販系分野、サービス系分野を含む数値")
 
