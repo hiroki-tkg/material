@@ -12,6 +12,7 @@ SKILL_SCRIPTS = os.environ.get(
 )
 sys.path.insert(0, SKILL_SCRIPTS)
 from deck_lib import *  # noqa: E402,F401,F403
+from deck_lib import _set_font  # noqa: E402
 
 use_theme("domuz")
 
@@ -76,13 +77,17 @@ for i, (name, v) in enumerate(rows):
          anchor=MSO_ANCHOR.MIDDLE, en=True, spacing=1.0)
 
 # 右側：日本の数字の見せ場
-bx, by = 800, 316
-big_number(s, bx, by, "日本のEC化率", f"{jp:.1f}", "%", size=72, w=300)
-text(s, bx, by + 134, 300, 26, f"世界平均 {WORLD_AVG[1]:.1f}% との差", size=14, color=SECONDARY, spacing=1.0)
-text(s, bx, by + 160, 300, 40, f"▲{abs(diff):.1f}pt", size=30, bold=True, color=STRONG, en=True, spacing=1.0)
-hline(s, bx, by + 222, 240, BORDER_LIGHT)
-text(s, bx, by + 240, 300, 26, f"中国（{dict(rows)['中国']:.1f}%）と比べると", size=14, color=SECONDARY, spacing=1.0)
-text(s, bx, by + 266, 300, 40, "3分の1以下", size=24, bold=True, color=MOSS, spacing=1.0)
+bx, by = 800, 300
+text(s, bx, by, 300, 22, "日本のEC化率", size=13, color=SECONDARY, bold=True, spacing=1.0)
+tb = text(s, bx, by + 30, 300, 80, f"{jp:.1f}", size=72, bold=True, en=True, spacing=1.0, anchor=MSO_ANCHOR.BOTTOM)
+r = tb.text_frame.paragraphs[0].add_run()
+r.text = "%"
+_set_font(r, 29, MOSS, True, en=False)
+text(s, bx, by + 150, 300, 26, f"世界平均 {WORLD_AVG[1]:.1f}% との差", size=14, color=SECONDARY, spacing=1.0)
+text(s, bx, by + 176, 300, 40, f"▲{abs(diff):.1f}pt", size=30, bold=True, color=STRONG, en=True, spacing=1.0)
+hline(s, bx, by + 238, 240, BORDER_LIGHT)
+text(s, bx, by + 256, 300, 26, f"中国（{dict(rows)['中国']:.1f}%）と比べると", size=14, color=SECONDARY, spacing=1.0)
+text(s, bx, by + 282, 300, 40, "3分の1以下", size=24, bold=True, color=MOSS, spacing=1.0)
 
 # 結論の1行と脚注
 text(s, MARGIN, 694, CONTENT_W, 44,
