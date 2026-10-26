@@ -78,8 +78,8 @@ for i, (name, v) in enumerate(rows):
 
 # 右側：日本の数字の見せ場
 bx, by = 800, 300
-text(s, bx, by, 300, 22, "日本のEC化率", size=13, color=SECONDARY, bold=True, spacing=1.0)
-tb = text(s, bx, by + 30, 300, 80, f"{jp:.1f}", size=72, bold=True, en=True, spacing=1.0, anchor=MSO_ANCHOR.BOTTOM)
+text(s, bx, by, 300, 26, "日本のEC化率", size=17, color=SECONDARY, bold=True, spacing=1.0)
+tb = text(s, bx, by + 22, 300, 80, f"{jp:.1f}", size=72, bold=True, en=True, spacing=1.0, anchor=MSO_ANCHOR.BOTTOM)
 r = tb.text_frame.paragraphs[0].add_run()
 r.text = "%"
 _set_font(r, 29, MOSS, True, en=False)
