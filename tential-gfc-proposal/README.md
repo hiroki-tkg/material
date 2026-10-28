@@ -16,3 +16,14 @@ cd page4-src
 node render.js                       # → overlay.pdf（元PDF 4ページ目に pypdf の merge_page で重ねる）
 python3 build_pptx.py <元PDF4ページ目の300dpi PNG> ../Domuz_intro_p4.pptx
 ```
+
+## P10 の次に差し込むページ（先行施策｜プリザーブドフラワーの卸販売）
+
+- `Domuz_preserved_p11.pptx` … 編集用（1枚）。ページ番号は「11」で入れてあるので、差し込み位置に合わせて直す
+- `p11-preview.png` … LibreOffice でのプレビュー（游ゴシック非搭載環境のため字間は実機と少し異なる）
+- `p11-src/build_p11.py` … 組み立てスクリプト。商品写真は料金表 PDF から切り出した JPEG
+
+```sh
+cd p11-src
+python3 build_p11.py <元資料の任意ページの300dpi PNG> ../Domuz_preserved_p11.pptx 11
+```
