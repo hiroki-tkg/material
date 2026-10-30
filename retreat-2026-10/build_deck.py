@@ -46,6 +46,9 @@ prs.slide_width = px(W_PX)
 prs.slide_height = px(H_PX)
 BLANK = prs.slide_layouts[6]
 page_no = 0
+# DECK=shime で 4Q締め会版（表紙差し替え・P2-7 と P30 以降を除いて番号を振り直す）
+SHIME = os.environ.get("DECK") == "shime"
+PAGE_TB = {}
 
 
 def _set_font(run, size_px, color, bold, en=None):
@@ -163,8 +166,8 @@ def content_slide(title=None, sub=None):
         text(s, 56, 44, 1000, 56, title, size=38, bold=True)
     if sub:
         text(s, 56, 104, 1000, 36, sub, size=22, color=SECONDARY)
-    text(s, W_PX - 120, H_PX - 44, 80, 24, str(page_no), size=14, color=MUTED,
-         align=PP_ALIGN.RIGHT, en=True)
+    PAGE_TB[s.slide_id] = text(s, W_PX - 120, H_PX - 44, 80, 24, str(page_no), size=14, color=MUTED,
+                               align=PP_ALIGN.RIGHT, en=True)
     return s
 
 
@@ -216,13 +219,26 @@ for row in range(3):
 tb = text(s, 0, 236, W_PX, 200, "Domuz", size=170, color=BLACK, bold=True, en=True, align=PP_ALIGN.CENTER,
           anchor=MSO_ANCHOR.MIDDLE, spacing=1.0)
 set_face(tb.text_frame.paragraphs[0].runs[0], "Google Sans")
-tb = text(s, 0, 430, W_PX, 160, "1day", size=120, color=BLACK, bold=True, en=True, align=PP_ALIGN.CENTER,
-          anchor=MSO_ANCHOR.MIDDLE, spacing=1.0)
-set_face(tb.text_frame.paragraphs[0].runs[0], "Google Sans")
-r = tb.text_frame.paragraphs[0].add_run()
-r.text = "合宿"
-_set_font(r, 120, BLACK, True, en=False)
-tb = text(s, 0, 640, W_PX, 40, "2026.10.09", size=28, color=SECONDARY, en=True, align=PP_ALIGN.CENTER,
+if SHIME:
+    tb = text(s, 0, 430, W_PX, 160, "2026", size=80, color=BLACK, bold=True, en=True, align=PP_ALIGN.CENTER,
+              anchor=MSO_ANCHOR.MIDDLE, spacing=1.0)
+    set_face(tb.text_frame.paragraphs[0].runs[0], "Google Sans")
+    for t, en in (("年", False), ("9", True), ("月期 ", False), ("4Q", True), ("締め会", False)):
+        r = tb.text_frame.paragraphs[0].add_run()
+        r.text = t
+        if en:
+            _set_font(r, 80, BLACK, True, en=True)
+            set_face(r, "Google Sans")
+        else:
+            _set_font(r, 80, BLACK, True, en=False)
+else:
+    tb = text(s, 0, 430, W_PX, 160, "1day", size=120, color=BLACK, bold=True, en=True, align=PP_ALIGN.CENTER,
+              anchor=MSO_ANCHOR.MIDDLE, spacing=1.0)
+    set_face(tb.text_frame.paragraphs[0].runs[0], "Google Sans")
+    r = tb.text_frame.paragraphs[0].add_run()
+    r.text = "合宿"
+    _set_font(r, 120, BLACK, True, en=False)
+tb = text(s, 0, 640, W_PX, 40, "2026.10.30" if SHIME else "2026.10.09", size=28, color=SECONDARY, en=True, align=PP_ALIGN.CENTER,
           letter=4)
 set_face(tb.text_frame.paragraphs[0].runs[0], "Google Sans")
 notes(s, """
@@ -831,9 +847,22 @@ for layout in list(layouts):
     if layout is not BLANK:
         layouts.remove(layout)
 
+if SHIME:
+    # 残すのは表紙と元の P8〜P29。ページ番号は残した順に振り直す
+    ids = prs.slides._sldIdLst
+    entries = list(ids)
+    for n, e in enumerate(entries, 1):
+        if not (n == 1 or 8 <= n <= 29):
+            prs.part.drop_rel(e.rId)
+            ids.remove(e)
+    for n, sl in enumerate(prs.slides, 1):
+        tb = PAGE_TB.get(sl.slide_id)
+        if tb is not None:
+            tb.text_frame.paragraphs[0].runs[0].text = str(n)
+
 out = sys.argv[1] if len(sys.argv) > 1 else "deck.pptx"
 prs.save(out)
-with open("talk_script.md", "w") as f:
+with open("talk_script.md" if not SHIME else os.devnull, "w") as f:
     f.write("# 1day合宿 2026.10.09 全社パート — トーク台本（スライド番号つき）\n\n")
     for n, body in TALK:
         f.write(f"## {n}\n\n{body}\n\n")
