@@ -680,6 +680,30 @@ notes(s, """
 """)
 
 # =====================================================================
+# 締め会版のみ: 計画のあと → 一文 → Value（1枚ずつ全面） → やり方を変える
+# =====================================================================
+SHIME_EXTRA = set()
+if SHIME:
+    s = content_slide()
+    text(s, 56, 323, 1016, 200, ["この事業計画を達成するために、", "大事にしたいこと"], size=46, bold=True,
+         align=PP_ALIGN.CENTER, anchor=MSO_ANCHOR.MIDDLE)
+    SHIME_EXTRA.add(s.slide_id)
+    for v in ["dekakuyaru", "hayakuyaru", "kokyaku", "sujidekimeru", "yarikiru"]:
+        s = dark_slide()
+        s.background.fill.fore_color.rgb = RGBColor(0, 0, 0)
+        from PIL import Image
+        path = os.path.join(PHOTO_DIR, "values", v + ".jpg")
+        with Image.open(path) as im:
+            iw, ih = im.size
+        # 横幅いっぱい・上寄せ。下の余りは画像下端の黒帯とつながる
+        s.shapes.add_picture(path, 0, 0, px(W_PX), px(W_PX * ih / iw))
+        SHIME_EXTRA.add(s.slide_id)
+    s = content_slide()
+    text(s, 56, 293, 1016, 260, ["頑張る量を増やすためではなく、", "[[今のやり方を変える]]"], size=52, bold=True,
+         align=PP_ALIGN.CENTER, anchor=MSO_ANCHOR.MIDDLE)
+    SHIME_EXTRA.add(s.slide_id)
+
+# =====================================================================
 # 14. 章扉 03
 # =====================================================================
 s = divider("03", "WHY WE DO THIS", "なぜ、Domuzがこれをやるか？", "")
@@ -852,7 +876,7 @@ if SHIME:
     ids = prs.slides._sldIdLst
     entries = list(ids)
     for n, e in enumerate(entries, 1):
-        if not (n == 1 or 8 <= n <= 29):
+        if not (n == 1 or 8 <= n <= 29 or int(e.id) in SHIME_EXTRA):
             prs.part.drop_rel(e.rId)
             ids.remove(e)
     for n, sl in enumerate(prs.slides, 1):
