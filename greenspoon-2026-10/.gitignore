@@ -4,3 +4,4 @@ out/
 *.pdf
 *.html
 preview/
+__pycache__/
