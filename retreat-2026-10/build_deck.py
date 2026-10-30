@@ -699,7 +699,12 @@ if SHIME:
         s.shapes.add_picture(path, 0, 0, px(W_PX), px(W_PX * ih / iw))
         SHIME_EXTRA.add(s.slide_id)
     s = content_slide()
-    text(s, 56, 293, 1016, 260, ["頑張る量を増やすためではなく、", "[[今のやり方を変える]]"], size=52, bold=True,
+    text(s, 56, 293, 1016, 260, ["頑張る量を増やすではなく、", "[[今のやり方を変える]]"], size=52, bold=True,
+         align=PP_ALIGN.CENTER, anchor=MSO_ANCHOR.MIDDLE)
+    SHIME_EXTRA.add(s.slide_id)
+    s = content_slide()
+    text(s, 56, 263, 1016, 320, ["いいサービスを作るため、", "もっと奥のお客様にサービスを届けるためであれば、",
+                                 "[[前提を変えるのも“アリ”]]"], size=40, bold=True,
          align=PP_ALIGN.CENTER, anchor=MSO_ANCHOR.MIDDLE)
     SHIME_EXTRA.add(s.slide_id)
 
