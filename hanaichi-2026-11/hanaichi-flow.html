@@ -1,0 +1,413 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>ハナイチ 発注・梱包・発送フロー</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Zen+Kaku+Gothic+New:wght@500;700&family=Noto+Sans+JP:wght@400;500;700&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<style>
+/* Layout: one reading column (max 1040px); figures may scroll sideways in their own box. */
+:root{
+  --bg:#fbfaf5; --fg:#1f1d16; --muted:#6a6657; --line:#e3dfd0; --panel:#f3f0e5; --panel2:#ebe7d9;
+  --accent:#b8860b; --accent-ink:#7a5a05; --accent-soft:#fbf1cf;
+  --full:#c8373f; --full-soft:#f9e3e4; --open:#2e8b57; --open-soft:#e0f1e6; --rest:#7a776d;
+  --display:"Zen Kaku Gothic New","Noto Sans JP",system-ui,sans-serif;
+  --body:"Noto Sans JP","Hiragino Sans","Yu Gothic",system-ui,sans-serif;
+  --mono:"IBM Plex Mono",ui-monospace,Menlo,monospace;
+}
+@media (prefers-color-scheme: dark){ :root:not([data-theme="light"]){
+  --bg:#16150f; --fg:#ece8dc; --muted:#a6a190; --line:#34312a; --panel:#1f1d16; --panel2:#2a2720;
+  --accent:#e0b040; --accent-ink:#f0cf6e; --accent-soft:#3a3012;
+  --full:#e2606a; --full-soft:#3d1d20; --open:#52b07c; --open-soft:#163322; --rest:#9b978a; color-scheme:dark } }
+:root[data-theme="dark"]{
+  --bg:#16150f; --fg:#ece8dc; --muted:#a6a190; --line:#34312a; --panel:#1f1d16; --panel2:#2a2720;
+  --accent:#e0b040; --accent-ink:#f0cf6e; --accent-soft:#3a3012;
+  --full:#e2606a; --full-soft:#3d1d20; --open:#52b07c; --open-soft:#163322; --rest:#9b978a; color-scheme:dark }
+
+body{background:var(--bg);color:var(--fg);font-family:var(--body);font-size:15px;line-height:1.75;
+  padding-block:32px 64px;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px))}
+main{max-width:1040px;margin:0 auto;display:flex;flex-direction:column;gap:44px}
+h1,h2,h3{font-family:var(--display);line-height:1.3;text-wrap:balance;margin:0}
+h1{font-size:30px;font-weight:700}
+h2{font-size:21px;font-weight:700;padding-bottom:8px;border-bottom:2px solid var(--accent);display:inline-block}
+h3{font-size:16px;font-weight:700}
+p{margin:0;max-width:68ch}
+section{display:flex;flex-direction:column;gap:16px}
+.eyebrow{font-size:12px;letter-spacing:.08em;text-transform:uppercase;color:var(--accent-ink);font-weight:700;font-family:var(--display)}
+.meta{color:var(--muted);font-size:13px;display:flex;flex-wrap:wrap;gap:6px 18px}
+.num{font-family:var(--mono);font-variant-numeric:tabular-nums}
+ul,ol{margin:0;padding-left:1.4em;max-width:72ch}
+li{margin:4px 0}
+li::marker{color:var(--accent-ink)}
+strong{font-weight:700}
+.summary{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:14px}
+.summary>div{background:var(--panel);border-left:4px solid var(--accent);padding:14px 16px;display:flex;flex-direction:column;gap:6px;min-width:0}
+.summary .k{font-family:var(--display);font-weight:700;font-size:15px}
+.summary .v{font-size:14px;color:var(--fg)}
+figure{margin:0;display:flex;flex-direction:column;gap:10px}
+.scroll{overflow-x:auto;border:1px solid var(--line);background:var(--panel);padding:12px}
+figure svg{display:block;max-width:100%;height:auto;min-width:720px;font-family:var(--body)}
+figcaption{font-size:13px;color:var(--muted);max-width:80ch}
+table{border-collapse:collapse;width:100%;font-size:14px}
+th,td{text-align:left;padding:8px 10px;border-bottom:1px solid var(--line);vertical-align:top}
+th{font-family:var(--display);font-weight:700;font-size:13px;color:var(--muted);white-space:nowrap}
+.tbl{overflow-x:auto}
+.tbl table{min-width:760px}
+.pill{display:inline-block;font-size:11px;font-weight:700;padding:1px 8px;border-radius:3px;white-space:nowrap;font-family:var(--display)}
+.pill.full{background:var(--full);color:#fff}
+.pill.open{background:var(--open);color:#fff}
+.pill.rest{background:var(--rest);color:#fff}
+.pill.q{background:var(--accent-soft);color:var(--accent-ink)}
+.ask{color:var(--accent-ink);font-weight:700}
+.bar{position:relative;height:16px;background:var(--panel2);min-width:180px}
+.bar>i{position:absolute;left:0;top:0;bottom:0;display:block}
+.bar>i.full{background:var(--full)} .bar>i.open{background:var(--open)}
+.bar>b{position:absolute;top:-3px;bottom:-3px;width:2px;background:var(--fg);display:block}
+.quota td:nth-child(3),.quota td:nth-child(4),.quota td:nth-child(6){text-align:right}
+.quota th:nth-child(3),.quota th:nth-child(4),.quota th:nth-child(6){text-align:right}
+.stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(170px,1fr));gap:12px}
+.stats>div{border:1px solid var(--line);padding:10px 14px;min-width:0}
+.stats .big{font-family:var(--mono);font-size:26px;font-weight:500;line-height:1.2}
+.stats .lab{font-size:12px;color:var(--muted)}
+.cards{display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:14px}
+.card{border:1px solid var(--line);padding:14px 16px;display:flex;flex-direction:column;gap:8px;min-width:0;background:var(--bg)}
+.card.top{border-color:var(--full);box-shadow:inset 4px 0 0 var(--full)}
+.card .rank{font-family:var(--mono);font-size:12px;color:var(--muted)}
+.card dl{margin:0;display:grid;grid-template-columns:auto 1fr;gap:4px 10px;font-size:13.5px}
+.card dt{color:var(--muted);font-weight:500;white-space:nowrap}
+.card dd{margin:0;min-width:0}
+.steps{counter-reset:s;display:flex;flex-direction:column;gap:10px;max-width:80ch}
+.steps>div{display:grid;grid-template-columns:34px 1fr;gap:10px;align-items:start}
+.steps>div::before{counter-increment:s;content:counter(s);font-family:var(--mono);font-size:14px;color:var(--accent-ink);border:1px solid var(--accent);width:28px;height:28px;display:grid;place-items:center}
+.note{font-size:13px;color:var(--muted);border-top:1px solid var(--line);padding-top:10px;max-width:80ch}
+a{color:var(--accent-ink)}
+@media (max-width:600px){ h1{font-size:24px} body{font-size:14px} }
+</style>
+
+<style>img{max-width:100%}</style>
+</head>
+<body>
+<main>
+<header style="display:flex;flex-direction:column;gap:10px">
+  <div class="eyebrow">ハナイチ（hana-ichi.jp）業務フロー整理</div>
+  <h1>ハナイチ 発注・梱包・発送フローと、発送上限のボトルネック</h1>
+  <p>発送上限を撤廃したら売上が伸びるかを判断するために、現状のフロー・担当者・上限の実態を1枚にまとめた。ヒアリング内容（Participant 1・Participant 2）、管理画面「出荷枠」の値（2026-11-03時点）、売上推移（9〜10月）を元にしている。</p>
+  <div class="meta"><span>作成日 2026-11-03</span><span>ECサイト本体（規約・締切時刻）は未確認。<span class="ask">要確認</span> と書いた箇所は現場に確かめる前提</span></div>
+</header>
+
+<section>
+  <h2>要約</h2>
+  <div class="summary">
+    <div><div class="k">上限は毎日効いている</div><div class="v">11/3〜11/23の営業日18日のうち9日が枠満杯、7日はすでに上限超過（合計451本）。11/3時点で次に選べる発送日は8日先の11/11。</div></div>
+    <div><div class="k">上限は「現場判断」で、根拠が数値化されていない</div><div class="v">上限の根拠が梱包の人手なのか、フローレの供給なのか、集荷なのかが分かれていない。撤廃すると制約は次の工程に移るので、各工程の処理能力を測る必要がある。</div></div>
+    <div><div class="k">売上倍増の根拠は未計測</div><div class="v">見えている超過分は受付済み本数の1割程度。倍になるかは「満杯で注文できなかった需要」の量で決まるが、今はその数が記録されていない。</div></div>
+  </div>
+</section>
+
+<section>
+  <h2>1. 1週間の流れ（注文 → 発注 → 入荷 → 発送 → お届け）</h2>
+  <p>受注後にフローレへ発注する運用で、発注は週3回（火・木・日）、入荷は週3回（月・水・金）。注文日によってお届けまでの日数が変わる。</p>
+  <figure>
+    <div class="scroll">
+    <svg viewBox="0 0 1050 330" role="img" aria-label="曜日ごとの発注担当・入荷日・発送枠と、月曜注文と木曜注文がそれぞれ何曜日に届くかを示した週間タイムライン">
+      <defs>
+        <marker id="ar" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto-start-reverse"><path d="M0 0L10 5L0 10z" fill="currentColor"/></marker>
+        <marker id="arR" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto-start-reverse"><path d="M0 0L10 5L0 10z" fill="#c8373f"/></marker>
+      </defs>
+      <g fill="currentColor" font-size="12">
+        <!-- column shading for 入荷日 -->
+        <g fill="currentColor" opacity="0.06">
+          <rect x="140" y="8" width="100" height="312"/><rect x="340" y="8" width="100" height="312"/><rect x="540" y="8" width="100" height="312"/><rect x="840" y="8" width="100" height="312"/>
+        </g>
+        <!-- header -->
+        <g font-family="Zen Kaku Gothic New, Noto Sans JP, sans-serif" font-weight="700" font-size="13" text-anchor="middle">
+          <text x="190" y="28">月</text><text x="290" y="28">火</text><text x="390" y="28">水</text><text x="490" y="28">木</text><text x="590" y="28">金</text><text x="690" y="28">土</text><text x="790" y="28">日</text><text x="890" y="28">翌月</text><text x="990" y="28">翌火</text>
+        </g>
+        <line x1="0" y1="38" x2="1050" y2="38" stroke="currentColor" stroke-opacity="0.35"/>
+        <!-- row labels -->
+        <g font-size="12" font-weight="500">
+          <text x="8" y="66">フローレへ発注</text><text x="8" y="82" font-size="10.5" opacity="0.7">前日の注文をまとめて</text>
+          <text x="8" y="116">フローレから入荷</text>
+          <text x="8" y="166">発送枠（曜日デフォルト）</text>
+          <text x="8" y="226">例A：月曜に注文</text><text x="8" y="242" font-size="10.5" opacity="0.7">3日後に届く</text>
+          <text x="8" y="286">例B：木曜に注文</text><text x="8" y="302" font-size="10.5" opacity="0.7">5日後に届く（要確認）</text>
+        </g>
+        <g stroke="currentColor" stroke-opacity="0.2"><line x1="0" y1="94" x2="1050" y2="94"/><line x1="0" y1="138" x2="1050" y2="138"/><line x1="0" y1="190" x2="1050" y2="190"/><line x1="0" y1="258" x2="1050" y2="258"/></g>
+        <!-- 発注 row -->
+        <g text-anchor="middle" font-size="12">
+          <rect x="250" y="52" width="80" height="26" rx="3" fill="#b8860b" opacity="0.9"/><text x="290" y="70" fill="#fff" font-weight="700">P1</text>
+          <rect x="450" y="52" width="80" height="26" rx="3" fill="#b8860b" opacity="0.9"/><text x="490" y="70" fill="#fff" font-weight="700">P1</text>
+          <rect x="750" y="52" width="80" height="26" rx="3" fill="#b8860b" opacity="0.9"/><text x="790" y="70" fill="#fff" font-weight="700">リノさん</text>
+          <rect x="950" y="52" width="80" height="26" rx="3" fill="#b8860b" opacity="0.9"/><text x="990" y="70" fill="#fff" font-weight="700">P1</text>
+        </g>
+        <!-- 入荷 row -->
+        <g text-anchor="middle" font-size="12" font-weight="700">
+          <text x="190" y="120">入荷</text><text x="390" y="120">入荷</text><text x="590" y="120">入荷</text><text x="890" y="120">入荷</text>
+          <text x="290" y="120" opacity="0.4" font-weight="400">—</text><text x="490" y="120" opacity="0.4" font-weight="400">—</text><text x="690" y="120" opacity="0.4" font-weight="400">—</text><text x="790" y="120" opacity="0.4" font-weight="400">—</text><text x="990" y="120" opacity="0.4" font-weight="400">—</text>
+        </g>
+        <!-- 枠 row -->
+        <g text-anchor="middle" font-family="IBM Plex Mono, monospace" font-size="13">
+          <text x="190" y="170">500</text><text x="290" y="170" fill="#c8373f" font-weight="500">150</text><text x="390" y="170">500</text><text x="490" y="170" fill="#c8373f" font-weight="500">150</text><text x="590" y="170">500</text><text x="690" y="170">100</text><text x="790" y="170" opacity="0.6">休業</text><text x="890" y="170">500</text><text x="990" y="170" fill="#c8373f" font-weight="500">150</text>
+        </g>
+        <!-- 例A -->
+        <g font-size="11.5" text-anchor="middle">
+          <circle cx="190" cy="222" r="6" fill="currentColor"/><text x="190" y="246">注文</text>
+          <line x1="198" y1="222" x2="280" y2="222" stroke="currentColor" stroke-width="1.5" marker-end="url(#ar)"/>
+          <circle cx="290" cy="222" r="6" fill="#b8860b"/><text x="290" y="246">発注（P1）</text>
+          <line x1="298" y1="222" x2="380" y2="222" stroke="currentColor" stroke-width="1.5" marker-end="url(#ar)"/>
+          <circle cx="390" cy="222" r="6" fill="currentColor"/><text x="390" y="246">入荷・梱包・発送</text>
+          <line x1="398" y1="222" x2="480" y2="222" stroke="currentColor" stroke-width="1.5" marker-end="url(#ar)"/>
+          <circle cx="490" cy="222" r="6" fill="none" stroke="currentColor" stroke-width="2"/><text x="490" y="246" font-weight="700">お届け</text>
+        </g>
+        <!-- 例B -->
+        <g font-size="11.5" text-anchor="middle">
+          <circle cx="490" cy="282" r="6" fill="currentColor"/><text x="490" y="306">注文</text>
+          <line x1="498" y1="282" x2="780" y2="282" stroke="#c8373f" stroke-width="1.5" stroke-dasharray="4 3" marker-end="url(#arR)"/>
+          <text x="640" y="276" fill="#c8373f" font-size="10.5">金・土は発注日がない → 日曜まで待つ</text>
+          <circle cx="790" cy="282" r="6" fill="#b8860b"/><text x="790" y="306">発注（リノさん）</text>
+          <line x1="798" y1="282" x2="880" y2="282" stroke="currentColor" stroke-width="1.5" marker-end="url(#ar)"/>
+          <circle cx="890" cy="282" r="6" fill="currentColor"/><text x="890" y="306">入荷・梱包・発送</text>
+          <line x1="898" y1="282" x2="980" y2="282" stroke="currentColor" stroke-width="1.5" marker-end="url(#ar)"/>
+          <circle cx="990" cy="282" r="6" fill="none" stroke="currentColor" stroke-width="2"/><text x="990" y="306" font-weight="700">お届け</text>
+        </g>
+      </g>
+    </svg>
+    </div>
+    <figcaption>網掛けの列が入荷日（月・水・金）。例Aはヒアリング通り「月曜注文→火曜発注→水曜発送→木曜着」。例Bは発注日の並びから導いた推定で、木〜土の注文は日曜のリノさんの発注にまとまり、翌月曜発送になる。火・木・土の発送枠（150／150／100）は入荷のない日なので、何を発送しているか（前日入荷分の保管か、別仕入れか）は要確認。</figcaption>
+  </figure>
+  <ul>
+    <li><strong>注文の締切時刻</strong>（例：火曜何時までの注文が火曜の発注に入るか）は未確認。<span class="ask">要確認</span></li>
+    <li>土日の注文は客単価が高い（9〜10月の日曜は1日25〜55万円、平日は5〜10万円）。つまり<strong>週で一番大きい発注バッチを、日曜にリノさんが1人で処理している</strong>。</li>
+    <li>即日発送はタイムセールのみ（余り分）。通常注文は必ず「受注→発注→入荷」を通るので、在庫を持たない代わりに最短3日かかる。</li>
+  </ul>
+</section>
+
+<section>
+  <h2>2. 誰が何をしているか（スイムレーン）</h2>
+  <figure>
+    <div class="scroll">
+    <svg viewBox="0 0 1140 545" role="img" aria-label="お客様・サイト・発注担当・フローレ・現場の5レーンで、注文から受取までの流れと、発送枠チェック・欠品と代品・余りのタイムセールという3つの分岐を示した図">
+      <defs>
+        <marker id="a2" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto-start-reverse"><path d="M0 0L10 5L0 10z" fill="currentColor"/></marker>
+        <marker id="a2r" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto-start-reverse"><path d="M0 0L10 5L0 10z" fill="#c8373f"/></marker>
+      </defs>
+      <g fill="currentColor" font-size="12">
+        <!-- lanes -->
+        <g>
+          <rect x="0" y="30" width="1140" height="100" fill="currentColor" opacity="0.04"/>
+          <rect x="0" y="230" width="1140" height="100" fill="currentColor" opacity="0.04"/>
+          <rect x="0" y="430" width="1140" height="100" fill="currentColor" opacity="0.04"/>
+          <g stroke="currentColor" stroke-opacity="0.25"><line x1="0" y1="30" x2="1140" y2="30"/><line x1="0" y1="130" x2="1140" y2="130"/><line x1="0" y1="230" x2="1140" y2="230"/><line x1="0" y1="330" x2="1140" y2="330"/><line x1="0" y1="430" x2="1140" y2="430"/><line x1="0" y1="530" x2="1140" y2="530"/></g>
+          <line x1="160" y1="30" x2="160" y2="530" stroke="currentColor" stroke-opacity="0.25"/>
+        </g>
+        <g font-family="Zen Kaku Gothic New, Noto Sans JP, sans-serif" font-weight="700" font-size="13">
+          <text x="12" y="76">お客様</text><text x="12" y="94" font-size="10.5" font-weight="400" opacity="0.7">花屋・教室・個人</text>
+          <text x="12" y="176">サイト・システム</text>
+          <text x="12" y="276">発注担当</text><text x="12" y="294" font-size="10.5" font-weight="400" opacity="0.7">P1（月火木金）／リノさん</text>
+          <text x="12" y="376">フローレ（仕入先）</text>
+          <text x="12" y="476">現場（梱包・発送）</text><text x="12" y="494" font-size="10.5" font-weight="400" opacity="0.7">人数は要確認</text>
+        </g>
+        <!-- boxes: x left, y top; w140 h56 -->
+        <g stroke="currentColor" stroke-width="1.2" fill="none">
+          <rect x="175" y="52" width="140" height="56" rx="4"/>
+          <rect x="335" y="152" width="140" height="56" rx="4" stroke="#b8860b" stroke-width="2.5"/>
+          <rect x="495" y="252" width="140" height="56" rx="4"/>
+          <rect x="495" y="352" width="140" height="56" rx="4"/>
+          <rect x="655" y="252" width="140" height="56" rx="4"/>
+          <rect x="655" y="52" width="140" height="56" rx="4"/>
+          <rect x="655" y="452" width="140" height="56" rx="4"/>
+          <rect x="815" y="452" width="140" height="56" rx="4"/>
+          <rect x="815" y="152" width="140" height="56" rx="4" stroke-dasharray="5 3"/>
+          <rect x="975" y="452" width="140" height="56" rx="4"/>
+          <rect x="975" y="52" width="140" height="56" rx="4"/>
+        </g>
+        <g text-anchor="middle" font-size="12">
+          <text x="245" y="76">注文</text><text x="245" y="94">お届け日を選ぶ</text>
+          <text x="405" y="176" font-weight="700">発送枠チェック</text><text x="405" y="194">その日の残り枠はあるか</text>
+          <text x="565" y="276">注文を集計</text><text x="565" y="294">フローレへ発注</text>
+          <text x="565" y="376">在庫確認・出荷</text><text x="565" y="394">10〜20%は欠品</text>
+          <text x="725" y="276">代品を決めて</text><text x="725" y="294">お客様へ連絡</text>
+          <text x="725" y="76">代品を了承</text><text x="725" y="94">（キャンセルはまれ）</text>
+          <text x="725" y="476">入荷・検品</text>
+          <text x="885" y="476">注文ごとに仕分け</text><text x="885" y="494">梱包</text>
+          <text x="885" y="176">タイムセール出品</text><text x="885" y="194">余り分・即日発送</text>
+          <text x="1045" y="476">発送</text><text x="1045" y="494">配送業者へ引渡し</text>
+          <text x="1045" y="76">受取</text><text x="1045" y="94">（翌日）</text>
+        </g>
+        <!-- arrows -->
+        <g stroke="currentColor" stroke-width="1.5" fill="none" marker-end="url(#a2)">
+          <polyline points="315,80 325,80 325,180 335,180"/>
+          <polyline points="475,180 485,180 485,280 495,280"/>
+          <line x1="565" y1="308" x2="565" y2="352"/>
+          <polyline points="635,380 645,380 645,480 655,480"/>
+          <polyline points="600,352 600,322 725,322 725,308"/>
+          <line x1="725" y1="252" x2="725" y2="108"/>
+          <line x1="795" y1="480" x2="815" y2="480"/>
+          <line x1="955" y1="480" x2="975" y2="480"/>
+          <line x1="885" y1="452" x2="885" y2="208"/>
+          <line x1="1045" y1="452" x2="1045" y2="108"/>
+        </g>
+        <polyline points="405,152 405,118 245,118 245,108" stroke="#c8373f" stroke-width="1.5" fill="none" stroke-dasharray="4 3" marker-end="url(#a2r)"/>
+        <!-- arrow labels -->
+        <g font-size="10.5" opacity="0.85">
+          <text x="330" y="96">お届け日を指定</text>
+          <text x="490" y="226">残りあり → 受付</text>
+          <text x="412" y="130" fill="#c8373f" opacity="1">満杯 → 別の日に変更 or 離脱（記録なし）</text>
+          <text x="608" y="340">前日に発注（火木 P1／日 リノさん）</text>
+          <text x="650" y="420">翌日入荷（月・水・金）</text>
+          <text x="733" y="326">欠品の連絡</text>
+          <text x="731" y="180">代品の連絡</text>
+          <text x="892" y="330">余り分（仕入れ − 注文）</text>
+          <text x="1052" y="280">翌日お届け</text>
+        </g>
+      </g>
+    </svg>
+    </div>
+    <figcaption>黄色の枠が「発送上限」の判定点。満杯の日は選べないので、お客様は別の日に変えるか離脱するが、どちらがどれだけ起きているかはシステムに残っていない（赤の点線）。欠品→代品の連絡と、余り→タイムセールの2つのループは発注後に発生し、発注担当と現場の手間になっている。</figcaption>
+  </figure>
+
+  <h3>担当の整理</h3>
+  <div class="tbl"><table>
+    <thead><tr><th>業務</th><th>担当</th><th>いつ</th><th>どこで・何で</th><th>不明点・要確認</th></tr></thead>
+    <tbody>
+      <tr><td>発送枠（上限本数・即日停止）の設定</td><td>現場（<span class="ask">誰が決めているか要確認</span>）</td><td>随時。曜日デフォルト＋日別で上書き</td><td>管理画面「出荷枠」</td><td>上限の根拠（人手／仕入れ／集荷）が明文化されていない</td></tr>
+      <tr><td>受注・枠チェック</td><td>システム（自動）</td><td>24時間</td><td>hana-ichi.jp</td><td>締切時刻。満杯で選べなかった回数を記録していない</td></tr>
+      <tr><td>仕入れ発注（約50品種）</td><td>P1（月・火・木・金）／リノさん（P1の休み日）</td><td>火・木 → 水・金入荷、日 → 月入荷</td><td>フローレ（<span class="ask">発注手段は要確認</span>）</td><td>週末の最大バッチを日曜にリノさんが担当。発注回数は週3回</td></tr>
+      <tr><td>欠品・代品の対応</td><td><span class="ask">要確認</span>（発注担当かCSか）</td><td>フローレの回答後</td><td>メール・電話</td><td>1回あたりの工数と件数。代品率は最大1/3</td></tr>
+      <tr><td>入荷検品・仕分け・梱包</td><td>現場スタッフ（<span class="ask">人数要確認</span>。P2案は毎日5人＋社員・インターン）</td><td>入荷日（月・水・金）中心</td><td>現場</td><td>1人1時間あたりの梱包本数、作業時間帯、冷蔵保管の容量</td></tr>
+      <tr><td>発送・集荷</td><td>現場</td><td>毎日（日曜休業）</td><td>配送業者（<span class="ask">要確認</span>）</td><td>集荷時刻、1回の集荷で出せる件数の上限</td></tr>
+      <tr><td>タイムセール出品</td><td><span class="ask">要確認</span></td><td>余りが出たとき</td><td>hana-ichi.jp</td><td>売れ残り率が未計測（P1の感覚は「半分近く売れる」）</td></tr>
+    </tbody>
+  </table></div>
+</section>
+
+<section>
+  <h2>3. 発送枠の実態（管理画面「出荷枠」、2026-11-03時点）</h2>
+  <div class="stats">
+    <div><div class="big">9 <span style="font-size:14px">/ 18日</span></div><div class="lab">営業日のうち枠満杯の日（11/3〜11/23）</div></div>
+    <div><div class="big">451<span style="font-size:14px">本</span></div><div class="lab">上限を超えて受け付けている本数の合計（7日分）</div></div>
+    <div><div class="big">11/11</div><div class="lab">11/3時点で次に選べる発送日（8日先。最短3日の約束に対して）</div></div>
+    <div><div class="big">3 <span style="font-size:14px">/ 4日</span></div><div class="lab">火・木（枠150）のうち超過している日。需要は250〜280本</div></div>
+  </div>
+  <figure>
+    <div class="tbl"><table class="quota" id="quota">
+      <thead><tr><th>発送日</th><th>曜日</th><th>上限</th><th>注文本数</th><th>本数（黒線が上限）</th><th>残り</th><th>状態</th></tr></thead>
+      <tbody></tbody>
+    </table></div>
+    <figcaption>値はスクリーンショットの「今入っている注文本数」。管理画面のAPIは枠除外タグ付き商品も本数に含めるため、同じ日でも数十本多く出る（例：11/4は603本に対し633本）。11/8・15・22は日曜休業。</figcaption>
+  </figure>
+  <ul>
+    <li>月・水・金の500枠は直近2週間は超えているが、3週目以降は余っている。<strong>需要が「先の日付」に押し出されている</strong>形で、お客様が本来欲しかった日は手前にある可能性が高い。</li>
+    <li>火・木の150枠は4日中3日で超過、残る1日も145本。<strong>最も明確に需要が上限を超えているのは火・木</strong>。</li>
+    <li>10月の実績：注文435件、売上443.9万円、購入顧客347人、リピート注文率48.7%。リピート客の客単価（14,014円）は初回（6,585円）の2倍で、業態「未設定」の客単価が最も高い（15,594円）。<strong>大口のリピート客ほど発送日を先に押し出される影響を受けている</strong>と考えられる。</li>
+  </ul>
+</section>
+
+<section>
+  <h2>4. 上限を撤廃すると制約はどこに移るか</h2>
+  <p>今は「発送枠」が最初の栓になっているので、他の工程の限界が見えていない。撤廃は栓を抜くことで、次に細い工程が新しい上限になる。</p>
+  <figure>
+    <div class="scroll">
+    <svg viewBox="0 0 1060 200" role="img" aria-label="需要、発送枠、フローレの供給、梱包の人手、集荷の5段階を並べ、今は発送枠だけが数値で上限になっていて、他の段階の上限は未計測であることを示した図">
+      <defs><marker id="a3" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto-start-reverse"><path d="M0 0L10 5L0 10z" fill="currentColor"/></marker></defs>
+      <g fill="currentColor" font-size="12">
+        <g stroke="currentColor" stroke-width="1.2" fill="none">
+          <rect x="10" y="40" width="180" height="70" rx="4"/>
+          <rect x="230" y="40" width="180" height="70" rx="4" stroke="#c8373f" stroke-width="2.5"/>
+          <rect x="450" y="40" width="180" height="70" rx="4" stroke-dasharray="5 3"/>
+          <rect x="670" y="40" width="180" height="70" rx="4" stroke-dasharray="5 3"/>
+          <rect x="880" y="40" width="170" height="70" rx="4" stroke-dasharray="5 3"/>
+        </g>
+        <g stroke="currentColor" stroke-width="1.5" marker-end="url(#a3)"><line x1="190" y1="75" x2="228" y2="75"/><line x1="410" y1="75" x2="448" y2="75"/><line x1="630" y1="75" x2="668" y2="75"/><line x1="850" y1="75" x2="878" y2="75"/></g>
+        <g text-anchor="middle" font-family="Zen Kaku Gothic New, Noto Sans JP, sans-serif" font-weight="700" font-size="13">
+          <text x="100" y="70">需要</text><text x="320" y="70" fill="#c8373f">発送枠（システム）</text><text x="540" y="70">フローレの供給</text><text x="760" y="70">梱包の人手</text><text x="965" y="70">集荷・配送</text>
+        </g>
+        <g text-anchor="middle" font-size="11.5">
+          <text x="100" y="92">満杯で逃した分は未計測</text><text x="320" y="92" fill="#c8373f">月水金 500／火木 150</text><text x="540" y="92">欠品10〜20%。上限本数は不明</text><text x="760" y="92">本数／人・時間が未計測</text><text x="965" y="92">便数・時刻の上限は不明</text>
+        </g>
+        <g text-anchor="middle" font-size="11" opacity="0.75">
+          <text x="320" y="135">今ここで止めている</text>
+          <text x="760" y="135">撤廃後に上限になる候補（点線＝数値がない）</text>
+        </g>
+        <path d="M330 118 L330 128" stroke="#c8373f" stroke-width="1.5"/>
+        <path d="M450 118 L450 128 L1050 128 L1050 118" stroke="currentColor" stroke-opacity="0.5" fill="none"/>
+        <g font-size="11.5">
+          <text x="10" y="175">撤廃の前提：点線の3工程に数値の上限を置けること。数値がないまま撤廃すると、超過分は当日の現場に「入荷してから分かる」形で落ちる。</text>
+        </g>
+      </g>
+    </svg>
+    </div>
+    <figcaption>実線は上限が数値で決まっている工程、点線は上限が測られていない工程。</figcaption>
+  </figure>
+</section>
+
+<section>
+  <h2>5. ボトルネック候補（確からしい順）</h2>
+  <div class="cards">
+    <div class="card top"><div class="rank">候補 1</div><h3>発送枠そのもの。とくに火・木の150本</h3>
+      <dl><dt>根拠</dt><dd>火木は4日中3日超過、月水金も直近2週は超過。次に選べる日が8日先。</dd><dt>仮説</dt><dd>枠は「入荷日にしか大量に出せない」前提で火木を低く置いている。火木に出せる仕組み（前日入荷分の保管か、火木入荷の追加）があれば週の出荷量が3割以上増える。</dd><dt>確認</dt><dd>火木の150の根拠を現場に聞く。火木に実際に何を出荷しているか。</dd></dl></div>
+    <div class="card top"><div class="rank">候補 2</div><h3>仕入れ発注が週3回・1日1回・1人</h3>
+      <dl><dt>根拠</dt><dd>発注日が火木日に限られ、木〜土の注文は月曜発送まで待つ。週末の最大バッチを日曜にリノさん1人で発注。</dd><dt>仮説</dt><dd>発注日を増やす（毎日発注・毎日入荷）ことが、枠を広げる前提になる。フローレ側が毎日・大量に出せるかは別途確認が要る。</dd><dt>確認</dt><dd>フローレに「毎日入荷」「1日あたり何本まで」を聞く。欠品率を品種別に数値化。</dd></dl></div>
+    <div class="card"><div class="rank">候補 3</div><h3>梱包・発送の人手</h3>
+      <dl><dt>根拠</dt><dd>上限は「現場判断」なので、実態は梱包能力の自己申告の可能性が高い。P2案は毎日5人＋社員・インターン。</dd><dt>仮説</dt><dd>500本／日が何人・何時間で終わっているかが分かれば、人を足して何本まで行けるかは線形に見積もれる。</dd><dt>確認</dt><dd>入荷日ごとに「人数・開始〜終了時刻・本数」を2週間記録。</dd></dl></div>
+    <div class="card"><div class="rank">候補 4</div><h3>逃した需要が記録されていない</h3>
+      <dl><dt>根拠</dt><dd>満杯日を選ぼうとした人が別日にしたのか離脱したのか分からない。超過451本は「受け付けた分」で、逃した分ではない。</dd><dt>仮説</dt><dd>「倍以上」の見込みは、ここを測らないと検証も反証もできない。</dd><dt>確認</dt><dd>日付選択UIで「満杯日をタップした回数」「最初に選んだ日と確定した日の差」をログに残す。</dd></dl></div>
+    <div class="card"><div class="rank">候補 5</div><h3>欠品・代品の対応工数</h3>
+      <dl><dt>根拠</dt><dd>50品種中10〜20%が欠品、代品は最大1/3。お客様連絡が注文件数に比例して増える。</dd><dt>仮説</dt><dd>本数を倍にすると連絡も倍。今は吸収できていても、撤廃後は発注担当の時間を食う。</dd><dt>確認</dt><dd>週あたりの代品連絡件数と1件あたりの時間。</dd></dl></div>
+    <div class="card"><div class="rank">候補 6</div><h3>集荷・保管・資材</h3>
+      <dl><dt>根拠</dt><dd>ヒアリングに出てこなかったが、本数が倍になれば集荷便・冷蔵スペース・段ボールのどれかが先に詰まりうる。</dd><dt>確認</dt><dd>配送業者の集荷時刻と件数上限、保管できる本数、資材の在庫日数。</dd></dl></div>
+  </div>
+</section>
+
+<section>
+  <h2>6. 撤廃までの進め方（案）</h2>
+  <div class="steps">
+    <div><div><strong>計測を先に入れる（今週〜2週間）</strong><br>満杯日の選択回数と日付変更、入荷日ごとの梱包の人数・時間・本数、品種別の欠品率と代品連絡件数、タイムセールの売れ残り率。枠はまだ変えない。</div></div>
+    <div><div><strong>火・木の枠を150→300に上げて2週間試す</strong><br>需要超過が最も明確で、月水金より試しやすい。前提として火木に出す花の調達（前日分の保管か追加入荷）を決める。売上・粗利・代品率・残業の変化を見る。</div></div>
+    <div><div><strong>月・水・金を500→700に上げ、梱包5人体制を試す</strong><br>ここで本数／人・時間が出る。フローレに1日あたりの供給上限を事前に確認しておく。</div></div>
+    <div><div><strong>撤廃するか、上限を「実測した能力」に置き換えるかを決める</strong><br>完全撤廃ではなく「梱包能力×人数」で自動的に枠が決まる形にすると、現場判断の属人性が消える。</div></div>
+  </div>
+  <p class="note">売上の見立てについて：10月は443.9万円で計画未達。見えている超過分だけでは「倍以上」には届かないので、倍の根拠は候補4の計測結果で判断するのが筋。逆に、火木の超過が示す通り、枠を上げた分がそのまま売上になる余地は確実にある。</p>
+</section>
+
+<section>
+  <h2>7. 現場に確認したいこと</h2>
+  <ol>
+    <li>発送枠の上限（500／150／100）は誰が、何を根拠に決めているか。</li>
+    <li>火・木・土に発送している花はどこから来ているか（前日入荷の保管か、別の仕入れか）。</li>
+    <li>注文の締切時刻。木〜土の注文は本当に月曜発送になっているか。</li>
+    <li>フローレは毎日入荷・1日あたり何本まで対応できるか。発注の手段と締切。</li>
+    <li>入荷日の梱包は何人で、何時から何時までか。1人あたり何本か。</li>
+    <li>代品の連絡は誰がしているか。週に何件か。</li>
+    <li>配送業者の集荷時刻と、1回に出せる件数の上限。冷蔵保管できる本数。</li>
+    <li>タイムセールの出品本数と売れた本数（ロスの実数）。</li>
+  </ol>
+</section>
+</main>
+
+<script>
+(function(){
+  var rows=[
+    ["2026-11-03","火",10,10,"full"],["2026-11-04","水",500,603,"full"],["2026-11-05","木",350,350,"full"],
+    ["2026-11-06","金",500,570,"full"],["2026-11-07","土",200,205,"full"],["2026-11-08","日",0,0,"rest"],
+    ["2026-11-09","月",500,505,"full"],["2026-11-10","火",150,248,"full"],["2026-11-11","水",500,290,"open"],
+    ["2026-11-12","木",150,190,"full"],["2026-11-13","金",500,90,"open"],["2026-11-14","土",100,0,"open"],
+    ["2026-11-15","日",0,0,"rest"],["2026-11-16","月",500,255,"open"],["2026-11-17","火",150,145,"open"],
+    ["2026-11-18","水",500,175,"open"],["2026-11-19","木",150,280,"full"],["2026-11-20","金",500,0,"open"],
+    ["2026-11-21","土",100,10,"open"],["2026-11-22","日",0,0,"rest"],["2026-11-23","月",500,25,"open"]
+  ];
+  var max=650, tb=document.querySelector('#quota tbody'), html='';
+  rows.forEach(function(r){
+    var d=r[0].slice(5).replace('-','/'), st=r[4], lab=st==='full'?'枠満杯':st==='open'?'受付中':'休業';
+    var w=Math.min(r[3]/max*100,100), cap=Math.min(r[2]/max*100,100), rem=r[2]-r[3];
+    html+='<tr><td class="num">'+d+'</td><td>'+r[1]+'</td><td class="num">'+r[2]+'</td><td class="num">'+r[3]+'</td>'+
+      '<td><div class="bar" title="'+r[3]+' / '+r[2]+'">'+(st==='rest'?'':'<i class="'+st+'" style="width:'+w+'%"></i><b style="left:'+cap+'%"></b>')+'</div></td>'+
+      '<td class="num" style="'+(rem<0?'color:var(--full);font-weight:500':'')+'">'+(st==='rest'?'—':rem)+'</td>'+
+      '<td><span class="pill '+st+'">'+lab+'</span></td></tr>';
+  });
+  tb.innerHTML=html;
+})();
+</script>
+
+</body>
+</html>
