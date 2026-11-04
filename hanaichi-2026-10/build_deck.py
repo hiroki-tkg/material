@@ -12,7 +12,7 @@ from deck_lib import _set_font  # noqa
 from data_hanaichi import (YM, FY, mi, S, GP, AD, NET, ORDERS, FIXED, FIXED_IS_PLACEHOLDER, LTV25, NEW26, AOV26,
                            GP_RATE26, GP_RATE26_SMALL, FIRST_GP26, SEGMENTS, BIG, SMALL, REPEAT_RATE, REPEAT_SHARE, FB_S, FB_GP,
                            REP_YM, REP_ORDERS, REP_REPEAT, REP_ACTIVE, REP_ACTIVE_REP, REP_NEW, REP_CUM, REP_CUM_REP, COHORT,
-                           CAT_MARGIN, POT_MARGIN_SBS, FLOWER_S, ACCOUNTS_TOTAL, ACCOUNTS_BOUGHT, KAWASAKI_RENT, RENT_SHARE, SHIP_LABOR_RATE, REPEAT_CUSTOMERS, REPEAT_AOV, BIZ_CATEGORIES, fy_sum)
+                           CAT_MARGIN, POT_MARGIN_SBS, FLOWER_S, POT_S, ACCOUNTS_TOTAL, ACCOUNTS_BOUGHT, KAWASAKI_RENT, RENT_SHARE, SHIP_LABOR_RATE, REPEAT_CUSTOMERS, REPEAT_AOV, BIZ_CATEGORIES, fy_sum)
 
 N = len(S)
 HANA = RGBColor(0xF5, 0xB7, 0x00)  # ハナイチの色（黄）
@@ -84,6 +84,8 @@ q_ad = [sum(AD[a_:b_]) for _, a_, b_, _ in QTR]
 q_net = [sum(NET[a_:b_]) for _, a_, b_, _ in QTR]
 q_orders = [sum(ORDERS[a_:b_]) for _, a_, b_, _ in QTR]
 q_fs = [sum(FLOWER_S[a_:b_]) for _, a_, b_, _ in QTR]
+q_ps = [sum(POT_S[a_:b_]) for _, a_, b_, _ in QTR]
+fy_fs, fy_ps = fy_sum(FLOWER_S), fy_sum(POT_S)
 q_fb = [sum(FB_S[a_:b_]) for _, a_, b_, _ in QTR]
 NQ = len(QTR)
 fy_fb, fy_fbgp = fy_sum(FB_S), fy_sum(FB_GP)
@@ -92,13 +94,15 @@ fy_totgp = [a + b for a, b in zip(fy_gp, fy_fbgp)]
 
 s = content_slide("ハナイチ：四半期の売上と期別の限界利益")
 msg = (f"売上は{fy_tot[1]:.0f} → {fy_tot[2]:.0f}百万円（+{(fy_tot[2] / fy_tot[1] - 1) * 100:.0f}%）。"
-       f"卸仕入れサイトは{fy_s[1]:.0f} → {fy_s[2]:.0f}百万円、限界利益率{fy_gp[2] / fy_s[2] * 100:.0f}%")
-text(s, 56, 104, 1016, 36, msg, size=21, bold=True)
+       f"卸仕入れサイトは{fy_s[1]:.0f} → {fy_s[2]:.0f}百万円（生花{fy_fs[2]:.0f}・植木鉢等{fy_ps[2]:.0f}）、限界利益率{fy_gp[2] / fy_s[2] * 100:.0f}%")
+text(s, 56, 104, 1016, 36, msg, size=19, bold=True)
 x0, x1 = 214, 914
-text(s, x0, 154, 600, 24, "24年9月期（2024年2月）〜26年9月期（2026年9月）の四半期　単位：百万円", size=14, color=SECONDARY)
-rect(s, 820, 160, 12, 12, HANA)
-text(s, 838, 154, 90, 24, "ハナイチ", size=12, color=SECONDARY, anchor=MSO_ANCHOR.MIDDLE, spacing=1.0)
-rect(s, 920, 160, 12, 12, HANA_LIGHT)
+text(s, x0, 154, 480, 24, "24年9月期（2024年2月）〜26年9月期の四半期　単位：百万円", size=14, color=SECONDARY)
+rect(s, 700, 160, 12, 12, HANA)
+text(s, 718, 154, 60, 24, "生花", size=12, color=SECONDARY, anchor=MSO_ANCHOR.MIDDLE, spacing=1.0)
+rect(s, 760, 160, 12, 12, HANA_LIGHT)
+text(s, 778, 154, 150, 24, "植木鉢・その他資材", size=12, color=SECONDARY, anchor=MSO_ANCHOR.MIDDLE, spacing=1.0)
+rect(s, 920, 160, 12, 12, BG_GRAY)
 text(s, 938, 154, 140, 24, "ボックス等（参考）", size=12, color=SECONDARY, anchor=MSO_ANCHOR.MIDDLE, spacing=1.0)
 top, base = 206, 434
 slot = (x1 - x0) / NQ
@@ -107,10 +111,11 @@ vmax = max(a + b for a, b in zip(q_s, q_fb)) * 1.18  # 上に目印のラベル�
 sy = lambda v: base - (base - top) * v / vmax
 for qi, (lab, a_, b_, k) in enumerate(QTR):
     bx = x0 + qi * slot + (slot - bw) / 2
-    rect(s, bx, sy(q_s[qi]), bw, base - sy(q_s[qi]), HANA)
+    rect(s, bx, sy(q_fs[qi]), bw, base - sy(q_fs[qi]), HANA)  # 生花
+    rect(s, bx, sy(q_s[qi]), bw, sy(q_fs[qi]) - sy(q_s[qi]), HANA_LIGHT)  # 植木鉢・その他資材
     tot = q_s[qi] + q_fb[qi]
     if q_fb[qi] > 0.05:
-        rect(s, bx, sy(tot), bw, sy(q_s[qi]) - sy(tot), HANA_LIGHT)
+        rect(s, bx, sy(tot), bw, sy(q_s[qi]) - sy(tot), BG_GRAY)
     text(s, bx - 20, sy(tot) - 24, bw + 40, 22, f"{tot:.1f}", size=14, bold=True, align=PP_ALIGN.CENTER, en=True)
     text(s, bx - 16, base + 6, bw + 32, 20, lab, size=11, color=MUTED, align=PP_ALIGN.CENTER)
 for k, (name, a_, b_) in enumerate(FY):
@@ -125,28 +130,28 @@ hline(s, x0 - 4, base, x1 - x0 + 8, BORDER_LIGHT, 1.5)
 xl = x0 + 6 * slot  # 25年7〜9月の四半期の左端
 vline(s, xl, top - 24, base - top + 24, HANA_DARK, 2.0)
 text(s, xl + 6, top - 30, 300, 22, "25年7月〜 生花のSKUを本格的に拡充", size=14, bold=True, color=HANA_DARK)
-hdr = ["期", "売上（計）", "うちハナイチ", "うちボックス等", "限界利益（計）", "同率", "ハナイチの率"]
-cxs = [56, 190, 330, 480, 640, 790, 920]
-cws = [130, 140, 150, 160, 150, 130, 152]
+hdr = ["期", "売上（計）", "うち生花", "うち植木鉢・資材", "うちボックス等", "限界利益（計）", "同率", "ハナイチの率"]
+cxs = [56, 166, 286, 400, 548, 680, 820, 936]
+cws = [110, 120, 114, 148, 132, 140, 116, 136]
 ty = 526
 rect(s, 56, ty, 1016, 40, MOSS)
 for j, h in enumerate(hdr):
-    text(s, cxs[j] + (12 if j == 0 else 0), ty, cws[j] - (0 if j == 0 else 12), 40, h, size=16, color=WHITE, bold=True,
+    text(s, cxs[j] + (12 if j == 0 else 0), ty, cws[j] - (0 if j == 0 else 12), 40, h, size=14, color=WHITE, bold=True,
          anchor=MSO_ANCHOR.MIDDLE, align=PP_ALIGN.LEFT if j == 0 else PP_ALIGN.RIGHT)
 y = ty + 40
 rh = 52
 for k in range(3):
     if k == 2:
         rect(s, 56, y, 1016, rh, WATERMARK)
-    vals = [FY_NAMES[k], f"{fy_tot[k]:.1f}", f"{fy_s[k]:.1f}", f"{fy_fb[k]:.1f}", f"{fy_totgp[k]:.1f}",
+    vals = [FY_NAMES[k], f"{fy_tot[k]:.1f}", f"{fy_fs[k]:.1f}", f"{fy_ps[k]:.1f}", f"{fy_fb[k]:.1f}", f"{fy_totgp[k]:.1f}",
             f"{fy_totgp[k] / fy_tot[k] * 100:.1f}%", f"{fy_gp[k] / fy_s[k] * 100:.1f}%"]
     for j, v in enumerate(vals):
-        text(s, cxs[j] + (12 if j == 0 else 0), y, cws[j] - (0 if j == 0 else 12), rh, v, size=19 if j else 17, bold=True,
+        text(s, cxs[j] + (12 if j == 0 else 0), y, cws[j] - (0 if j == 0 else 12), rh, v, size=18 if j else 16, bold=True,
              color=STRONG if v.startswith("-") else MOSS, anchor=MSO_ANCHOR.MIDDLE,
              align=PP_ALIGN.LEFT if j == 0 else PP_ALIGN.RIGHT)
     y += rh
     hline(s, 56, y, 1016, BORDER_LIGHT)
-footnote(s, "※ 税抜・注文日ベース。ハナイチは管理画面の純売上と限界利益（限界利益＝売上−商品原価・送料・資材・決済手数料。AP/AFの限界利益に相当）。"
+footnote(s, "※ 税抜・注文日ベース。ハナイチは管理画面の純売上と限界利益（限界利益＝売上−商品原価・送料・資材・決済手数料）。生花と植木鉢・資材の内訳は受注データの比率で按分。"
             "フラワーボックス等はマスター管理表のイネイブラー事業の売上・限界利益（24年9月期の限界利益は未集計）。24年9月期は2024年2月〜9月の8か月")
 
 # ---- 広告投資：四半期の広告費・売上・ROAS（24年10〜12月〜26年7〜9月）
