@@ -8,8 +8,10 @@ import os
 import re
 
 HERE = os.path.dirname(os.path.abspath(__file__))
+INTERNAL = os.environ.get("INTERNAL") == "1"
+SVG_DIR = "preview/svg_internal" if INTERNAL else "preview/svg"
 slides = []
-for k, path in enumerate(sorted(glob.glob(os.path.join(HERE, "preview/svg/s*.svg"))), 1):
+for k, path in enumerate(sorted(glob.glob(os.path.join(HERE, SVG_DIR, "s*.svg"))), 1):
     svg = open(path, encoding="utf-8").read()
     svg = re.sub(r"<\?xml[^>]*\?>\s*", "", svg)
     # ページごとに id が重なるので接頭辞を付ける
@@ -45,7 +47,7 @@ main {{ max-width: 1040px; margin: 0 auto; padding: 8px 16px 48px; display: grid
 </head>
 <body>
 <header>
-<h1>株式会社ギフティ様　ご参考資料　ハナイチ：事業エコノミクスの整理とまとめ</h1>
+<h1>{"社内向け資料" if INTERNAL else "株式会社ギフティ様　ご参考資料"}　ハナイチ：事業エコノミクスの整理とまとめ</h1>
 <p>2026.10　株式会社Domuz　全{len(slides)}ページ</p>
 </header>
 <main>
@@ -54,6 +56,6 @@ main {{ max-width: 1040px; margin: 0 auto; padding: 8px 16px 48px; display: grid
 </body>
 </html>
 """
-out = os.path.join(HERE, "hanaichi_economics_2026-10.html")
+out = os.path.join(HERE, "hanaichi_internal_2026-10.html" if INTERNAL else "hanaichi_economics_2026-10.html")
 open(out, "w", encoding="utf-8").write(html)
 print(out, len(html) // 1024, "KB")

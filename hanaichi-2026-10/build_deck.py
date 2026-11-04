@@ -1,4 +1,4 @@
-"""ギフティ様向け ハナイチ 事業エコノミクス資料 — giftee-2026-10 と同じ型（Domuz デザインシステム「発表スライド」）。
+"""ハナイチ 事業エコノミクス資料（取引先向け。INTERNAL=1 で社内向け版）— giftee-2026-10 と同じ型（Domuz デザインシステム「発表スライド」）。
 
 データは data_hanaichi.py（管理画面の売上・限界利益、Marketing Master の広告費、顧客単位の集計）。
 直接固定費（FIXED）は発送人件費（現場の作業時間×時給の概算）と川崎拠点の家賃按分。
@@ -40,7 +40,8 @@ FY_NAMES = [f[0] for f in FY]
 # =====================================================================
 s = new_slide()
 rect(s, 0, 0, 8, H_PX, HANA)
-text(s, 96, 220, 960, 40, "株式会社ギフティ様　ご参考資料", size=26, color=SECONDARY)
+INTERNAL = os.environ.get("INTERNAL") == "1"
+text(s, 96, 220, 960, 40, "社内向け資料" if INTERNAL else "株式会社ギフティ様　ご参考資料", size=26, color=SECONDARY)
 text(s, 96, 290, 980, 180, ["ハナイチ", "事業エコノミクスの整理とまとめ"], size=56, bold=True, spacing=1.3)
 text(s, 96, 480, 960, 40, "売上・限界利益・広告費の推移と、今後のエコノミクス", size=24, color=SECONDARY)
 text(s, 96, 640, 900, 120, ["2026年10月", "株式会社DOMUZ", "髙木 弘貴"], size=22, color=SECONDARY, spacing=1.5)
@@ -51,7 +52,7 @@ text(s, 96, 640, 900, 120, ["2026年10月", "株式会社DOMUZ", "髙木 弘貴"
 s = content_slide("本資料の構成")
 items = [
     ("1", "ハナイチのエコノミクスの整理と経年推移", "24年9月期（2024年2月の開始）〜26年9月期の売上・限界利益・広告投資"),
-    ("2", "今後の事業におけるエコノミクスの整理", "原価・ROAS・直接固定費、リピートの積み上がりとセグメント別の採算、損益分岐の月商"),
+    ("2", "今後の事業におけるエコノミクスの整理", "原価・ROAS・直接固定費、リピートの積み上がり、LTV/CACとセグメント別の採算、損益分岐の月商"),
     ("3", "中長期の可能性と事業間シナジー", "ハナイチ経済圏、アンドフラワー／アンドプランツとの連携、仕入れのスケールメリット、花き市場とターゲット層"),
 ]
 y = 220
@@ -437,6 +438,85 @@ ratio = gp12 / cac26
 ratio_s = LTV25["sales12"] / cac26
 seg_best = SEGMENTS[0]
 seg_ratio = {n_: g_ / cac26 for n_, t_, nw_, c_, a_, r_, g_, f_ in SEGMENTS}
+# ---- LTV/CAC：広告で獲得する層の新規顧客1人あたり（左）と、原価が下がったときの感度（右）
+s = content_slide("LTV/CAC：広告で獲得する層の新規顧客1人あたり", "会員・ゲスト（園芸店への植木鉢の卸は含まない）。原価が下がるとどう変わるか　※税抜")
+x, w = 56, 470
+rect(s, x, 150, w, 6, HANA)
+text(s, x, 172, w, 34, "新規顧客1人あたりの採算（現状）", size=21, bold=True)
+text(s, x, 214, 230, 22, "LTV/CAC（限界利益ベース）", size=13, color=SECONDARY, bold=True)
+tb = text(s, x, 236, 230, 66, f"{ratio:.1f}", size=56, bold=True, color=STRONG, en=True, spacing=1.0, anchor=MSO_ANCHOR.BOTTOM)
+r = tb.text_frame.paragraphs[0].add_run()
+r.text = "倍"
+_set_font(r, 22, STRONG, True, en=False)
+text(s, x + 236, 214, w - 236, 22, "売上ベース", size=13, color=SECONDARY, bold=True)
+tb = text(s, x + 236, 236, w - 236, 60, f"{ratio_s:.1f}", size=30, bold=True, color=SECONDARY, en=True, spacing=1.0,
+          anchor=MSO_ANCHOR.BOTTOM)
+r = tb.text_frame.paragraphs[0].add_run()
+r.text = "倍"
+_set_font(r, 14, SECONDARY, True, en=False)
+text(s, x, 300, w, 22, f"LTV {gp12:,.0f}円 ÷ CAC {cac26:,.0f}円　／　売上ベースは12か月の売上{LTV25['sales12']:,}円 ÷ CAC", size=12, color=SECONDARY)
+rows_ = [
+    ("CAC（広告費÷新規顧客数）", f"{cac25:,.0f}円", f"{cac26:,.0f}円"),
+    ("初回の購入単価", f"{LTV25['aov']:,}円", f"{AOV26:,}円"),
+    ("初回購入の限界利益", "—", f"{first_gp26:,.0f}円"),
+    ("限界利益率（この層）", "—", f"{GP_RATE26_SMALL:.1f}%"),
+    ("12か月の購入回数", f"{LTV25['orders12']:.2f}回", "—"),
+    ("12か月の売上（LTV・売上）", f"{LTV25['sales12']:,}円", "—"),
+    ("12か月の限界利益（LTV）", f"{gp12:,.0f}円", "—"),
+    ("リピート率（3か月以内）", f"{LTV25['rep3']:.1f}%", "—"),
+    ("リピート率（12か月以内）", f"{LTV25['rep12']:.1f}%", "—"),
+]
+yy = 334
+text(s, x + w - 250, yy, 120, 24, "25年9月期", size=14, color=SECONDARY, bold=True, align=PP_ALIGN.RIGHT)
+text(s, x + w - 120, yy, 120, 24, "26年9月期", size=14, color=SECONDARY, bold=True, align=PP_ALIGN.RIGHT)
+hline(s, x, yy + 30, w, MOSS, 1.5)
+yy += 38
+for lab, v1, v2 in rows_:
+    bold_ = lab.startswith("12か月の限界利益") or lab.startswith("CAC")
+    text(s, x, yy, w - 250, 30, lab, size=15, bold=bold_)
+    text(s, x + w - 250, yy, 120, 30, v1, size=16, bold=bold_, align=PP_ALIGN.RIGHT, color=MUTED if v1 == "—" else MOSS)
+    text(s, x + w - 120, yy, 120, 30, v2, size=16, bold=bold_, align=PP_ALIGN.RIGHT, color=MUTED if v2 == "—" else MOSS)
+    yy += 32
+    hline(s, x, yy - 7, w)
+vline(s, 548, 150, 540)
+# 右：花の原価が下がったときの感度（送料20・決済3.6・資材3ポイントを除いた商品原価が下がる前提）
+x2, w2 = 568, 504
+rect(s, x2, 150, w2, 6, MOSS)
+text(s, x2, 172, w2, 34, "花の仕入れ原価が下がると", size=21, bold=True)
+text(s, x2, 214, w2, 40, ["売上・購入回数・CACは現状のまま、限界利益率だけが上がる前提。", "商品原価は原価等から送料・決済手数料・資材（計約27ポイント）を除いた分"], size=12, color=SECONDARY, spacing=1.4)
+_oth = 26.6
+_r0 = GP_RATE26_SMALL
+CUTS = (0.0, 0.10, 0.15, 0.20)
+cols_ = [x2, x2 + 150, x2 + 260, x2 + 370]
+cw_ = [150, 110, 110, 134]
+yy = 268
+for xx, ww, lab in zip(cols_, cw_, ("商品原価の低減", "限界利益率", "12か月LTV", "LTV/CAC（この層）")):
+    text(s, xx, yy, ww, 24, lab, size=12, color=SECONDARY, bold=True, align=PP_ALIGN.LEFT if xx == x2 else PP_ALIGN.RIGHT)
+hline(s, x2, yy + 30, w2, MOSS, 1.5)
+yy += 38
+for cut in CUTS:
+    r_new = _r0 + cut * (100 - _r0 - _oth)
+    ltv_new = LTV25["sales12"] * r_new / 100
+    vals_ = (("現状" if cut == 0 else f"▲{cut * 100:.0f}%"), f"{r_new:.1f}%", f"{ltv_new:,.0f}円", f"{ltv_new / cac26:.2f}倍")
+    for xx, ww, v_ in zip(cols_, cw_, vals_):
+        text(s, xx, yy, ww, 30, v_, size=15, bold=cut == 0.15, align=PP_ALIGN.LEFT if xx == x2 else PP_ALIGN.RIGHT,
+             anchor=MSO_ANCHOR.MIDDLE, spacing=1.0, color=STRONG if v_.endswith("倍") and ltv_new / cac26 < 1 else MOSS)
+    yy += 34
+    hline(s, x2, yy - 6, w2)
+_sens = lambda r_, g_, cut: g_ / (r_ / 100) * (r_ + cut * (100 - r_ - _oth)) / 100 / cac26
+seg_b = {n_: (g_ / cac26, _sens(r_, g_, 0.15)) for n_, t_, nw_, c_, a_, r_, g_, f_ in SEGMENTS}
+text(s, x2, yy + 10, w2, 110,
+     [f"原価が15%下がると、この層のLTV/CACは{ratio:.1f}倍から{LTV25['sales12'] * (_r0 + 0.15 * (100 - _r0 - _oth)) / 100 / cac26:.1f}倍。",
+      f"セグメント別では販売{seg_b['販売'][0]:.1f} → {seg_b['販売'][1]:.1f}倍、レッスン・お稽古{seg_b['レッスン・お稽古'][0]:.1f} → {seg_b['レッスン・お稽古'][1]:.1f}倍、",
+      f"自宅鑑賞用・ギフト{seg_b['自宅鑑賞用・ギフト'][0]:.1f} → {seg_b['自宅鑑賞用・ギフト'][1]:.1f}倍。原価だけでは個人向けは回収せず、リピートと単価の積み上げが要る"],
+     size=13, color=SECONDARY, spacing=1.45)
+text(s, 56, 694, 1016, 60,
+     [f"広告で獲得する層は、CAC {cac26:,.0f}円に対して初回の限界利益が{first_gp26:,.0f}円、12か月の限界利益が{gp12:,.0f}円（LTV/CAC {ratio:.1f}倍）。",
+      "採算は原価の低減（仕入れ量の拡大）と、リピート顧客の積み上げで改善する"],
+     size=16, bold=True, spacing=1.45)
+footnote(s, f"※ 匿名化した受注・顧客データを顧客単位で集計（社内アカウント・返金は除外）。12か月LTVは25年9月期に初回購入した顧客の12か月の売上×この層の26年9月期の限界利益率{GP_RATE26_SMALL:.1f}%。"
+            "CACは広告費をすべて新規獲得にかかったとみなした値。感度の前提は右上の注記のとおり")
+
 s = content_slide("セグメント別の採算：現状の体制では販売が成り立つ", f"LTV＝26年9月期の顧客1人あたりの年間限界利益、CAC＝広告費÷新規顧客数（{cac26:,.0f}円）　※税抜")
 x2, w2 = 56, 1016
 # 園芸店の帯（広告を使わない層）
@@ -745,7 +825,7 @@ for k_, v_ in TERMS:
     y += rh_
     hline(terms, 56, y, 1016)
 
-prs.save("hanaichi_economics_2026-10.pptx")
+prs.save("hanaichi_internal_2026-10.pptx" if INTERNAL else "hanaichi_economics_2026-10.pptx")
 print("saved", len(prs.slides._sldIdLst), "slides")
 print("FY", [round(v, 1) for v in fy_s], [round(v, 1) for v in fy_ad], [round(v, 1) for v in fy_net])
 print({k: {kk: round(vv, 2) for kk, vv in P["e"].items()} for k, P in PERIODS.items()})
