@@ -1,0 +1,400 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>はなどんや EC売上推計</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Zen+Kaku+Gothic+New:wght@400;500;700&family=Outfit:wght@400;500;600;700&display=swap">
+<style>
+  :root{
+    --moss:#004347; --light:#00D79C; --flower:#EF667D;
+    --ink:#1f2a2b; --ink2:#626262; --muted:#8a9192; --line:#d9dedf;
+    --bg:#ffffff; --bg2:#f3f6f6; --accent-bg:#e6f8f1;
+    --page-w:210mm; --page-h:297mm;
+  }
+  *{box-sizing:border-box}
+  html,body{margin:0;padding:0;background:#e9ecec;color:var(--ink);
+    font-family:'Zen Kaku Gothic New','Hiragino Kaku Gothic ProN','Noto Sans JP',sans-serif;
+    font-size:10.5pt;line-height:1.55;-webkit-font-smoothing:antialiased}
+  .num,.en{font-family:'Outfit','Zen Kaku Gothic New',sans-serif;font-variant-numeric:tabular-nums}
+  .page{width:var(--page-w);height:var(--page-h);margin:12mm auto;background:var(--bg);
+    padding:16mm 16mm 14mm;position:relative;box-shadow:0 2px 14px rgba(0,0,0,.12);
+    display:flex;flex-direction:column;gap:5mm;overflow:hidden}
+  .page:last-child{margin-bottom:12mm}
+  @media print{
+    html,body{background:#fff}
+    .page{margin:0;box-shadow:none;page-break-after:always;break-after:page}
+    .page:last-child{page-break-after:auto;break-after:auto}
+  }
+  @page{size:A4;margin:0}
+
+  /* header / footer */
+  .hdr{display:flex;justify-content:space-between;align-items:flex-end;border-bottom:2px solid var(--moss);padding-bottom:3mm}
+  .hdr .eyebrow{font-size:8.5pt;color:var(--ink2);letter-spacing:.08em}
+  .hdr h1{margin:1mm 0 0;font-size:17pt;font-weight:700;color:var(--moss);line-height:1.25}
+  .hdr .meta{font-size:8.5pt;color:var(--ink2);text-align:right;line-height:1.5}
+  .ftr{position:absolute;left:16mm;right:16mm;bottom:8mm;display:flex;justify-content:space-between;
+    font-size:7.5pt;color:var(--muted);border-top:1px solid var(--line);padding-top:2mm}
+
+  h2{margin:0;font-size:12.5pt;color:var(--moss);font-weight:700;display:flex;align-items:center;gap:2.5mm}
+  h2 .tag{display:inline-block;background:var(--moss);color:#fff;font-size:8pt;padding:.5mm 2mm;border-radius:2px;font-weight:500;letter-spacing:.05em}
+  h3{margin:0 0 1.5mm;font-size:10.5pt;color:var(--moss);font-weight:700}
+  p{margin:0}
+  .sub{color:var(--ink2)}
+  .small{font-size:8.5pt}
+  .xs{font-size:7.8pt;color:var(--ink2)}
+  b{font-weight:700}
+  .hl{background:linear-gradient(transparent 55%,#c9f5e5 55%)}
+
+  /* headline block */
+  .lead{display:grid;grid-template-columns:1.25fr 1fr;gap:5mm}
+  .verdict{background:var(--accent-bg);border-left:4px solid var(--light);padding:4mm 5mm;border-radius:3px}
+  .verdict .big{font-size:30pt;font-weight:700;color:var(--moss);line-height:1.05;margin:1mm 0 1.5mm}
+  .verdict .big small{display:block;font-size:11pt;font-weight:500;color:var(--ink2);margin-top:1.5mm;line-height:1.3}
+  .verdict .lbl{font-size:8.5pt;color:var(--ink2);letter-spacing:.06em}
+  .verdict p.body{font-size:9.5pt;margin-top:1.5mm}
+  .tiles{display:grid;grid-template-columns:1fr 1fr;gap:2.5mm}
+  .tile{background:var(--bg2);border-radius:3px;padding:3mm 3.5mm}
+  .tile .k{font-size:7.8pt;color:var(--ink2)}
+  .tile .v{font-size:15pt;font-weight:600;color:var(--moss);line-height:1.15;margin-top:.5mm}
+  .tile .v small{font-size:8.5pt;color:var(--ink2);font-weight:400;margin-left:1mm}
+  .tile .n{font-size:7.5pt;color:var(--muted);margin-top:.5mm}
+
+  .formula{display:flex;align-items:center;gap:2mm;background:var(--bg2);border-radius:3px;padding:2.5mm 4mm;font-size:9.5pt}
+  .formula .op{color:var(--muted);font-weight:500}
+  .formula .t{display:flex;flex-direction:column;line-height:1.2;flex:1}
+  .formula .t b{font-size:10.5pt;color:var(--moss);white-space:nowrap}
+  .formula .t span{font-size:7.5pt;color:var(--ink2)}
+
+  /* chart + table row */
+  .row2{display:grid;grid-template-columns:1fr 1fr;gap:5mm;align-items:start}
+  .row2 table{font-size:8.2pt}
+  .row2 th,.row2 td{white-space:nowrap;padding:1.5mm 1.6mm}
+  figure{margin:0}
+  figcaption{font-size:8pt;color:var(--ink2);margin-top:1mm}
+  svg text{font-family:'Outfit','Zen Kaku Gothic New',sans-serif}
+
+  table{width:100%;border-collapse:collapse;font-size:9pt}
+  th,td{padding:1.6mm 2mm;border-bottom:1px solid var(--line);text-align:left;vertical-align:top}
+  th{font-weight:500;color:var(--ink2);font-size:8pt;border-bottom:1.5px solid var(--moss);background:transparent}
+  td.r,th.r{text-align:right}
+  td.c,th.c{text-align:center}
+  tr.hi td{background:#f6fbf9}
+  .conf{display:inline-block;padding:0 1.6mm;border-radius:2px;font-size:7.5pt;font-weight:500;color:#fff;background:var(--muted);white-space:nowrap}
+  .conf.h{background:var(--moss)} .conf.m{background:#3b7a7e} .conf.l{background:#dfe4e5;color:var(--ink2)}
+
+  /* cards */
+  .cards{display:grid;grid-template-columns:1fr 1fr;gap:3.5mm}
+  .card{border:1px solid var(--line);border-radius:3px;padding:3mm 3.5mm;display:flex;flex-direction:column;gap:1.2mm}
+  .card .no{display:inline-flex;align-items:center;justify-content:center;width:6mm;height:6mm;border-radius:50%;background:var(--moss);color:#fff;font-size:9pt;font-weight:600;flex:none}
+  .card .ttl{display:flex;align-items:center;gap:2mm;font-weight:700;color:var(--moss);font-size:9.6pt;line-height:1.3}
+  .card p{font-size:8.5pt}
+  .card .kv{font-size:8.3pt;color:var(--ink2);border-top:1px dashed var(--line);padding-top:1.2mm;margin-top:.3mm}
+  .card .kv .k{color:var(--muted);margin-right:1.5mm}
+  .card .kv b{color:var(--moss)}
+  .delta{display:inline-block;font-size:7.6pt;padding:0 1.5mm;border-radius:2px;background:#fdecef;color:#b7314a;font-weight:500;white-space:nowrap}
+  .delta.up{background:#e6f8f1;color:#0b6b4f}
+
+  ul{margin:0;padding-left:4.5mm}
+  li{margin:.4mm 0}
+
+  .band{background:var(--moss);color:#fff;border-radius:3px;padding:3.5mm 5mm;display:grid;grid-template-columns:1fr 1fr 1fr;gap:4mm}
+  .band .k{font-size:7.8pt;opacity:.8}
+  .band .v{font-size:12.5pt;font-weight:600;line-height:1.2;margin-top:.5mm}
+  .band .v small{display:block;font-size:8pt;font-weight:400;opacity:.85;margin-top:.5mm}
+
+  .steps{display:grid;grid-template-columns:repeat(4,1fr);gap:3mm}
+  .step{background:var(--bg2);border-radius:3px;padding:3mm 3.5mm;display:flex;flex-direction:column;gap:1mm}
+  .step .pri{font-size:7.5pt;color:var(--ink2);letter-spacing:.06em}
+  .step .t{font-weight:700;color:var(--moss);font-size:9.5pt;line-height:1.3}
+  .step p{font-size:8.3pt;color:var(--ink2)}
+  .step .cost{font-size:7.5pt;color:var(--moss);font-weight:500;margin-top:auto}
+
+  .split{display:grid;grid-template-columns:1fr 1fr;gap:5mm}
+  .split>*{min-width:0}
+  .note{background:#fff8f9;border-left:3px solid var(--flower);padding:2.5mm 3.5mm;border-radius:2px;font-size:8.8pt}
+  .src{font-size:7.6pt;color:var(--ink2);line-height:1.5}
+  .src li{margin:.2mm 0}
+  .season{display:grid;grid-template-columns:repeat(4,1fr);gap:2.5mm}
+  .st{border:1px solid var(--line);border-radius:3px;padding:2.5mm 3mm}
+  .st .k{font-size:7.8pt;color:var(--ink2)}
+  .st .v{font-size:12.5pt;font-weight:600;color:var(--moss);line-height:1.2;margin-top:.5mm}
+  .st .v small{display:block;font-size:7.8pt;font-weight:400;color:var(--ink2);margin-top:.5mm}
+  .mix{display:flex;flex-direction:column;gap:1.4mm;margin-top:1mm}
+  .mrow{display:grid;grid-template-columns:16mm 1fr 9mm 9mm;align-items:center;gap:2mm;font-size:8.5pt}
+  .ml{text-align:right;color:var(--ink)}
+  .mb{display:block;height:4mm;background:var(--bg2);border-radius:2px;overflow:hidden}
+  .mf{display:block;height:100%;border-radius:2px}
+  .mf.non,.sw.non{background:var(--moss)} .mf.fresh,.sw.fresh{background:var(--light)}
+  .mv{font-weight:600;text-align:right} .mp{color:var(--ink2);font-size:7.8pt;text-align:right}
+  .mlegend{display:flex;gap:4mm;font-size:7.4pt;color:var(--ink2);margin-top:.5mm;padding-left:14mm;white-space:nowrap}
+  .sw{display:inline-block;width:3mm;height:2.2mm;border-radius:1px;margin-right:1.2mm;vertical-align:middle}
+</style>
+</head>
+<body>
+
+<!-- ===================== PAGE 1 : SUMMARY ===================== -->
+<section class="page">
+  <div class="hdr">
+    <div>
+      <div class="eyebrow">競合調査｜株式会社自由が丘フラワーズ「はなどんやアソシエ」</div>
+      <h1>はなどんや EC売上推計 ― サマリー</h1>
+    </div>
+    <div class="meta">2026年11月5日<br>推計ベース：注文ID連番 × 完了率 × 1件単価</div>
+  </div>
+
+  <div class="lead">
+    <div class="verdict">
+      <div class="lbl">結論</div>
+      <div class="big num">年 約13億円<small>幅 9〜17億円（税抜・EC単体）</small></div>
+      <p class="body">はなどんやのEC売上は<b>年13億円前後</b>と見ます。注文件数は2023年以降ほぼ横ばいで、<b>2022年（コロナ期の趣味需要）をピークに微減〜横ばい</b>。件数の確度は高く、残る不確実性はほぼ<b>1件あたり単価</b>だけです。</p>
+    </div>
+    <div class="tiles">
+      <div class="tile"><div class="k">年間 注文ID消費</div><div class="v num">約24万件<small>/年</small></div><div class="n">2023〜25年で横ばい</div></div>
+      <div class="tile"><div class="k">1IDあたり売上（税抜・送料込）</div><div class="v num">約5,900円</div><div class="n">税込約6,500円。幅 4,500〜7,500円</div></div>
+      <div class="tile"><div class="k">完了率（ID→完了注文）</div><div class="v num">約90%</div><div class="n">EC-CUBE 2系の採番仕様より。幅 85〜95%</div></div>
+      <div class="tile"><div class="k">ピーク年（推計）</div><div class="v num">2022年</div><div class="n">推計14〜15億。レビューIDの時系列から補完</div></div>
+    </div>
+  </div>
+
+  <div class="formula">
+    <div class="t"><b class="num">注文ID消費数</b><span>注文メールのIDから推計（連番前提）</span></div>
+    <span class="op">×</span>
+    <div class="t"><b class="num">完了率 0.9</b><span>離脱・決済失敗・キャンセル分を控除</span></div>
+    <span class="op">×</span>
+    <div class="t"><b class="num">税抜 5,900円</b><span>1IDあたり売上・送料込</span></div>
+    <span class="op">≒</span>
+    <div class="t"><b class="num">5,300円 / ID</b><span>→ 24万件なら約12.8億円</span></div>
+  </div>
+
+  <div class="row2">
+    <figure>
+      <svg viewBox="0 0 420 256" width="100%" role="img" aria-label="年別のEC売上推計。2021年から2026年見込まで、ベース値と幅を示す棒グラフ">
+<g stroke="#e3e7e8" stroke-width="1"><line x1="42" y1="30" x2="412" y2="30"/><line x1="42" y1="80" x2="412" y2="80"/><line x1="42" y1="130" x2="412" y2="130"/><line x1="42" y1="180" x2="412" y2="180"/></g>
+<line x1="42" y1="230" x2="412" y2="230" stroke="#8a9192" stroke-width="1"/>
+<g font-size="9.5" fill="#8a9192" text-anchor="end"><text x="37" y="33">20億</text><text x="37" y="83">15億</text><text x="37" y="133">10億</text><text x="37" y="183">5億</text><text x="37" y="233">0</text></g>
+<g><rect x="50" y="90" width="40" height="140" rx="2" fill="#9fc7c3"/>
+<line x1="70" y1="140" x2="70" y2="60" stroke="#004347" stroke-width="1.5"/>
+<line x1="65" y1="140" x2="75" y2="140" stroke="#004347" stroke-width="1.5"/><line x1="65" y1="60" x2="75" y2="60" stroke="#004347" stroke-width="1.5"/>
+<text x="70" y="53" font-size="11" fill="#1f2a2b" text-anchor="middle" font-weight="600">13〜15</text>
+<text x="70" y="248" font-size="10.5" fill="#626262" text-anchor="middle">2021</text></g>
+<g><rect x="110" y="85" width="40" height="145" rx="2" fill="#4f8e92"/>
+<line x1="130" y1="130" x2="130" y2="40" stroke="#004347" stroke-width="1.5"/>
+<line x1="125" y1="130" x2="135" y2="130" stroke="#004347" stroke-width="1.5"/><line x1="125" y1="40" x2="135" y2="40" stroke="#004347" stroke-width="1.5"/>
+<text x="130" y="33" font-size="11" fill="#1f2a2b" text-anchor="middle" font-weight="600">14〜15</text>
+<text x="130" y="248" font-size="10.5" fill="#626262" text-anchor="middle">2022</text></g>
+<g><rect x="170" y="100" width="40" height="130" rx="2" fill="#004347"/>
+<line x1="190" y1="140" x2="190" y2="60" stroke="#00D79C" stroke-width="1.5"/>
+<line x1="185" y1="140" x2="195" y2="140" stroke="#00D79C" stroke-width="1.5"/><line x1="185" y1="60" x2="195" y2="60" stroke="#00D79C" stroke-width="1.5"/>
+<text x="190" y="53" font-size="11" fill="#1f2a2b" text-anchor="middle" font-weight="600">13.0</text>
+<text x="190" y="248" font-size="10.5" fill="#626262" text-anchor="middle">2023</text></g>
+<g><rect x="230" y="104" width="40" height="126" rx="2" fill="#004347"/>
+<line x1="250" y1="140" x2="250" y2="60" stroke="#00D79C" stroke-width="1.5"/>
+<line x1="245" y1="140" x2="255" y2="140" stroke="#00D79C" stroke-width="1.5"/><line x1="245" y1="60" x2="255" y2="60" stroke="#00D79C" stroke-width="1.5"/>
+<text x="250" y="53" font-size="11" fill="#1f2a2b" text-anchor="middle" font-weight="600">12.6</text>
+<text x="250" y="248" font-size="10.5" fill="#626262" text-anchor="middle">2024</text></g>
+<g><rect x="290" y="102" width="40" height="128" rx="2" fill="#004347"/>
+<line x1="310" y1="140" x2="310" y2="60" stroke="#00D79C" stroke-width="1.5"/>
+<line x1="305" y1="140" x2="315" y2="140" stroke="#00D79C" stroke-width="1.5"/><line x1="305" y1="60" x2="315" y2="60" stroke="#00D79C" stroke-width="1.5"/>
+<text x="310" y="53" font-size="11" fill="#1f2a2b" text-anchor="middle" font-weight="600">12.8</text>
+<text x="310" y="248" font-size="10.5" fill="#626262" text-anchor="middle">2025</text></g>
+<g><rect x="350" y="102" width="40" height="128" rx="2" fill="none" stroke="#004347" stroke-width="1.4" stroke-dasharray="4 3"/>
+<line x1="370" y1="140" x2="370" y2="60" stroke="#00D79C" stroke-width="1.5"/>
+<line x1="365" y1="140" x2="375" y2="140" stroke="#00D79C" stroke-width="1.5"/><line x1="365" y1="60" x2="375" y2="60" stroke="#00D79C" stroke-width="1.5"/>
+<text x="370" y="53" font-size="11" fill="#1f2a2b" text-anchor="middle" font-weight="600">12.8</text>
+<text x="370" y="248" font-size="10.5" fill="#626262" text-anchor="middle">2026見込</text></g>
+</svg>
+      <figcaption>年別EC売上推計（億円・税抜）。棒＝ベース値、縦線＝幅（単価4,500〜7,500円 × 完了率85〜95%）。2021・22年は薄色＝補完推計。</figcaption>
+    </figure>
+
+    <div>
+      <table>
+        <tr><th>年</th><th class="r">注文ID消費</th><th class="r">売上ベース</th><th class="r">幅</th><th class="c">確度</th></tr>
+        <tr><td class="num">2021</td><td class="r num">25〜29万？</td><td class="r num">13〜15億</td><td class="r num">9〜17億</td><td class="c"><span class="conf l">低</span></td></tr>
+        <tr><td class="num">2022</td><td class="r num">26〜29万</td><td class="r num">約14〜15億</td><td class="r num">10〜19億</td><td class="c"><span class="conf m">中</span></td></tr>
+        <tr class="hi"><td class="num">2023</td><td class="r num">約24.5万</td><td class="r num"><b>約13.0億</b></td><td class="r num">9〜17億</td><td class="c"><span class="conf h">中〜高</span></td></tr>
+        <tr class="hi"><td class="num">2024</td><td class="r num">約23.7万</td><td class="r num"><b>約12.6億</b></td><td class="r num">9〜17億</td><td class="c"><span class="conf h">中〜高</span></td></tr>
+        <tr class="hi"><td class="num">2025</td><td class="r num">約24.2万</td><td class="r num"><b>約12.8億</b></td><td class="r num">9〜17億</td><td class="c"><span class="conf h">中〜高</span></td></tr>
+        <tr><td class="num">2026見込</td><td class="r num">約24.2万</td><td class="r num">約12.8億</td><td class="r num">9〜17億</td><td class="c"><span class="conf h">中〜高</span></td></tr>
+      </table>
+      <p class="xs" style="margin-top:2mm">2021〜22年はレビューIDの投稿数（レビュー÷ID＝4.4〜4.8%で安定）から逆算。2023年1〜4月、2026年11〜12月は前後の日次ペースで補完。</p>
+    </div>
+  </div>
+
+  <div class="season">
+    <div class="st"><div class="k">季節性：ピーク</div><div class="v num">12月<small>日800〜970件</small></div></div>
+    <div class="st"><div class="k">季節性：底</div><div class="v num">8月<small>日340〜510件</small></div></div>
+    <div class="st"><div class="k">年ごとの形</div><div class="v">毎年ほぼ同形<small>2026年8月は前年より弱め</small></div></div>
+    <div class="st"><div class="k">2023年以降のトレンド</div><div class="v">横ばい<small>年24万件±数%。伸びは単価上昇分のみ</small></div></div>
+  </div>
+
+  <div class="note">
+    <b>注意：</b>これは<b>EC（はなどんやアソシエ）単体</b>の推計。本社は板橋市場花き棟にあり、場内仲卸の商売を含む<b>会社全体の売上は15〜16億円規模</b>とみられる（従業員57人で1人あたり2,500〜3,000万円、卸・EC業態として自然な水準）。20億円超は人員に対して重すぎる。
+  </div>
+
+  <div class="ftr"><span>はなどんや EC売上推計 ― サマリー</span><span>1 / 3</span></div>
+</section>
+
+<!-- ===================== PAGE 2 : EVIDENCE ===================== -->
+<section class="page" style="gap:3.5mm">
+  <div class="hdr">
+    <div>
+      <div class="eyebrow">推計の根拠</div>
+      <h1>なぜ「13億円前後」なのか ― 4つの柱</h1>
+    </div>
+    <div class="meta">当初の14億円台から修正<br>① 完了率 80→90%、② 単価 7,500→5,900円</div>
+  </div>
+
+  <div class="cards">
+    <div class="card">
+      <div class="ttl"><span class="no">1</span><span style="flex:1">注文IDは連番、採番は「注文する」押下時</span><span class="delta up">完了率 80→90%</span></div>
+      <p>カート画面のソースから <b>EC-CUBE 2系（2.12〜2.13）</b>と確定。確認画面での離脱では番号を消費せず、<b>「注文する」押下時に採番</b>。消費されるのはカード決済の失敗・離脱と、その後のキャンセル分のみ。当初の「確認画面到達で採番＝80%」は厳しすぎたため<b>85〜95%（ベース90%）</b>に修正。</p>
+      <div class="kv"><span class="k">同梱注文</span>既存注文への追加は<b>別IDで新規完了</b>（送料は最後の注文で確定）。少額IDが混ざるため、1IDあたり単価は1配送あたりより低い。</div>
+    </div>
+
+    <div class="card">
+      <div class="ttl"><span class="no">2</span><span style="flex:1">単価：送料無料ラインからは導けない</span><span class="delta">単価 7,500→5,900円</span></div>
+      <p>送料無料ライン5,500円は<b>生花を含まない注文のみ</b>。生花を含む注文は本州・四国で<b>金額にかかわらず送料990円</b>（22,000円以上で変わるのは沖縄のみ）。</p>
+      <p>2025年6月以降のレビュー319件を分類すると<b>生花は約1/4、非生花が3/4</b>。講師の大口だけでなく<b>ハンドメイド層が数で多く</b>、非生花は送料無料の5,500円付近に集まる（ポイントランクも税込5,500円以上の配送回数で決まる設計）。</p>
+      <div class="kv"><span class="k">採用値</span><b>税込約6,500円（送料込）＝税抜約5,900円</b>／1ID</div>
+    </div>
+
+    <div class="card">
+      <div class="ttl"><span class="no">3</span>2021〜22年はレビューIDの時系列で補完</div>
+      <p>レビューIDも連番で投稿日が載るため、約250点をサンプリングして年間投稿数を算出。2023〜25年は<b>「レビュー÷注文ID」が4.4〜4.8%で安定</b>。この比率で2022年を逆算すると<b>約26〜29万件</b>（2023年比＋1〜2割）で、コロナ期の趣味需要のピークと読める。</p>
+      <table style="font-size:8.3pt;margin-top:1mm">
+        <tr><th>年</th><th class="r">レビュー数</th><th class="r">注文ID消費</th><th class="r">レビュー÷ID</th></tr>
+        <tr><td class="num">2022</td><td class="r num">約13,100</td><td class="r num">約26〜29万＊</td><td class="r num">—</td></tr>
+        <tr><td class="num">2023</td><td class="r num">約11,700</td><td class="r num">約24.5万</td><td class="r num">4.8%</td></tr>
+        <tr><td class="num">2024</td><td class="r num">約10,400</td><td class="r num">約23.7万</td><td class="r num">4.4%</td></tr>
+        <tr><td class="num">2025</td><td class="r num">約10,900</td><td class="r num">約24.2万</td><td class="r num">4.5%</td></tr>
+      </table>
+      <p class="xs">＊逆算値。2021年はレビュー停止（2018年9月〜2020年4月）後の立ち上がり期で、この比率は使えない（確度 低）。</p>
+    </div>
+
+    <div class="card">
+      <div class="ttl"><span class="no">4</span>外部情報との整合チェック</div>
+      <ul style="font-size:8.6pt">
+        <li><b>会員数：</b>2018年12月時点で約22万人。購入者が年4〜5万人、1人あたり年5回で24万件になり、講師の仕入れ頻度として自然。</li>
+        <li><b>人員：</b>職場情報総合サイトで従業員57人（男性10・女性47、花卉仲卸）。2020年取材時は約18名、社会保険被保険者27名。会社全体15〜16億円なら1人あたり2,500〜3,000万円。</li>
+        <li><b>累計出荷：</b>2017年7月のリニューアル時に2億番から採番し直したと仮定すると、2023年4月のID（201,491,812）まで約5.7年で<b>149万件・年平均約26万件</b>。公式の「のべ100万回超の出荷」と矛盾せず、③の2022年ピークとも整合（仮説）。</li>
+        <li><b>Ahrefs自然検索：</b>年間流入は55万〜87万と大きく動くが注文IDは横ばい。流入は「ハーバリウム 作り方」等の読み物中心で、<b>注文の代理指標には使えない</b>。</li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="split">
+    <figure>
+      <h3>商品構成（レビュー319件の分類、2025年6月〜）</h3>
+      <div class="mix" role="img" aria-label="レビュー319件の商品分類。資材ほか112件、造花94件、生花81件、ドライ18件、プリザ14件">
+        <div class="mrow"><span class="ml">資材ほか</span><span class="mb"><span class="mf non" style="width:100.0%"></span></span><span class="mv num">112</span><span class="mp num">35%</span></div><div class="mrow"><span class="ml">造花</span><span class="mb"><span class="mf non" style="width:83.9%"></span></span><span class="mv num">94</span><span class="mp num">29%</span></div><div class="mrow"><span class="ml">生花</span><span class="mb"><span class="mf fresh" style="width:72.3%"></span></span><span class="mv num">81</span><span class="mp num">25%</span></div><div class="mrow"><span class="ml">ドライ</span><span class="mb"><span class="mf non" style="width:16.1%"></span></span><span class="mv num">18</span><span class="mp num">6%</span></div><div class="mrow"><span class="ml">プリザ</span><span class="mb"><span class="mf non" style="width:12.5%"></span></span><span class="mv num">14</span><span class="mp num">4%</span></div>
+        <div class="mlegend"><span><i class="sw fresh"></i>生花（送料一律990円）</span><span><i class="sw non"></i>非生花（5,500円以上で送料無料）</span></div>
+      </div>
+      <figcaption>生花は約1/4。趣味層の実例：ユリ5本・オンシジュウム5本・染め雪柳5本で商品代約3,900円＋送料、という規模の注文もある。</figcaption>
+    </figure>
+    <div>
+      <h3>単価レンジの考え方</h3>
+      <table style="font-size:8.3pt">
+        <tr><th style="width:36%">客層</th><th>典型的な注文</th><th class="r" style="width:28%;white-space:nowrap">目安（税込）</th></tr>
+        <tr><td>講師（教室）</td><td>生徒数分の生花をまとめ買い</td><td class="r num">1〜3万円</td></tr>
+        <tr><td>ハンドメイド・趣味層</td><td>造花・資材を送料無料ライン付近で</td><td class="r num">5,500〜8,000円</td></tr>
+        <tr><td>同梱・追加注文</td><td>既存注文への少額追加（別ID）</td><td class="r num">数百〜数千円</td></tr>
+        <tr class="hi"><td><b>加重平均（採用）</b></td><td>生花1/4・非生花3/4＋少額ID</td><td class="r num"><b>約6,500円</b></td></tr>
+      </table>
+      <p class="xs" style="margin-top:1.5mm">粗利は生花の仲卸マージンは薄い一方、造花・プリザ・資材は厚く、全体で<b>25〜35%</b>程度でもおかしくない（当初仮定の20%は低め）。</p>
+    </div>
+  </div>
+
+  <div class="ftr"><span>はなどんや EC売上推計 ― 根拠</span><span>2 / 3</span></div>
+</section>
+
+<!-- ===================== PAGE 3 : UNCERTAINTY & NEXT ===================== -->
+<section class="page">
+  <div class="hdr">
+    <div>
+      <div class="eyebrow">不確実性と次のアクション</div>
+      <h1>残る変数は「単価」だけ ― 精度を上げる4手</h1>
+    </div>
+    <div class="meta">調査済み：TDB（データなし）<br>グリーンシート開示資料（現存せず）</div>
+  </div>
+
+  <div class="band">
+    <div><div class="k">件数（注文ID消費）</div><div class="v">確度 高<small>年約24万件、年±数%</small></div></div>
+    <div><div class="k">完了率</div><div class="v">85〜95%<small>採番仕様から絞り込み済み</small></div></div>
+    <div><div class="k">1IDあたり単価（最大の変数）</div><div class="v">税抜 4,500〜7,500円<small>→ 売上 9〜17億の幅を生む</small></div></div>
+  </div>
+
+  <div class="split">
+    <div>
+      <h3>感度：単価 × 完了率 → 年売上（2025年、ID 24.2万件）</h3>
+      <table style="font-size:9pt">
+        <tr><th>税抜単価 ＼ 完了率</th><th class="r">85%</th><th class="r">90%</th><th class="r">95%</th></tr>
+        <tr><td class="num">4,500円</td><td class="r num">9.3億</td><td class="r num">9.8億</td><td class="r num">10.3億</td></tr>
+        <tr class="hi"><td class="num"><b>5,900円（ベース）</b></td><td class="r num">12.1億</td><td class="r num"><b>12.8億</b></td><td class="r num">13.6億</td></tr>
+        <tr><td class="num">7,500円</td><td class="r num">15.4億</td><td class="r num">16.3億</td><td class="r num">17.2億</td></tr>
+      </table>
+      <p class="xs" style="margin-top:2mm">完了率を5pt動かしても±0.7億、単価を1,500円動かすと±3億。<b>単価の実測が最も効く。</b></p>
+    </div>
+    <div>
+      <h3>すでに当たって、取れなかった情報</h3>
+      <ul style="font-size:9pt">
+        <li><b>帝国データバンク（TDB）：</b>該当データなし。</li>
+        <li><b>グリーンシート（2005〜2011年登録）の開示資料：</b>取扱証券会社経由の開示で、現在ネット上に残っていない。日本証券業協会に残るのは気配値のみ（例：2009年7月13日、エマージング区分で買気配1万円）。2010年11月にNISインキュベーション・ファンドが少数出資した記録あり。国会図書館で当時の業界紙を当たる手はあるが、労力の割に今の推計には効かない。</li>
+        <li><b>Ahrefs：</b>流入は読み物中心で注文と連動せず（前頁④）。</li>
+      </ul>
+    </div>
+  </div>
+
+  <div>
+    <h3>次のアクション（効果が大きく、安い順）</h3>
+    <div class="steps">
+      <div class="step">
+        <div class="pri">優先度 1</div>
+        <div class="t">東京商工リサーチ（TSR）の企業情報を取る</div>
+        <p>日経の企業情報ページにTSRデータ（2023年6月時点）の存在を確認済み。日経テレコンかTSR単品購入で、<b>売上高が直接取れる可能性が高い</b>。</p>
+        <div class="cost">数千円・最短即日</div>
+      </div>
+      <div class="step">
+        <div class="pri">優先度 2</div>
+        <div class="t">単価を実測する（知人ヒアリング）</div>
+        <p>最大の変数。はなどんやを使う講師・花屋の知人に<b>直近の注文金額を5〜10件</b>聞くだけで、9〜17億の幅を大きく縮められる。</p>
+        <div class="cost">無料・1週間</div>
+      </div>
+      <div class="step">
+        <div class="pri">優先度 3</div>
+        <div class="t">官報の決算公告を検索する</div>
+        <p>非大会社なので貸借対照表のみだが、<b>利益剰余金の推移</b>から利益水準がわかる。売上の上限側の確認に使える。</p>
+        <div class="cost">数百円〜・数日</div>
+      </div>
+      <div class="step">
+        <div class="pri">優先度 4</div>
+        <div class="t">完了率を実地検証する</div>
+        <p>安い非生花でカード決済画面（3Dセキュア）まで進んで離脱し、直後に別注文を完了。<b>番号が飛べば離脱でもID消費</b>と確定できる。</p>
+        <div class="cost">商品代のみ・即日</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="split">
+    <div class="note">
+      <b>読み方の注意：</b>本推計は「注文IDは連番」「2017年リニューアル以降の採番」など複数の仮説に立つ。各年の<b>相対的な動き（横ばい・2022年ピーク）は堅く</b>、絶対額は単価次第で上下2〜3割動く。社内で引用する際は「<b>EC 約13億円（9〜17億）、横ばい</b>」の形で幅を付けて使う。
+    </div>
+    <div>
+      <h3>主な情報源</h3>
+      <ul class="src">
+        <li>はなどんやアソシエ 公式サイト（ご利用ガイド・送料規定・ポイント制度・会社概要・カート画面ソース）</li>
+        <li>注文IDの時系列（自社で受信した注文メール）、レビューIDの時系列（約250点サンプリング）、レビュー319件の商品分類</li>
+        <li>BrainPad 取材記事（取締役インタビュー：顧客層・会員数約22万人、2018年12月時点）</li>
+        <li>職場情報総合サイト（従業員57人）、gBizINFO、日経 企業情報（TSRデータの存在）</li>
+        <li>日本証券業協会 グリーンシート気配状況表、NISインキュベーション・ファンド出資発表（2010年11月）</li>
+        <li>Ahrefs Site Explorer（自然検索流入の推移）、個人ブログの注文実例</li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="ftr"><span>はなどんや EC売上推計 ― 次のアクション</span><span>3 / 3</span></div>
+</section>
+
+</body>
+</html>
