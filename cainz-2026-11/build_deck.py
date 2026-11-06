@@ -4,8 +4,9 @@
     python3 build_deck.py            # cainz_proposal.pptx を書き出す
     bash <domuz-deck>/scripts/render.sh cainz_proposal.pptx "..." "..."   # PDF / HTML / 確認用 PNG
 
-読ませ方: 左の列はモノの流れ（産地 → お客様）、右の列は進め方の順番（STEP 1 → 3、下から上）。
-下流の受託から入り、仕入れ・物流、産地へと上流に広げ、最後に資本で固める。
+構成: 上段がモノの流れ（種苗 → 生産 → 流通 → 管理・梱包・発送 → お客様へ）、
+下段がお客様の流れ（認知 → 調べる → 来店 → 購入 → サポート → CRM → 再来店・再購入）。
+各工程の箱を「誰が担うか」で色分けし、下に「どこから始めるか」（STEP 1 → 3 → GOAL）を置く。
 産地の具体名（沖縄・指宿など）と出資スキームは意図して書かない（STEP 2 の合意後に開示・協議）。
 """
 import glob
@@ -19,125 +20,146 @@ from deck_lib import *  # noqa: E402,F401
 use_theme("domuz")
 
 # ---- 内容 -------------------------------------------------------------
-# 左の列（上＝産地、下＝お客様）。step は進め方の番号。
-AREAS = [  # (領域, 中身, STEP)
-    ("産地の共同開発",       "海外種苗（台湾・雲南）× 国内での大規模生産", 3),
-    ("共同サプライチェーン", "卸を介さない産地直送・仕入れの共通化",       2),
-    ("発送拠点の開発・運営", "生体を扱える出荷・保管拠点",                 2),
-    ("EC運営（イネイブラー）", "カインズEC（植物）の発送設備・梱包・CS",   1),
-    ("SNS・発信の運営",      "観葉・ガーデン系コンテンツの受託",           1),
+# 役割: 1/2/3 = 共同化する STEP、0 = カインズ様の売り場（そのまま）
+# (工程, いまの中身, ご提案, 役割)
+GOODS = [  # 上段: モノの流れ。列 0〜3 を使い、「管理・梱包・発送」が下段の「購入」の真上に来る
+    ("種苗",           "海外種苗（台湾・雲南）", "共同で調達・開発",   3),
+    ("生産",           "国内での大規模生産",     "共同で投資・生産",   3),
+    ("流通",           "卸を介さない産地直送",   "仕入れの共通化",     2),
+    ("管理・梱包・発送", "生体を扱える拠点・梱包", "Domuzが受託",      1),
 ]
-STEPS = {  # STEP → (見出し, カインズ様にとっての意味)
-    1: ("Domuzが受託して開始",
-        ["初期投資なしで、生体を扱える発送・梱包・CSと",
-         "発信の体制をそのまま使える"]),
-    2: ("仕入れ・物流を共同構築",
-        ["受託で見えた売れ筋を根拠に仕入れを共同で最適化。",
-         "卸を介さず、原価と鮮度を改善する"]),
-    3: ("共同で投資・開発",
-        ["海外種苗 × 国内大規模生産を共同で投資・開発。",
-         "両社でしか作れない商品と供給力を持つ"]),
-}
-# STEP の間をつなぐ根拠（下の STEP の成果が、上の STEP に進む理由になる）
-BRIDGE = {
-    1: "受託で見えた出荷量・売れ筋が、共同仕入れの根拠になる",
-    2: "共同仕入れの実績と数量が、産地投資の判断根拠になる",
-}
-GOAL = ("資本提携で一体化", "産地からお客様まで、互いに離れられない長期の共同事業に")
+CUSTOMER = [  # 下段: お客様の流れ（6列）
+    ("認知",             "SNS・TV・口コミ・AIO", "SNS・発信を受託",     1),
+    ("調べる",           "検索・比較・AI",       "カインズ様の集客",     0),
+    ("来店",             "オンライン／店舗",     "カインズ様の売り場",   0),
+    ("購入",             "カインズEC・店舗",     "カインズ様の売り場",   0),
+    ("カスタマーサポート", "CSチーム＋アプリ",   "Domuzが受託",         1),
+    ("CRM",              "再来店・再購入へ",     "アプリで育て方を支援", 1),
+]
+LOOP = ("再来店・再購入", 2)  # CRM から戻る先の列（来店）
+KEY = ["売り場（来店・購入）はカインズ様の強み。",
+       "その前後をDomuzが担い、受託で見えた",
+       "売れ筋と数量を根拠に、産地まで一緒に広げる。"]
+STEPS = [  # どこから始めるか（左から順に）
+    ("STEP 1", "Domuzが受託して開始", "梱包・発送、SNS、CS、アプリ", 1),
+    ("STEP 2", "仕入れ・物流を共同構築", "受託で見えた売れ筋が根拠", 2),
+    ("STEP 3", "種苗・生産を共同で投資", "共同仕入れの実績が根拠", 3),
+    ("GOAL",   "資本提携で一体化", "産地からお客様まで長期の共同事業に", 4),
+]
 
-# ---- レイアウト ---------------------------------------------------------
-AX_X = 56                  # 左端の軸（産地 → お客様）
-BOX_X, BOX_W = 104, 404    # 領域の箱
-STEP_X, STEP_W = 536, 176  # STEP の帯
-WHY_X, WHY_W = 740, 332    # カインズ様にとっての意味
-BOX_H, GAP_IN, GAP_STEP = 74, 14, 44
-TOP = 172
-
-STYLE = {  # STEP ごとの見た目: 下流（今すぐ）は軽く、上流（将来）ほど濃く
-    1: dict(fill=WHITE, line=T.accent, fg=MOSS, sub=SECONDARY),
-    2: dict(fill=PALE, line=None, fg=MOSS, sub=SECONDARY),
-    3: dict(fill=MOSS, line=None, fg=WHITE, sub=WHITE),
+# ---- 見た目 -------------------------------------------------------------
+STYLE = {  # 役割ごと。今すぐ始める STEP 1 は軽く、上流（将来）ほど濃く。売り場は灰の枠
+    0: dict(fill=WHITE, line=BORDER_LIGHT, fg=SECONDARY, sub=SECONDARY, offer=MUTED, dash=True),
+    1: dict(fill=WHITE, line=T.accent, fg=MOSS, sub=SECONDARY, offer=T.dark, dash=False),
+    2: dict(fill=PALE, line=None, fg=MOSS, sub=SECONDARY, offer=T.dark, dash=False),
+    3: dict(fill=MOSS, line=None, fg=WHITE, sub=WHITE, offer=WHITE, dash=False),
+    4: dict(fill=WHITE, line=MOSS, fg=MOSS, sub=SECONDARY, offer=MOSS, dash=False),
 }
+COLS, GAP = 6, 16
+BW = (CONTENT_W - GAP * (COLS - 1)) / COLS  # 156
+BH = 112
+
+
+def col_x(i):
+    return MARGIN + i * (BW + GAP)
+
+
+def right_arrow(s, x, cy, color=BORDER_LIGHT):
+    """箱と箱の間の右向き矢印（線＋三角）。"""
+    hline(s, x + 2, cy, GAP - 10, color, weight=1.5)
+    tri = rect(s, x + GAP - 10, cy - 5, 8, 10, color, shape=MSO_SHAPE.ISOSCELES_TRIANGLE)
+    tri.rotation = 90.0
 
 
 def down_arrow(s, cx, y, h, color=BORDER_LIGHT):
-    """下向きの矢印（線＋三角）。"""
     vline(s, cx, y, h - 6, color, weight=1.5)
     tri = rect(s, cx - 5, y + h - 8, 10, 8, color, shape=MSO_SHAPE.ISOSCELES_TRIANGLE)
     tri.rotation = 180.0
 
 
-def up_arrow(s, cx, y, h, color=T.accent):
-    """上向きの矢印（三角＋線）。"""
+def up_arrow_head(s, cx, y, color):
     rect(s, cx - 5, y, 10, 8, color, shape=MSO_SHAPE.ISOSCELES_TRIANGLE)
-    vline(s, cx, y + 6, h - 6, color, weight=1.5)
 
 
-s = content_slide("受託から始め、仕入れ・産地へ広げ、資本で一体化する",
-                  "カインズ様との植物EC共同事業のご提案 ｜ お客様側（下流）から産地側（上流）へ、3つのSTEPで進める")
+def box(s, x, y, w, h, name, body, offer, role, name_size=15):
+    st = STYLE[role]
+    r = rect(s, x, y, w, h, st["fill"], line=st["line"], weight=2.0, dash=st["dash"],
+             shape=MSO_SHAPE.ROUNDED_RECTANGLE)
+    r.adjustments[0] = 0.08
+    text(s, x + 8, y + 12, w - 16, 24, name, size=name_size, bold=True, color=st["fg"], spacing=1.0,
+         align=PP_ALIGN.CENTER)
+    text(s, x + 8, y + 38, w - 16, 18, body, size=11, color=st["sub"], spacing=1.0, align=PP_ALIGN.CENTER)
+    hline(s, x + 14, y + h - 34, w - 28, WHITE if role == 3 else BORDER_LIGHT, weight=0.75)
+    text(s, x + 8, y + h - 28, w - 16, 20, offer, size=11, bold=True, color=st["offer"], spacing=1.0,
+         align=PP_ALIGN.CENTER)
 
-# 列見出し
-text(s, BOX_X, 146, BOX_W, 20, "共同で担う領域", size=12, color=MUTED)
-text(s, STEP_X, 146, STEP_W, 20, "進め方", size=12, color=MUTED)
-text(s, WHY_X, 146, WHY_W, 20, "カインズ様にとっての意味", size=12, color=MUTED)
 
-# 箱の y 座標（上から順に。STEP が変わるところは広めに空ける）
-ys = []
-y = TOP
-for i, (_, _, st) in enumerate(AREAS):
-    if i > 0:
-        y += BOX_H + (GAP_STEP if AREAS[i - 1][2] != st else GAP_IN)
-    ys.append(y)
-BOTTOM = ys[-1] + BOX_H
+def row(s, items, y, start_col=0):
+    for i, (name, body, offer, role) in enumerate(items):
+        c = start_col + i
+        box(s, col_x(c), y, BW, BH, name, body, offer, role)
+        if i + 1 < len(items):
+            right_arrow(s, col_x(c) + BW, y + BH / 2)
 
-# 左端の軸: 産地 → お客様（モノの流れ）
-text(s, AX_X - 8, TOP - 2, 48, 20, "産地", size=12, color=SECONDARY, align=PP_ALIGN.CENTER)
-down_arrow(s, AX_X + 16, TOP + 24, BOTTOM - TOP - 48, MUTED)
-text(s, AX_X - 8, BOTTOM - 18, 48, 20, "お客様", size=12, color=SECONDARY, align=PP_ALIGN.CENTER)
 
-# 領域の箱と、その間の矢印
-for i, ((name, body, st), y) in enumerate(zip(AREAS, ys)):
-    st_ = STYLE[st]
-    rect(s, BOX_X, y, BOX_W, BOX_H, st_["fill"], line=st_["line"], weight=2.0,
-         shape=MSO_SHAPE.ROUNDED_RECTANGLE).adjustments[0] = 0.08
-    text(s, BOX_X + 20, y + 12, BOX_W - 40, 26, name, size=18, bold=True, color=st_["fg"], spacing=1.0)
-    text(s, BOX_X + 20, y + 42, BOX_W - 40, 20, body, size=13, color=st_["sub"], spacing=1.0)
-    if i + 1 < len(AREAS):
-        gap = ys[i + 1] - (y + BOX_H)
-        down_arrow(s, BOX_X + BOX_W / 2, y + BOX_H + 3, gap - 6, BORDER_LIGHT)
+s = content_slide("売り場の前後を一緒に。受託から始め、産地まで広げる",
+                  "カインズ様との植物EC共同事業のご提案 ｜ 2つの流れのどこを、どの順で一緒にやるか")
 
-# STEP の帯（同じ STEP の箱をまとめて囲う）と、その右の意味
-for st in (3, 2, 1):
-    idx = [i for i, a in enumerate(AREAS) if a[2] == st]
-    y0, y1 = ys[idx[0]], ys[idx[-1]] + BOX_H
-    st_ = STYLE[st]
-    rect(s, STEP_X, y0, STEP_W, y1 - y0, st_["fill"], line=st_["line"], weight=2.0,
-         shape=MSO_SHAPE.ROUNDED_RECTANGLE).adjustments[0] = 0.08 * BOX_H / (y1 - y0)
-    cy = (y0 + y1) / 2
-    text(s, STEP_X, cy - 26, STEP_W, 26, f"STEP {st}", size=22, bold=True, color=st_["fg"],
-         align=PP_ALIGN.CENTER, en=True, spacing=1.0)
-    text(s, STEP_X, cy + 2, STEP_W, 22, STEPS[st][0], size=13, color=st_["sub"],
-         align=PP_ALIGN.CENTER, spacing=1.0)
-    # 右: カインズ様にとっての意味（STEP の帯の縦中央に揃える）
-    text(s, WHY_X, cy - 22, WHY_W, 48, STEPS[st][1], size=13, color=MOSS, spacing=1.35,
-         anchor=MSO_ANCHOR.MIDDLE)
-    # 次の STEP へ進む根拠（帯の間）
-    if st in BRIDGE:
-        gy = y0 - GAP_STEP
-        up_arrow(s, STEP_X + STEP_W / 2, gy + 3, GAP_STEP - 6, T.accent)
-        text(s, WHY_X, gy + 2, WHY_W, GAP_STEP - 4, "[[↑]] " + BRIDGE[st], size=12, color=SECONDARY,
-             anchor=MSO_ANCHOR.MIDDLE, spacing=1.0)
+# ---- 上段: モノの流れ ----
+Y1 = 190
+text(s, MARGIN, Y1 - 28, 400, 22, "モノの流れ", size=15, bold=True, spacing=1.0)
+text(s, MARGIN + 92, Y1 - 26, 400, 20, "産地からお客様へ", size=12, color=SECONDARY, spacing=1.0)
+row(s, GOODS, Y1, start_col=0)
+# 右の空き（列 4〜5）に要点
+kx = col_x(4)
+rect(s, kx, Y1, 2 * BW + GAP, BH, None, line=None)
+text(s, kx + 4, Y1 + 2, 2 * BW + GAP - 8, BH - 4, KEY, size=14, color=MOSS, spacing=1.45,
+     anchor=MSO_ANCHOR.MIDDLE)
 
-# ゴール: 資本提携で一体化
-GY = BOTTOM + 26
-rect(s, BOX_X, GY, WHY_X + WHY_W - BOX_X, 62, None, line=MOSS, weight=2.0,
-     shape=MSO_SHAPE.ROUNDED_RECTANGLE).adjustments[0] = 0.12
-text(s, BOX_X + 24, GY, 230, 62, "GOAL", size=22, bold=True, color=T.dark, en=True,
-     anchor=MSO_ANCHOR.MIDDLE, spacing=1.0)
-text(s, BOX_X + 110, GY + 10, 820, 26, GOAL[0], size=20, bold=True, spacing=1.0)
-text(s, BOX_X + 110, GY + 36, 820, 20, GOAL[1], size=13, color=SECONDARY, spacing=1.0)
+# ---- 下段: お客様の流れ ----
+Y2 = Y1 + BH + 80
+text(s, MARGIN, Y2 - 28, 400, 22, "お客様の流れ", size=15, bold=True, spacing=1.0)
+text(s, MARGIN + 110, Y2 - 26, 400, 20, "認知から再購入まで", size=12, color=SECONDARY, spacing=1.0)
+row(s, CUSTOMER, Y2, start_col=0)
 
-footnote(s, "※ 各STEPの範囲と条件は、前のSTEPの実績をもとに都度合意して進める。資本面はまず方向性の共有から。")
+# 上段 → 下段: 「管理・梱包・発送」から「購入」へお届け
+cx = col_x(3) + BW / 2
+down_arrow(s, cx, Y1 + BH + 4, Y2 - (Y1 + BH) - 8, MUTED)
+text(s, cx + 10, Y1 + BH + 26, 80, 20, "お届け", size=11, color=SECONDARY, spacing=1.0)
+
+# CRM → 来店 へ戻るループ（箱の下を通す）
+ly = Y2 + BH + 22
+x_from = col_x(5) + BW / 2
+x_to = col_x(LOOP[1]) + BW / 2
+vline(s, x_from, Y2 + BH + 2, ly - (Y2 + BH + 2), T.accent, weight=1.5)
+hline(s, x_to, ly, x_from - x_to, T.accent, weight=1.5)
+vline(s, x_to, Y2 + BH + 10, ly - (Y2 + BH + 10), T.accent, weight=1.5)
+up_arrow_head(s, x_to, Y2 + BH + 3, T.accent)
+text(s, x_to, ly + 4, x_from - x_to, 18, LOOP[0], size=11, color=T.dark, bold=True, spacing=1.0,
+     align=PP_ALIGN.CENTER)
+
+# ---- どこから始めるか ----
+Y3 = ly + 60
+text(s, MARGIN, Y3 - 28, 400, 22, "どこから始めるか", size=15, bold=True, spacing=1.0)
+text(s, MARGIN + 138, Y3 - 26, 600, 20, "前のSTEPの実績を根拠に、次へ進む", size=12, color=SECONDARY,
+     spacing=1.0)
+SW, SGAP, SH = (CONTENT_W - 3 * 28) / 4, 28, 98
+for i, (lab, head, body, role) in enumerate(STEPS):
+    st = STYLE[role]
+    x = MARGIN + i * (SW + SGAP)
+    r = rect(s, x, Y3, SW, SH, st["fill"], line=st["line"], weight=2.0, shape=MSO_SHAPE.ROUNDED_RECTANGLE)
+    r.adjustments[0] = 0.08
+    text(s, x + 16, Y3 + 10, SW - 32, 26, lab, size=20, bold=True, color=st["fg"], en=True, spacing=1.0)
+    text(s, x + 16, Y3 + 38, SW - 32, 22, head, size=14, bold=True, color=st["fg"], spacing=1.0)
+    text(s, x + 16, Y3 + 62, SW - 32, 20, body, size=11, color=st["sub"], spacing=1.0)
+    if i + 1 < len(STEPS):
+        ax = x + SW + 6
+        hline(s, ax, Y3 + SH / 2, SGAP - 20, T.accent, weight=2.0)
+        tri = rect(s, ax + SGAP - 20, Y3 + SH / 2 - 6, 10, 12, T.accent, shape=MSO_SHAPE.ISOSCELES_TRIANGLE)
+        tri.rotation = 90.0
+
+footnote(s, "※ 箱の色は担い手：緑枠＝Domuzが受託して開始、灰地＝共同で構築、濃緑＝共同で投資、点線＝カインズ様の売り場（そのまま）。"
+            "各STEPの範囲と条件は、前のSTEPの実績をもとに都度合意して進める。")
 
 OUT = os.path.join(os.path.dirname(os.path.abspath(__file__)), "cainz_proposal.pptx")
 save(OUT)
