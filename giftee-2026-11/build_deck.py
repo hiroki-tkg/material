@@ -47,6 +47,18 @@ def bullets(s, x, y, w, items, size=16, color=MOSS, gap=6, dot=None, spacing=1.4
     return y
 
 
+
+def outfit(tb):
+    """テキストボックス内の英数字ランのフォントを Outfit に（前回資料の数字と同じ見た目）。"""
+    for para in tb.text_frame.paragraphs:
+        for r in para.runs:
+            r.font.name = "Outfit"
+            rpr = r._r.get_or_add_rPr()
+            cs = rpr.find(qn("a:cs"))
+            if cs is not None:
+                cs.set("typeface", "Outfit")
+    return tb
+
 def panel(s, x, y, w, title, color=None, size=20):
     """色帯＋見出し。戻り値は本文の開始 y。"""
     color = color or T.accent
@@ -90,38 +102,38 @@ summary = content_slide("サマリー")
 divider("01", "OCTOBER RESULTS", "10月の数字", "試算表ベースの売上高・限界利益・全体ROAS　2026年10月（税抜・百万円）")
 
 s = content_slide("10月の事業進捗", "試算表ベース　※税抜・暫定数字")
-i_t, i_p, i_pp = -1, -2, -3
-cols = [(56, "売上高", f"{TB_SALES[i_t]:.1f}", "百万円", pct(TB_SALES[i_t], TB_SALES[i_p]), f"9月 {TB_SALES[i_p]:.1f} → {TB_SALES[i_t]:.1f}", "前月比"),
-        (396, "限界利益", f"{TB_MP[i_t]:.1f}", "百万円", pct(TB_MP[i_t], TB_MP[i_p]), f"9月 {TB_MP[i_p]:.1f} → {TB_MP[i_t]:.1f}", "前月比"),
-        (736, "全体ROAS", f"{TB_ROAS[i_t]:.0f}", "%", f"{TB_ROAS[i_p]:.0f}%", f"広告宣伝費 {TB_AD[i_p]:.1f} → {TB_AD[i_t]:.1f}", "前月")]
-for x, label, val, unit, sub1, sub2, sub1label in cols:
+i_t, i_p, i_y = -1, -2, 0  # 10月, 9月, 昨年10月
+cols = [(56, "売上高", f"{TB_SALES[i_t]:.1f}", "百万円", "昨年対比", pct(TB_SALES[i_t], TB_SALES[i_y]), f"昨年10月 {TB_SALES[i_y]:.1f} → {TB_SALES[i_t]:.1f}"),
+        (396, "限界利益", f"{TB_MP[i_t]:.1f}", "百万円", "昨年対比", pct(TB_MP[i_t], TB_MP[i_y]), f"昨年10月 {TB_MP[i_y]:.1f} → {TB_MP[i_t]:.1f}"),
+        (736, "全体ROAS", f"{TB_ROAS[i_t]:.0f}", "%", "昨年10月", f"{TB_ROAS[i_y]:.0f}%", f"広告宣伝費 {TB_AD[i_y]:.1f} → {TB_AD[i_t]:.1f}")]
+for x, label, val, unit, sub1label, sub1, sub2 in cols:
     text(s, x, 170, 300, 30, label, size=22, color=SECONDARY)
-    big_number(s, x, 200, "", val, unit, size=64, w=320)
+    outfit(big_number(s, x, 200, "", val, unit, size=64, w=320))
     text(s, x, 300, 300, 22, sub1label, size=15, color=SECONDARY)
     neg = sub1.startswith("▲")
-    text(s, x, 322, 300, 44, sub1, size=32, bold=True, color=(STRONG if neg else (T.accent if sub1label == "前月比" else MOSS)), en=True, spacing=1.0)
-    text(s, x, 372, 320, 22, sub2, size=14, color=SECONDARY)
+    outfit(text(s, x, 322, 300, 44, sub1, size=32, bold=True, color=(STRONG if neg else (T.accent if sub1label == "昨年対比" else MOSS)), en=True, spacing=1.0))
+    outfit(text(s, x, 372, 320, 22, sub2, size=14, color=SECONDARY))
 vline(s, 376, 170, 230)
 vline(s, 716, 170, 230)
 hline(s, 56, 424, 1016)
 topics = [
     ("ハナイチ（生花）はリピートが積み上がり、出荷能力の強化へ",
      f"生花のリピート注文は8月{HF_REPEAT[0]}件 → 10月{HF_REPEAT[-1]}件（率{HF_REPEAT_RATE[-1]}%）と積み上がり、顧客数も{HF_CUSTOMERS[-1]}人まで増えています。一方で9月中旬から毎日発送上限に達し、"
-     "売れているのに送れない状態が続いています。11/16から体制を組み替え、OP効率化と卸・輸入による原価調整で、1月までに出荷能力を引き上げます。"),
+     "売れているのに送れない状態が続いています。11/9から体制を組み替え、OP効率化と卸・輸入による原価調整で、1月までに出荷能力を引き上げます。"),
     ("生花イネイブラーがギフティ社との共同案件で本格化",
      f"60サイズ箱は11/27入稿・12月営業開始で、同梱手数料300円など主要条件は合意済みです。ギフティ社経由で日立ビルシステム（1万件・{HITACHI['sales'][0]:.1f}〜{HITACHI['sales'][2]:.1f}百万円）、"
      "TENTIAL（母の日〜父の日で1万件見込み）が進み、野菜をMOTTO（ギフティ川崎さんご紹介）も来年母の日のテストに前向きです。HAKUBA CRAFTなど生花3案件は12月にローンチします。"),
     ("AFは価格調整で件数+27%。カインズとはECOPOTS卸から協業へ",
-     f"10/16の値下げで注文数{pct(AF['orders'][i10], AF['orders'][i9])}・売上{pct(AF['sales'][i10], AF['sales'][i9])}。貢献利益の赤字は4か月続けて縮小しています（▲4.8 → ▲3.8百万円）。"
-     "カインズとは来春30店舗でのECOPOTS卸が決まり、リアル店舗・EC受託・関東の生産拠点まで含む協業と資本の話が出ています。"),
+     f"10/16の価格調整で注文数{pct(AF['orders'][i10], AF['orders'][i9])}・売上{pct(AF['sales'][i10], AF['sales'][i9])}。競合他社との価格に対して価格競争力があるような金額に調整中です。"
+     "カインズとは来春30店舗でのECOPOTS卸が決まり、リアル店舗・EC受託・関東の生産拠点まで含む協業の話が出ています。"),
 ]
 y = 444
 for head, body in topics:
-    rect(s, 56, y + 4, 5, 28, T.accent)
-    text(s, 72, y, 1000, 32, head, size=20, bold=True, color=T.dark)
-    text(s, 72, y + 36, 1000, 60, body, size=14, spacing=1.45)
+    rect(s, 56, y + 4, 5, 30, T.accent)
+    text(s, 72, y, 1000, 34, head, size=23, bold=True, color=T.accent)
+    text(s, 72, y + 38, 1000, 60, body, size=14, spacing=1.45)
     y += 104
-footnote(s, f"※ 限界利益＝売上総利益 − 荷造運賃 − 支払手数料。全体ROAS＝売上高÷広告宣伝費。9月は試算表の更新で前回資料（売上65.7・限界利益21.4）から数字が変わっています。前年同月比 売上{pct(TB_SALES[i_t], TB_SALES[0])}")
+footnote(s, f"※ 限界利益＝売上総利益 − 荷造運賃 − 支払手数料。全体ROAS＝売上高÷広告宣伝費。前月比は売上{pct(TB_SALES[i_t], TB_SALES[i_p])}・限界利益{pct(TB_MP[i_t], TB_MP[i_p])}（9月 {TB_SALES[i_p]:.1f}／{TB_MP[i_p]:.1f}。試算表の更新で前回資料から変更）")
 
 # 月次推移（試算表）
 s = content_slide("月次推移：売上は前年同月比+13%、利益の山は母の日", "試算表ベースの売上高と限界利益　2025年10月〜2026年10月　単位：百万円")
@@ -191,7 +203,7 @@ vline(s, 556, 160, 480)
 y = panel(s, 584, 160, 488, "何が起きているか・どう解くか", FLOWER)
 bullets(s, 584, y, 488, [
     "9月中旬からハナイチが毎日発送上限に達し、AF社員がハナイチのOPに入っている。花拠点の機動力が落ち、新しい売上施策が出しづらい",
-    "11月：AFとハナイチの組織を分離。ハナイチのOPには経営陣・他事業の社員・インターンが入り、AFを本業に戻す（11/16〜）",
+    "11月：AFとハナイチの組織を分離。ハナイチのOPには経営陣・他事業の社員・インターンが入り、AFを本業に戻す（11/9〜）",
     "採用：AF梱包 11/9入社、花事務 11/1入社。フローリストは面接中。紹介で3万円のリファラル制度を開始",
     "ロス削減：余った花材に即日割引を付け、花材の声掛けを増やしてロス率10.3%→8.3%",
 ], size=15, dot=FLOWER)
@@ -234,7 +246,7 @@ footnote(s, "※ リーダーMTG（9/4・10/8・11/5）の生花KPI。納品・�
 s = content_slide("ハナイチ：体制を変え、1月までに出荷能力を上げる", accent=HANA)
 message(s, "9月中旬から毎日発送上限に達している。上限を外せば売上は伸びる")
 cols = [(56, "① 体制を大きく変更（〜1月）", [
-            "11/9 OP効率化と人員の調整、11/16から社長・事業責任者・ハナイチ社員・インターン・Bizが本来の役割を超えてOPに入る",
+            "11/9から体制を組み替え、社長・事業責任者・ハナイチ社員・インターン・Bizが本来の役割を超えてOPに入る",
             "AFのメンバーがハナイチOPに入らなくても回る状態をつくり、AFとハナイチの組織を分離",
             "採用：ハナイチ梱包 2名入社（10/16・11/4）。派遣スタッフ・他拠点メンバーも期間限定で活用",
             "2027年3月に物流責任者（3PL拠点の立上げ・運営 約20年）が入社予定"]),
