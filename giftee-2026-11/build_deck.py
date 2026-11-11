@@ -106,14 +106,14 @@ i_t, i_p, i_y = -1, -2, 0  # 10月, 9月, 昨年10月
 cols = [(56, "売上高", f"{TB_SALES[i_t]:.1f}", "百万円", "昨年対比", pct(TB_SALES[i_t], TB_SALES[i_y]), f"昨年10月 {TB_SALES[i_y]:.1f} → {TB_SALES[i_t]:.1f}"),
         (564, "限界利益", f"{TB_MP[i_t]:.1f}", "百万円", "昨年対比", pct(TB_MP[i_t], TB_MP[i_y]), f"昨年10月 {TB_MP[i_y]:.1f} → {TB_MP[i_t]:.1f}")]
 for x, label, val, unit, sub1label, sub1, sub2 in cols:
-    text(s, x, 170, 300, 30, label, size=22, color=SECONDARY)
-    outfit(big_number(s, x, 200, "", val, unit, size=64, w=320))
-    text(s, x, 300, 300, 22, sub1label, size=15, color=SECONDARY)
+    text(s, x, 158, 300, 30, label, size=22, color=SECONDARY)
+    outfit(big_number(s, x, 186, "", val, unit, size=64, w=320))
+    text(s, x, 280, 300, 22, sub1label, size=15, color=SECONDARY)
     neg = sub1.startswith("▲")
-    outfit(text(s, x, 322, 300, 44, sub1, size=32, bold=True, color=(STRONG if neg else T.accent), en=True, spacing=1.0))
-    outfit(text(s, x, 372, 320, 22, sub2, size=14, color=SECONDARY))
-vline(s, 540, 170, 230)
-hline(s, 56, 424, 1016)
+    outfit(text(s, x, 300, 300, 44, sub1, size=32, bold=True, color=(STRONG if neg else T.accent), en=True, spacing=1.0))
+    outfit(text(s, x, 346, 320, 22, sub2, size=14, color=SECONDARY))
+vline(s, 540, 158, 212)
+hline(s, 56, 392, 1016)
 topics = [
     ("ハナイチ（生花）はリピートが積み上がり、出荷能力の強化へ",
      f"生花のリピート注文は昨年10月{HY_REPEAT[0]}件 → 今年10月{HY_REPEAT[-1]}件（率{HY_REPEAT_RATE[0]:.0f}%→{HY_REPEAT_RATE[-1]:.0f}%）と積み上がり、売上は{HY_SALES[-1] / HY_SALES[0]:.1f}倍の{m(HY_SALES[-1])}百万円です。"
@@ -125,14 +125,14 @@ topics = [
      f"10/16の価格調整で注文数{pct(AF['orders'][i10], AF['orders'][i9])}・売上{pct(AF['sales'][i10], AF['sales'][i9])}。競合他社との価格に対して価格競争力があるような金額に調整中です。"
      "カインズとは来春30店舗でのECOPOTS卸が決まり、リアル店舗・EC受託・関東の生産拠点まで含む協業の話が出ています。"),
 ]
-y = 442
+y = 408
 for head, body in topics:
-    text(s, 56, y, 1016, 34, head, size=23, bold=True, color=T.accent)
+    text(s, 56, y, 1016, 36, head, size=24, bold=True, color=T.accent)
     vis = sum(1.0 if ord(ch) > 0x7F else 0.55 for ch in body)
-    n = max(1, -(-int(vis + 0.999) // 66))
-    bh = int(14 * 1.45 * n) + 4
-    text(s, 56, y + 36, 1016, bh, body, size=14, spacing=1.45)
-    y += 36 + bh + 22
+    n = max(1, -(-int(vis + 0.999) // 58))
+    bh = int(15 * 1.4 * n) + 4
+    text(s, 56, y + 36, 1016, bh, body, size=15, spacing=1.4)
+    y += 36 + bh + 14
 footnote(s, f"※ 限界利益＝売上総利益 − 荷造運賃 − 支払手数料。前月比は売上{pct(TB_SALES[i_t], TB_SALES[i_p])}・限界利益{pct(TB_MP[i_t], TB_MP[i_p])}（9月 {TB_SALES[i_p]:.1f}／{TB_MP[i_p]:.1f}。試算表の更新で前回資料から変更）。広告宣伝費 {TB_AD[i_t]:.1f}百万円（昨年10月 {TB_AD[i_y]:.1f}）")
 
 # 月次推移（試算表）
@@ -272,32 +272,40 @@ text(s, 56, 676, 1016, 70, ["出荷上限を外して注文を売上に変える
      size=17, bold=True, spacing=1.45)
 footnote(s, "※ リーダーMTG（11/5）・経営MTG（11/9）の決定事項。10月の限界利益はSBS費（倉庫）の請求前")
 
-# --- イネイブラー: 数字と案件一覧 ---
-s = content_slide("イネイブラー：10月は予算超え、12月から生花が動く")
-message(s, f"10月の売上{EN['oct_sales']:.2f}百万円（予算比{EN['oct_sales'] / EN['oct_budget'] * 100:.0f}%）、限界利益{EN['oct_mp']:.2f}百万円（同{EN['oct_mp'] / EN['oct_mp_budget'] * 100:.0f}%）")
-kpi_table(s, 56, 160, 400, ["10月（百万円）", "予算", "実績", "達成率"], [
-    ["売上合計", f"{EN['oct_budget']:.2f}", f"{EN['oct_sales']:.2f}", f"{EN['oct_sales'] / EN['oct_budget'] * 100:.0f}%"],
-    ["　生花（プラグイン）", "0.22", f"{EN['oct_flowers']:.2f}", f"{EN['oct_flowers'] / 0.216 * 100:.0f}%"],
-    ["　植物イネイブラー", "—", f"{EN['oct_plants']:.2f}", "—"],
-    ["　卸（プリザーブド等）", "0.29", f"{EN['oct_wholesale']:.2f}", f"{EN['oct_wholesale'] / 0.287645 * 100:.0f}%"],
-    ["限界利益", f"{EN['oct_mp_budget']:.2f}", f"{EN['oct_mp']:.2f}", f"{EN['oct_mp'] / EN['oct_mp_budget'] * 100:.0f}%"],
-    ["11月（11/9時点）売上", f"{EN['nov_budget']:.2f}", f"{EN['nov_sales']:.2f}", f"{EN['nov_sales'] / EN['nov_budget'] * 100:.0f}%"],
-], col_w=[184, 72, 72, 72], bold_rows=(0, 4), row_h=36)
-text(s, 56, 430, 400, 120, [
-    "生花は発送3件（予算180件）。注文が入るまで時間がかかっている。",
-    "受注：Mr. CHEESECAKE（プリ箱1,000個）ほか2件が確定。",
-    "新規開拓はフォーム営業（786社・返信2.8%・商談4件）に移行。"], size=14, color=SECONDARY, spacing=1.5)
-grid(s, 490, 160, [150, 250, 182], ["案件", "内容", "状況・次の一手"], [
-    ["PAPABUBBLE", "キャンディ×花のセット（16SKU）\n10/13リリース", "11/12 新箱版・ブーケセットを提案"],
-    ["HAKUBA CRAFT", "プリ200個 納品済み（0.3百万円）\nビール×生花セット", "11/11キックオフ、12月ローンチ"],
-    ["野菜をMOTTO", "母の日 スープ×花（ギフティ紹介）\n2,000〜3,000個のテスト", "価格・箱を練り直して再提案"],
-    ["TENTIAL", "BAKUNE×花（ギフティ経由）\n母の日〜父の日で1万件見込み", "11月中に企画決定"],
-    ["日立ビルシステム", "70周年 プリ1万件（ギフティ経由）\n300拠点に配送", "見積3案を提示、11/27発注"],
-    ["SILK THE RICH\nColor Your Life", "生花同梱（12月開始）\n各20セット前後から", "キックオフ済み・サンプル待ち"],
-], size=12, row_h=52)
-text(s, 56, 676, 1016, 70, ["ギフティ経由の1万件規模の案件が2本（日立・TENTIAL）。生花案件は12月から順次ローンチし、拠点の生花OPが増える。"],
+# --- イネイブラー: エコノミクスと案件一覧 ---
+s = content_slide("イネイブラー：多くの案件が卸と生花で進捗")
+active = EN_PIPE["before"] + EN_PIPE["undated"] + EN_PIPE["first"] + EN_PIPE["negotiating"] + EN_PIPE["won"] + EN_PIPE["producing"]
+message(s, f"進行中{active}社（商談・交渉{EN_PIPE['before'] + EN_PIPE['undated'] + EN_PIPE['first'] + EN_PIPE['negotiating']}、受注・制作中{EN_PIPE['won'] + EN_PIPE['producing']}）。1件の貢献利益は生花で400〜2,000円")
+text(s, 56, 154, 470, 24, "1件あたりのエコノミクス（新料金・送料込み・税抜）", size=14, color=SECONDARY, bold=True)
+kpi_table(s, 56, 182, 470, ["", "B2B下代", "限界利益率", "貢献利益"], [
+    [n_, f"{p_:,}円", f"{r_:.0f}%", f"+{c_:,}円"] for n_, p_, r_, c_ in EN_ECON
+], col_w=[200, 90, 90, 90], bold_rows=(0, 6), row_h=33)
+bullets(s, 56, 470, 470, [
+    "卸値はEC価格の8掛け。送料は別建てで、送料差益率は33〜44%",
+    "先方ラベルで出荷する場合は同梱作業費300円（ギフティ様と合意済み）",
+    "通年は月20件、イベントは100件以上の最小ロットを契約に明記",
+    "貢献利益＝下代＋送料収入 − 花材・資材・送料実費 − 作業費",
+], size=13, gap=5)
+vline(s, 546, 154, 480)
+grid(s, 566, 154, [116, 70, 198, 122], ["案件", "種別", "内容・規模", "状況"], [
+    ["PAPABUBBLE", "生花", "キャンディ×花 16SKU（10/13〜）", "稼働中。新箱版を提案"],
+    ["HAKUBA CRAFT", "プリ卸＋生花", "プリ200個納品済。ビール×生花", "生花は12月ローンチ"],
+    ["野菜をMOTTO", "生花", "母の日テスト 2,000〜3,000個", "価格・箱を再提案"],
+    ["TENTIAL", "生花※", "BAKUNE×花、母の日1万件", "11月中に企画決定"],
+    ["日立ビルシステム", "プリ卸※", f"1万件、{HITACHI['sales'][0]:.1f}〜{HITACHI['sales'][2]:.1f}百万円", "見積3案、11/27発注"],
+    ["SILK THE RICH", "生花＋プリ", "ガラス一輪M 100個〜＋ブーケ", "12月中旬リリース"],
+    ["Color Your Life", "生花", "チョコ×ミニブーケM", "12月開始、サンプル着"],
+    ["Mr. CHEESECAKE", "プリ卸", "ボックス1,000個 1.75百万円", "制作中、1月下旬納品"],
+    ["エール・エル", "プリ卸", "ドーム1,500個 1.76百万円", "最終分 11/27納品"],
+    ["UCC・BAKE", "プリ卸", "2027年母の日、1,200個〜", "見積・サンプル検討中"],
+    ["遠鉄百貨店", "生花", "百貨店EC 66SKU、1/12公開", "受注確定、連携確認中"],
+], size=11, row_h=34)
+text(s, 566, 572, 506, 60, [f"ほかに一次商談済み・条件交渉中が{EN_PIPE['first'] + EN_PIPE['negotiating'] - 8}社（GREEN SPOON・JTB・BENAMOR・グレープストーン・にしき食品など）、",
+                             f"商談待ち{EN_PIPE['before'] + EN_PIPE['undated']}社（コーセー・ゴントランシェリエ・チーズガーデンなど）。納品済み{EN_PIPE['delivered']}社、継続取引{EN_PIPE['ongoing']}社"],
+     size=12, color=SECONDARY, spacing=1.4)
+text(s, 56, 660, 1016, 60, ["卸（プリザーブド）が売上を支え、生花は12月から順次稼働。ギフティ経由の1万件規模の案件が2本（日立・TENTIAL）。"],
      size=17, bold=True, spacing=1.45)
-footnote(s, "※ イネイブラーKPI管理表（第9期・税抜・発送日ベース）。予算は事業計画のイネイブラー月次")
+footnote(s, "※ エコノミクスはNotion「新料金・エコノミクス（2026年10月以降）」（送料込み・通常配送、作業費は分給ベース）。案件は営業進捗リスト（11/11時点）。※はギフティ経由。10月の売上は0.58百万円（予算比112%）")
 
 # --- イネイブラー: 案件の詳細 ---
 s = content_slide("案件の詳細：既存3社の進捗と次の一手")
