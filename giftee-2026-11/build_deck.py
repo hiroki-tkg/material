@@ -214,7 +214,7 @@ footnote(s, "※ 貢献利益・OPEX比率・ロス率はリーダーMTG（11/5�
 # --- ハナイチ: KPI ---
 s = content_slide("ハナイチ生花：リピート率は1年で24%→47%", accent=HANA)
 L, Y = -1, 0  # 今年10月, 昨年10月
-message(s, f"10月は注文{HY_ORDERS[L]}件・リピート{HY_REPEAT[L]}件（率{HY_REPEAT_RATE[L]:.0f}%、昨年{HY_REPEAT_RATE[Y]:.0f}%）。生花商品の客単価は{HY_FAOV_3K[L]:,}円（3,000円超、+{(HY_FAOV_3K[L] / HY_FAOV_3K[Y] - 1) * 100:.0f}%）")
+message(s, f"10月は注文{HY_ORDERS[L]}件・リピート{HY_REPEAT[L]}件（率{HY_REPEAT_RATE[L]:.0f}%、昨年{HY_REPEAT_RATE[Y]:.0f}%）。生花商品の客単価は{HY_FAOV_3K[L]:,}円（+{(HY_FAOV_3K[L] / HY_FAOV_3K[Y] - 1) * 100:.0f}%）")
 text(s, 56, 154, 460, 24, "生花の注文数（新規・リピート）とリピート率　2025年10月〜", size=14, color=SECONDARY, bold=True)
 legend(s, 56, 182, [("新規", HANA_LIGHT), ("リピート", HANA)])
 legend(s, 262, 182, [("リピート率（右軸）", HANA_DARK)], line=True)
