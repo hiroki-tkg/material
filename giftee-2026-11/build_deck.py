@@ -214,7 +214,7 @@ footnote(s, "※ 貢献利益・OPEX比率・ロス率はリーダーMTG（11/5�
 # --- ハナイチ: KPI ---
 s = content_slide("ハナイチ生花：リピート率は1年で24%→47%", accent=HANA)
 L, Y = -1, 0  # 今年10月, 昨年10月
-message(s, f"10月は注文{HY_ORDERS[L]}件・リピート{HY_REPEAT[L]}件（率{HY_REPEAT_RATE[L]:.0f}%、昨年{HY_REPEAT_RATE[Y]:.0f}%）。3,000円超の客単価は{HY_AOV_3K[L]:,}円（{pct(HY_AOV_3K[L], HY_AOV_3K[Y])}）")
+message(s, f"10月は注文{HY_ORDERS[L]}件・リピート{HY_REPEAT[L]}件（率{HY_REPEAT_RATE[L]:.0f}%、昨年{HY_REPEAT_RATE[Y]:.0f}%）。生花商品の客単価は{HY_FAOV_3K[L]:,}円（3,000円超、+{(HY_FAOV_3K[L] / HY_FAOV_3K[Y] - 1) * 100:.0f}%）")
 text(s, 56, 154, 460, 24, "生花の注文数（新規・リピート）とリピート率　2025年10月〜", size=14, color=SECONDARY, bold=True)
 legend(s, 56, 182, [("新規", HANA_LIGHT), ("リピート", HANA)])
 legend(s, 262, 182, [("リピート率（右軸）", HANA_DARK)], line=True)
@@ -227,24 +227,25 @@ for i in (0, 6, len(HY_LABELS) - 1):
 for i in (0, len(HY_LABELS) - 1):
     text(s, ax.x(i) - 24, ax.yv(HY_ORDERS[i]) - 18, 48, 16, f"{HY_ORDERS[i]}", size=9, bold=True, align=PP_ALIGN.CENTER, en=True)
 vline(s, 596, 154, 440)
-text(s, 616, 154, 456, 24, "生花の客単価（3,000円以下の注文を除く）　単位：円", size=14, color=SECONDARY, bold=True)
-ax2 = bar_chart(s, 604, 182, 468, 150, HY_LABELS, [("AOV", HY_AOV_3K)], colors=[HANA], vmax=12000, ticks=(0, 4000, 8000), label_every=3)
+text(s, 616, 154, 456, 24, "生花商品のみの客単価（3,000円以下の注文を除く）　円", size=14, color=SECONDARY, bold=True)
+ax2 = bar_chart(s, 604, 182, 468, 150, HY_LABELS, [("AOV", HY_FAOV_3K)], colors=[HANA], vmax=12000, ticks=(0, 4000, 8000), label_every=3)
 for i in (0, len(HY_LABELS) - 1):
-    text(s, ax2.x(i) - 30, ax2.yv(HY_AOV_3K[i]) - 16, 60, 14, f"{HY_AOV_3K[i]:,}", size=9, bold=True, align=PP_ALIGN.CENTER, en=True)
+    text(s, ax2.x(i) - 30, ax2.yv(HY_FAOV_3K[i]) - 16, 60, 14, f"{HY_FAOV_3K[i]:,}", size=9, bold=True, align=PP_ALIGN.CENTER, en=True)
 kpi_table(s, 616, 346, 456, ["生花", "昨年10月", "今年10月", "昨年対比"], [
     ["売上（百万円）", m(HY_SALES[Y]), m(HY_SALES[L]), f"{HY_SALES[L] / HY_SALES[Y]:.1f}倍"],
     ["注文数", f"{HY_ORDERS[Y]}", f"{HY_ORDERS[L]}", f"{HY_ORDERS[L] / HY_ORDERS[Y]:.1f}倍"],
     ["購入顧客数", f"{HY_CUSTOMERS[Y]}", f"{HY_CUSTOMERS[L]}", f"{HY_CUSTOMERS[L] / HY_CUSTOMERS[Y]:.1f}倍"],
     ["リピート注文数", f"{HY_REPEAT[Y]}", f"{HY_REPEAT[L]}", f"{HY_REPEAT[L] / HY_REPEAT[Y]:.1f}倍"],
     ["リピート率", f"{HY_REPEAT_RATE[Y]:.1f}%", f"{HY_REPEAT_RATE[L]:.1f}%", mom_pt(HY_REPEAT_RATE[L], HY_REPEAT_RATE[Y])],
-    ["客単価（3,000円超）", f"{HY_AOV_3K[Y]:,}円", f"{HY_AOV_3K[L]:,}円", pct(HY_AOV_3K[L], HY_AOV_3K[Y])],
-    ["客単価（全注文）", f"{HY_AOV[Y]:,}円", f"{HY_AOV[L]:,}円", pct(HY_AOV[L], HY_AOV[Y])],
+    ["客単価（3,000円超）", f"{HY_FAOV_3K[Y]:,}円", f"{HY_FAOV_3K[L]:,}円", pct(HY_FAOV_3K[L], HY_FAOV_3K[Y])],
+    ["客単価（全注文）", f"{HY_FAOV[Y]:,}円", f"{HY_FAOV[L]:,}円", pct(HY_FAOV[L], HY_FAOV[Y])],
+    ["1注文あたり本数", f"{HY_STEMS[Y]:.1f}本", f"{HY_STEMS[L]:.1f}本", pct(HY_STEMS[L], HY_STEMS[Y])],
 ], col_w=[176, 90, 100, 90], bold_rows=(3,), row_h=32)
-text(s, 56, 628, 1016, 100, [
+text(s, 56, 650, 1016, 100, [
     f"リピート注文は昨年10月{HY_REPEAT[Y]}件 → {HY_REPEAT[L]}件（{HY_REPEAT[L] / HY_REPEAT[Y]:.1f}倍）。率は{HY_REPEAT_RATE[Y]:.0f}%→{HY_REPEAT_RATE[L]:.0f}%で、新規に頼らず積み上がる構造に変わった。",
-    f"3,000円以下の小口注文は{HY_SMALL[Y] / HY_ORDERS[Y] * 100:.0f}%→{HY_SMALL[L] / HY_ORDERS[L] * 100:.0f}%に減り、全注文の客単価は{pct(HY_AOV[L], HY_AOV[Y])}。小口を除いた客単価は{pct(HY_AOV_3K[L], HY_AOV_3K[Y])}。",
+    f"生花商品のみの客単価は{HY_FAOV[Y]:,}→{HY_FAOV[L]:,}円（{pct(HY_FAOV[L], HY_FAOV[Y])}）。3,000円以下の小口注文（{HY_FSMALL[Y] / HY_ORDERS[Y] * 100:.0f}%→{HY_FSMALL[L] / HY_ORDERS[L] * 100:.0f}%）を除くと{HY_FAOV_3K[Y]:,}→{HY_FAOV_3K[L]:,}円（{pct(HY_FAOV_3K[L], HY_FAOV_3K[Y])}）。",
     "9月中旬から毎日発送上限に達し、売れているのに送れない状態。出荷能力がボトルネック。"], size=16, bold=True, spacing=1.45)
-footnote(s, "※ BigQuery（ハナイチ注文データ）で集計。生花を含む注文・注文日ベース・税抜（税込÷1.1）、キャンセル・返金・スキップは除く。リピート＝その顧客の生花2回目以降の注文。10月はリーダーMTG（11/5）の生花KPIと一致")
+footnote(s, "※ BigQuery（ハナイチ注文データ）で集計。生花を含む注文・注文日ベース・税抜、キャンセル・返金・スキップは除く。売上は送料込み（リーダーMTGの生花KPIと一致）、客単価は生花商品の明細のみ（送料・鉢・資材を除く）")
 
 # --- ハナイチ: 今後のステップ ---
 s = content_slide("ハナイチ：体制を変え、1月までに出荷能力を上げる", accent=HANA)
