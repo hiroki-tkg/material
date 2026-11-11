@@ -82,75 +82,62 @@ cover("株式会社ギフティ様 定例資料", ["2026年10月の振り返り�
       "売上・限界利益・広告費込み限界利益と、AF／ハナイチ／イネイブラー／カインズ／資本の論点",
       ["2026年11月", "株式会社DOMUZ", "髙木 弘貴"])
 
-agenda("本資料の構成", [
-    ("1", "10月の数字", "売上・限界利益・広告費込み限界利益、計画比と月次推移"),
-    ("2", "事業のトピックス", "アンドフラワー（OP・価格）、ハナイチ（リピート・体制）、イネイブラー（案件・箱・価格）"),
-    ("3", "カインズとの協業", "ECOPOTS卸、リアル店舗・EC・生産拠点のロードマップ、花博"),
-    ("4", "資本の論点と今後の関わり方", "49%のケースの資金調達条件、ギフティと進めること"),
-], note="※ 数値は税抜・百万円。用語と集計の前提は最終ページにまとめています")
-
 summary = content_slide("サマリー")
 
 # =====================================================================
 # 2. 10月の数字
 # =====================================================================
-divider("01", "OCTOBER RESULTS", "10月の数字", "売上・限界利益・広告費込み限界利益　2026年10月（税抜・百万円）")
+divider("01", "OCTOBER RESULTS", "10月の数字", "試算表ベースの売上高・限界利益・全体ROAS　2026年10月（税抜・百万円）")
 
-s = content_slide("10月の数字：売上は前月比+5%、利益は計画の7割")
-message(s, f"売上 {m(TOTAL['sales'][i10])}百万円（前月比{pct(TOTAL['sales'][i10], TOTAL['sales'][i9])}）、"
-           f"広告費込み限界利益 {m(TOTAL['net'][i10])}百万円（計画比{TOTAL['net'][i10] / PLAN_OCT['net_total'] * 100:.0f}%）")
-H_SALES_OCT, H_GP_OCT = H_SALES[-1], H_GP[-1]
-H_NET_OCT = H_GP_OCT - H_AD_OCT
-rows = [
-    ["売上", m(AP["sales"][i10]), m(AF["sales"][i10]), m(MALL["sales"][i10]), m(TOTAL["sales"][i10]), m(H_SALES_OCT)],
-    ["　前月比", pct(AP["sales"][i10], AP["sales"][i9]), pct(AF["sales"][i10], AF["sales"][i9]),
-     pct(MALL["sales"][i10], MALL["sales"][i9]), pct(TOTAL["sales"][i10], TOTAL["sales"][i9]), pct(H_SALES_OCT, H_SALES[-2])],
-    ["　対計画", f"{AP['sales'][i10] / PLAN_OCT['ap_ec'] * 100:.0f}%", f"{AF['sales'][i10] / PLAN_OCT['af_ec'] * 100:.0f}%",
-     f"{MALL['sales'][i10] / PLAN_OCT['mall'] * 100:.0f}%", f"{TOTAL['sales'][i10] / PLAN_OCT['total'] * 100:.0f}%", "—"],
-    ["限界利益", m(AP["mp"][i10]), m(AF["mp"][i10]), m(MALL["mp"][i10]), m(TOTAL["mp"][i10]), m(H_GP_OCT)],
-    ["　限界利益率", f"{AP['mp'][i10] / AP['sales'][i10] * 100:.0f}%", f"{AF['mp'][i10] / AF['sales'][i10] * 100:.0f}%",
-     f"{MALL['mp'][i10] / MALL['sales'][i10] * 100:.0f}%", f"{TOTAL['mp'][i10] / TOTAL['sales'][i10] * 100:.0f}%",
-     f"{H_GP_OCT / H_SALES_OCT * 100:.0f}%"],
-    ["広告費", m(AP["ad"][i10]), m(AF["ad"][i10]), m(MALL["ad"][i10]), m(TOTAL["ad"][i10]), m(H_AD_OCT)],
-    ["広告費込み限界利益", m(AP["net"][i10]), m(AF["net"][i10]), m(MALL["net"][i10]), m(TOTAL["net"][i10]), m(H_NET_OCT)],
-    ["　同率", f"{AP['net'][i10] / AP['sales'][i10] * 100:.0f}%", f"{AF['net'][i10] / AF['sales'][i10] * 100:.0f}%",
-     f"{MALL['net'][i10] / MALL['sales'][i10] * 100:.0f}%", f"{TOTAL['net'][i10] / TOTAL['sales'][i10] * 100:.0f}%",
-     f"▲{-H_NET_OCT / H_SALES_OCT * 100:.0f}%"],
-    ["　前月比", pct(AP["net"][i10], AP["net"][i9]), pct(AF["net"][i10], AF["net"][i9]),
-     pct(MALL["net"][i10], MALL["net"][i9]), pct(TOTAL["net"][i10], TOTAL["net"][i9]), "—"],
-    ["　対計画", f"{AP['net'][i10] / PLAN_OCT['net_ap_ec'] * 100:.0f}%", f"{AF['net'][i10] / PLAN_OCT['net_af'] * 100:.0f}%",
-     f"{MALL['net'][i10] / PLAN_OCT['net_mall'] * 100:.0f}%", f"{TOTAL['net'][i10] / PLAN_OCT['net_total'] * 100:.0f}%", "—"],
+s = content_slide("10月の事業進捗", "試算表ベース　※税抜・暫定数字")
+i_t, i_p, i_pp = -1, -2, -3
+cols = [(56, "売上高", f"{TB_SALES[i_t]:.1f}", "百万円", pct(TB_SALES[i_t], TB_SALES[i_p]), f"9月 {TB_SALES[i_p]:.1f} → {TB_SALES[i_t]:.1f}", "前月比"),
+        (396, "限界利益", f"{TB_MP[i_t]:.1f}", "百万円", pct(TB_MP[i_t], TB_MP[i_p]), f"9月 {TB_MP[i_p]:.1f} → {TB_MP[i_t]:.1f}", "前月比"),
+        (736, "全体ROAS", f"{TB_ROAS[i_t]:.0f}", "%", f"{TB_ROAS[i_p]:.0f}%", f"広告宣伝費 {TB_AD[i_p]:.1f} → {TB_AD[i_t]:.1f}", "前月")]
+for x, label, val, unit, sub1, sub2, sub1label in cols:
+    text(s, x, 170, 300, 30, label, size=22, color=SECONDARY)
+    big_number(s, x, 200, "", val, unit, size=64, w=320)
+    text(s, x, 300, 300, 22, sub1label, size=15, color=SECONDARY)
+    neg = sub1.startswith("▲")
+    text(s, x, 322, 300, 44, sub1, size=32, bold=True, color=(STRONG if neg else (T.accent if sub1label == "前月比" else MOSS)), en=True, spacing=1.0)
+    text(s, x, 372, 320, 22, sub2, size=14, color=SECONDARY)
+vline(s, 376, 170, 230)
+vline(s, 716, 170, 230)
+hline(s, 56, 424, 1016)
+topics = [
+    ("ハナイチ（生花）はリピートが積み上がり、出荷能力の強化へ",
+     f"生花のリピート注文は8月{HF_REPEAT[0]}件 → 10月{HF_REPEAT[-1]}件（率{HF_REPEAT_RATE[-1]}%）と積み上がり、顧客数も{HF_CUSTOMERS[-1]}人まで増えています。一方で9月中旬から毎日発送上限に達し、"
+     "売れているのに送れない状態が続いています。11/16から体制を組み替え、OP効率化と卸・輸入による原価調整で、1月までに出荷能力を引き上げます。"),
+    ("生花イネイブラーがギフティ社との共同案件で本格化",
+     f"60サイズ箱は11/27入稿・12月営業開始で、同梱手数料300円など主要条件は合意済みです。ギフティ社経由で日立ビルシステム（1万件・{HITACHI['sales'][0]:.1f}〜{HITACHI['sales'][2]:.1f}百万円）、"
+     "TENTIAL（母の日〜父の日で1万件見込み）が進み、野菜をMOTTO（ギフティ川崎さんご紹介）も来年母の日のテストに前向きです。HAKUBA CRAFTなど生花3案件は12月にローンチします。"),
+    ("AFは価格調整で件数+27%。カインズとはECOPOTS卸から協業へ",
+     f"10/16の値下げで注文数{pct(AF['orders'][i10], AF['orders'][i9])}・売上{pct(AF['sales'][i10], AF['sales'][i9])}。貢献利益の赤字は4か月続けて縮小しています（▲4.8 → ▲3.8百万円）。"
+     "カインズとは来春30店舗でのECOPOTS卸が決まり、リアル店舗・EC受託・関東の生産拠点まで含む協業と資本の話が出ています。"),
 ]
-kpi_table(s, 56, 150, 1016, ["", "AP 自社EC", "AF 自社EC", "モール", "AP＋AF 合計", "ハナイチ"], rows,
-          col_w=[246, 154, 154, 154, 154, 154], bold_rows=(0, 6), row_h=33)
-text(s, 56, 548, 1016, 100, [
-    f"売上は3部門とも前月比プラスだが、計画には{(1 - TOTAL['sales'][i10] / PLAN_OCT['total']) * 100:.0f}%届かず（前年同月比は+3%、モールが+41%で自社ECは前年割れ）。",
-    f"広告費を{pct(TOTAL['ad'][i10], TOTAL['ad'][i9])}増やしたぶん、広告費込み限界利益は{pct(TOTAL['net'][i10], TOTAL['net'][i9])}。",
-    "AFは値下げで件数が伸び、ハナイチは注文が増えても出荷が追いつかず、売上・利益とも落ちた。"],
-     size=17, bold=True, spacing=1.5)
-footnote(s, f"※ AP/AFは管理画面（税抜・送料込み・注文日ベース）。合計はその他ブランドと共通広告費{m(AD_COMMON[i10])}百万円を含む。計画は事業計画（2026/10）\n"
-            f"※ ハナイチは管理画面定義の粗利（注文日ベース）。発送日ベースでは売上{m(H_SHIP['sales'])}・広告費込み{m(H_SHIP['net'])}百万円。計画は仮のため未掲載")
+y = 444
+for head, body in topics:
+    rect(s, 56, y + 4, 5, 28, T.accent)
+    text(s, 72, y, 1000, 32, head, size=20, bold=True, color=T.dark)
+    text(s, 72, y + 36, 1000, 60, body, size=14, spacing=1.45)
+    y += 104
+footnote(s, f"※ 限界利益＝売上総利益 − 荷造運賃 − 支払手数料。全体ROAS＝売上高÷広告宣伝費。9月は試算表の更新で前回資料（売上65.7・限界利益21.4）から数字が変わっています。前年同月比 売上{pct(TB_SALES[i_t], TB_SALES[0])}")
 
-# 月次推移
-s = content_slide("月次推移：10月は端境期。母の日と正月が山", "自社EC・モールの売上と、広告費込み限界利益　2025年11月〜2026年10月　単位：百万円")
-legend(s, 214, 154, [("自社EC（AP＋AF）", T.accent), ("モール", T.light)])
-legend(s, 560, 154, [("広告費込み限界利益（右軸）", T.dark)], line=True)
-ax = bar_chart(s, 200, 180, 720, 330, M_LABELS, [("自社EC", M_OWN), ("モール", M_MALL)], stacked=True,
-               vmax=180, ticks=(0, 30, 60, 90), value_labels=True)
-ry = ax.yv2(32)
-pts = [(ax.x(i), ry(M_NET[i])) for i in range(len(M_NET))]
-polyline(s, pts, T.dark, 2.0)
-for i in (0, 6, len(M_NET) - 1):
-    if i == 6:
-        text(s, ax.x(i) - 30, ry(M_NET[i]) - 22, 60, 16, f"{M_NET[i]:.1f}", size=10, bold=True, color=T.dark, align=PP_ALIGN.CENTER, en=True)
-    else:
-        text(s, ax.x(i) + 8, ry(M_NET[i]) - 20, 60, 16, f"{M_NET[i]:.1f}", size=10, bold=True, color=T.dark, en=True)
-ann = sum(M_OWN) + sum(M_MALL)
+# 月次推移（試算表）
+s = content_slide("月次推移：売上は前年同月比+13%、利益の山は母の日", "試算表ベースの売上高と限界利益　2025年10月〜2026年10月　単位：百万円")
+legend(s, 214, 154, [("売上高", T.accent)])
+legend(s, 340, 154, [("限界利益（右軸）", T.dark)], line=True)
+ax = bar_chart(s, 200, 180, 720, 330, TB_LABELS, [("売上高", TB_SALES)], vmax=250, ticks=(0, 40, 80, 120), value_labels=True)
+ry = ax.yv2(50)
+polyline(s, [(ax.x(i), ry(TB_MP[i])) for i in range(len(TB_MP))], T.dark, 2.0)
+for i in (0, 7, len(TB_MP) - 1):
+    text(s, ax.x(i) - 30, ry(TB_MP[i]) - 22, 60, 16, f"{TB_MP[i]:.1f}", size=10, bold=True, color=T.dark, align=PP_ALIGN.CENTER, en=True)
+ann_s, ann_mp = sum(TB_SALES[1:]), sum(TB_MP[1:])
 text(s, 56, 548, 1016, 100, [
-    f"直近12か月の売上は{ann:.0f}百万円、広告費込み限界利益は{sum(M_NET):.0f}百万円（{sum(M_NET) / ann * 100:.0f}%）。",
-    f"10月の広告費込み限界利益率{TOTAL['net'][i10] / TOTAL['sales'][i10] * 100:.0f}%は12か月平均並み。利益の山は母の日（4〜5月）で、11〜1月は正月需要で持ち直す。"],
+    f"直近12か月の売上高は{ann_s:.0f}百万円、限界利益は{ann_mp:.0f}百万円（{ann_mp / ann_s * 100:.0f}%）。10月の限界利益率{TB_MP[i_t] / TB_SALES[i_t] * 100:.0f}%は12か月平均並み。",
+    f"10月は広告宣伝費を{pct(TB_AD[i_t], TB_AD[i_p])}増やして売上は{pct(TB_SALES[i_t], TB_SALES[i_p])}にとどまり、全体ROASは{TB_ROAS[i_p]:.0f}%→{TB_ROAS[i_t]:.0f}%。"],
      size=17, bold=True, spacing=1.5)
-footnote(s, "※ 管理画面の売上・限界利益（税抜・注文日ベース）と媒体別広告費。ハナイチは含まない")
+footnote(s, "※ 試算表（月次推移）。限界利益＝売上総利益 − 荷造運賃 − 支払手数料。9月以前は10/10時点、10月は11/11時点の暫定値。決算整理は含まない")
 
 # =====================================================================
 # 3. 事業のトピックス
@@ -213,33 +200,35 @@ text(s, 56, 676, 1016, 70, ["母の日までの3か月が踏ん張りどころ�
 footnote(s, "※ 貢献利益・OPEX比率・ロス率はリーダーMTG（11/5）の管理数値。モール・LINEギフトを含む")
 
 # --- ハナイチ: KPI ---
-s = content_slide("ハナイチ：注文数は夏から2倍、リピート率は49%へ", accent=HANA)
-message(s, f"10月はリピート注文{H_REPEAT[-1]}件（率{H_REPEAT_RATE[-1]}%）。客単価は{H_AOV[-1]:,}円まで下がり、売上は{m(H_SALES[-1])}百万円")
-text(s, 56, 154, 400, 24, "注文数（新規・リピート）とリピート率", size=14, color=SECONDARY, bold=True)
+s = content_slide("ハナイチ生花：リピート注文は2か月で+31%", accent=HANA)
+message(s, f"10月は注文{HF_ORDERS[-1]}件・リピート{HF_REPEAT[-1]}件（率{HF_REPEAT_RATE[-1]}%）。客単価{HF_AOV[-1]:,}円、売上{m(HF_SALES[-1])}百万円（+{(HF_SALES[-1] / HF_SALES[-2] - 1) * 100:.0f}%）")
+text(s, 56, 154, 400, 24, "生花の注文数（新規・リピート）とリピート率", size=14, color=SECONDARY, bold=True)
 legend(s, 56, 182, [("新規", HANA_LIGHT), ("リピート", HANA)])
 legend(s, 262, 182, [("リピート率（右軸）", HANA_DARK)], line=True)
-ax = bar_chart(s, 56, 206, 520, 300, H_LABELS, [("新規", H_FIRST), ("リピート", H_REPEAT)], stacked=True,
-               colors=[HANA_LIGHT, HANA], vmax=720, ticks=(0, 200, 400), value_labels=True)
+ax = bar_chart(s, 56, 206, 520, 300, HF_LABELS, [("新規", HF_FIRST), ("リピート", HF_REPEAT)], stacked=True,
+               colors=[HANA_LIGHT, HANA], vmax=700, ticks=(0, 200, 400), value_labels=True)
 ry = ax.yv2(60)
-polyline(s, [(ax.x(i), ry(H_REPEAT_RATE[i])) for i in range(len(H_LABELS))], HANA_DARK, 2.0)
-for i in (0, len(H_LABELS) - 1):
-    text(s, ax.x(i) - 30, ry(H_REPEAT_RATE[i]) - 22, 60, 16, f"{H_REPEAT_RATE[i]:.1f}%", size=10, bold=True, color=HANA_DARK, align=PP_ALIGN.CENTER, en=True)
+polyline(s, [(ax.x(i), ry(HF_REPEAT_RATE[i])) for i in range(len(HF_LABELS))], HANA_DARK, 2.0)
+for i in range(len(HF_LABELS)):
+    text(s, ax.x(i) - 30, ry(HF_REPEAT_RATE[i]) - 22, 60, 16, f"{HF_REPEAT_RATE[i]:.1f}%", size=10, bold=True, color=HANA_DARK, align=PP_ALIGN.CENTER, en=True)
+for i in range(len(HF_LABELS)):
+    text(s, ax.x(i) - 40, ax.yv(HF_FIRST[i] + HF_REPEAT[i] / 2) - 8, 80, 16, f"リピート {HF_REPEAT[i]}", size=9, bold=True, color=MOSS, align=PP_ALIGN.CENTER)
 vline(s, 596, 154, 400)
-text(s, 616, 154, 456, 24, "客単価（AOV）の推移　単位：円", size=14, color=SECONDARY, bold=True)
-bar_chart(s, 604, 182, 468, 180, H_LABELS, [("AOV", H_AOV)], colors=[HANA], vmax=24000, ticks=(0, 10000, 20000), value_labels=True)
-kpi_table(s, 616, 380, 456, ["", "9月", "10月", "前月比"], [
-    ["売上（百万円）", m(H_SALES[-2]), m(H_SALES[-1]), pct(H_SALES[-1], H_SALES[-2])],
-    ["注文数", f"{H_ORDERS[-2]}", f"{H_ORDERS[-1]}", pct(H_ORDERS[-1], H_ORDERS[-2])],
-    ["購入顧客数", f"{H_CUSTOMERS[-2]}", f"{H_CUSTOMERS[-1]}", pct(H_CUSTOMERS[-1], H_CUSTOMERS[-2])],
-    ["リピート注文数", f"{H_REPEAT[-2]}", f"{H_REPEAT[-1]}", pct(H_REPEAT[-1], H_REPEAT[-2])],
-    ["客単価（新規）", f"{H_AOV_FIRST[-2]:,}円", f"{H_AOV_FIRST[-1]:,}円", pct(H_AOV_FIRST[-1], H_AOV_FIRST[-2])],
-    ["客単価（リピート）", f"{H_AOV_REPEAT[-2]:,}円", f"{H_AOV_REPEAT[-1]:,}円", pct(H_AOV_REPEAT[-1], H_AOV_REPEAT[-2])],
+text(s, 616, 154, 456, 24, "生花の客単価（AOV）　単位：円", size=14, color=SECONDARY, bold=True)
+bar_chart(s, 604, 182, 468, 180, HF_LABELS, [("AOV", HF_AOV)], colors=[HANA], vmax=12000, ticks=(0, 4000, 8000), value_labels=True)
+kpi_table(s, 616, 380, 456, ["生花", "9月", "10月", "前月比"], [
+    ["売上（百万円）", m(HF_SALES[-2]), m(HF_SALES[-1]), pct(HF_SALES[-1], HF_SALES[-2])],
+    ["注文数", f"{HF_ORDERS[-2]}", f"{HF_ORDERS[-1]}", pct(HF_ORDERS[-1], HF_ORDERS[-2])],
+    ["購入顧客数", f"{HF_CUSTOMERS[-2]}", f"{HF_CUSTOMERS[-1]}", pct(HF_CUSTOMERS[-1], HF_CUSTOMERS[-2])],
+    ["リピート注文数", f"{HF_REPEAT[-2]}", f"{HF_REPEAT[-1]}", pct(HF_REPEAT[-1], HF_REPEAT[-2])],
+    ["リピート率", f"{HF_REPEAT_RATE[-2]}%", f"{HF_REPEAT_RATE[-1]}%", mom_pt(HF_REPEAT_RATE[-1], HF_REPEAT_RATE[-2])],
+    ["客単価", f"{HF_AOV[-2]:,}円", f"{HF_AOV[-1]:,}円", pct(HF_AOV[-1], HF_AOV[-2])],
 ], col_w=[176, 90, 100, 90], bold_rows=(3,), row_h=33)
 text(s, 56, 612, 1016, 110, [
-    f"小口の生花注文が増えて注文数・リピート率は伸びた一方、大口の鉢注文が減り客単価は9月比{pct(H_AOV[-1], H_AOV[-2])}。",
-    f"発送日ベースでは売上{m(H_SHIP['sales'])}百万円（前年同月比+{H_SHIP['sales_yoy'] - 100:.0f}%）、生花{m(H_SHIP['flowers'])}百万円（前月比+{H_SHIP['flowers_mom'] - 100:.0f}%）。",
+    f"リピート注文は{HF_REPEAT[0]} → {HF_REPEAT[1]} → {HF_REPEAT[2]}件と毎月増え、率も{HF_REPEAT_RATE[0]}%から{HF_REPEAT_RATE[-1]}%へ。新規は{HF_FIRST[-1]}件で横ばい。",
+    f"ハナイチ全体（鉢込み）は売上{m(HT_SALES[-1])}百万円、限界利益{m(HT_MP[-1])}百万円、広告費込み{m(HT_NET[-1])}百万円。鉢は{m(HT_POTS[-2])} → {m(HT_POTS[-1])}百万円と月によるブレが大きい。",
     "売れているのに送れない状態が続いており、出荷能力がボトルネック。"], size=17, bold=True, spacing=1.45)
-footnote(s, "※ 管理画面（税抜・注文日ベース）。リピート率＝2回目以降の注文÷全注文。5〜7月はお届け日ごとに分かれた注文を1件に数える前の値を含む可能性あり")
+footnote(s, "※ リーダーMTG（9/4・10/8・11/5）の生花KPI。納品・発送日ベース・税抜。リピート率＝リピート注文÷全注文。全体の限界利益はSBS費の請求前")
 
 # --- ハナイチ: 今後のステップ ---
 s = content_slide("ハナイチ：体制を変え、1月までに出荷能力を上げる", accent=HANA)
@@ -257,7 +246,7 @@ cols = [(56, "① 体制を大きく変更（〜1月）", [
         (736, "③ 原価を調整する（卸と輸入）", [
             "市場外の卸仕入れと輸入花材を活用し、花材原価を下げる",
             "卸の余剰在庫はタイムセール寄りの施策でさばく仕組みをつくる",
-            f"粗利率は{H_GP[0] / H_SALES[0] * 100:.0f}%（5月）→{H_GP[-1] / H_SALES[-1] * 100:.0f}%（10月）まで低下。卸込みのエコノミクスを計算し、年内に判断",
+            f"生花の限界利益率は{HF_MP[-1] / HF_SALES[-1] * 100:.0f}%にとどまる。卸込みのエコノミクスを計算し、年内に判断",
             "AFとの組織分離後も、生花の仕入れ・配送は共同で効率化"])]
 for x, title_, items in cols:
     y = panel(s, x, 160, 336, title_, HANA, size=18)
@@ -532,12 +521,12 @@ footnote(s, "※ 母の日の見込みは経営MTG（11/9）の暫定値。ス�
 # 6. 要約（数字が出そろったので埋める）・用語
 # =====================================================================
 draw_claims(summary, [
-    ("1", f"10月の売上は{m(TOTAL['sales'][i10])}百万円（前月比{pct(TOTAL['sales'][i10], TOTAL['sales'][i9])}）。広告費込み限界利益は計画の{TOTAL['net'][i10] / PLAN_OCT['net_total'] * 100:.0f}%", [
-        f"AP自社EC {m(AP['sales'][i10])}／AF自社EC {m(AF['sales'][i10])}／モール {m(MALL['sales'][i10])}百万円。計画比{TOTAL['sales'][i10] / PLAN_OCT['total'] * 100:.0f}%、前年同月比+3%",
-        f"広告費{m(TOTAL['ad'][i10])}百万円（{pct(TOTAL['ad'][i10], TOTAL['ad'][i9])}）が先行し、広告費込み限界利益は{m(TOTAL['net'][i10])}百万円（{pct(TOTAL['net'][i10], TOTAL['net'][i9])}）"]),
-    ("2", "AFは値下げで件数+27%。OP問題は組織分離と体制強化で解く", [
-        f"10/16の値下げで売上{pct(AF['sales'][i10], AF['sales'][i9])}、広告費込み限界利益{m(AF['net'][i10])}百万円。貢献利益は▲4.8→▲3.8百万円",
-        "ハナイチは注文2倍・リピート率49%だが出荷が追いつかず、体制変更と卸・輸入で立て直す"]),
+    ("1", f"10月の売上高は{TB_SALES[-1]:.1f}百万円（前月比{pct(TB_SALES[-1], TB_SALES[-2])}）、限界利益{TB_MP[-1]:.1f}百万円", [
+        f"広告宣伝費{TB_AD[-1]:.1f}百万円（{pct(TB_AD[-1], TB_AD[-2])}）に対し売上の伸びは小さく、全体ROASは{TB_ROAS[-2]:.0f}%→{TB_ROAS[-1]:.0f}%",
+        f"AP/AF自社EC＋モールは{m(TOTAL['sales'][i10])}百万円で計画比{TOTAL['sales'][i10] / PLAN_OCT['total'] * 100:.0f}%。広告費込み限界利益は計画の{TOTAL['net'][i10] / PLAN_OCT['net_total'] * 100:.0f}%"]),
+    ("2", "AFは値下げで件数+27%。ハナイチ生花はリピートが積み上がり、出荷能力を強化", [
+        f"AFは10/16の価格調整で売上{pct(AF['sales'][i10], AF['sales'][i9])}。貢献利益は▲4.8→▲3.8百万円に縮小。組織分離でOPを立て直す",
+        f"生花のリピート注文は{HF_REPEAT[0]}→{HF_REPEAT[-1]}件（率{HF_REPEAT_RATE[-1]}%）。発送上限がボトルネックで、体制変更と卸・輸入で強化"]),
     ("3", "イネイブラーは12月から本格稼働。ギフティ経由で1万件規模の案件が2本", [
         f"箱は11/27入稿、同梱手数料300円で合意。日立（{HITACHI['sales'][0]:.1f}〜{HITACHI['sales'][2]:.1f}百万円）とTENTIAL（1万件）"]),
     ("4", "カインズはECOPOTS卸が決定。資本を含む協業の打診も", [
@@ -547,15 +536,15 @@ footnote(summary, "※ 税抜・百万円。用語の定義と集計の前提は
 
 terms_page("用語と集計の前提", [
     ("期", "9月決算。第9期＝2026年10月〜2027年9月。10月は第9期の最初の月"),
-    ("売上", "税抜・送料込み・注文日ベース。AP/AFは管理画面（朝のSlack売上サマリーと同じ）。キャンセルは除く"),
-    ("限界利益", "売上 − 商品原価・送料・資材・決済手数料。ハナイチは管理画面定義の粗利（SBS費の請求前）"),
+    ("売上高", "10月の数字は試算表（マネーフォワード・税抜・暫定）。事業別のページは管理画面（税抜・送料込み・注文日ベース）"),
+    ("限界利益", "試算表：売上総利益 − 荷造運賃 − 支払手数料。管理画面：売上 − 商品原価・送料・資材・決済手数料"),
     ("広告費", "媒体別の広告費（Meta・Google・Yahoo!・Criteo・Microsoft・Amazon・楽天）。植物→AP、花→AF、Amazon・楽天→モール、残りは共通"),
     ("広告費込み限界利益", "限界利益 − 広告費。社内の主要KPI"),
     ("貢献利益", "広告費込み限界利益 − 拠点のアルバイト人件費等（直接固定費）。本社の人件費・共通費は含まない"),
     ("計画", "【社内共有】事業計画_AP/AF（2026/10の列）。ハナイチの計画は仮のため使わない"),
-    ("リピート率", "ハナイチ：2回目以降の注文÷全注文（購入単位）。AF：顧客の2回目以降の注文"),
+    ("リピート率", "ハナイチ生花：リピート注文÷全注文（リーダーMTGのKPI、納品・発送日ベース）"),
     ("イネイブラー", "Domuz以外が主体となり、Domuzの花・植物を提供する形態。売上は発送日ベース（KPI管理表）"),
-    ("出典", "admin315・ハナイチ管理画面（2026/11/11取得）、リーダーMTG 11/5、経営MTG 11/9、各商談のNotion・Circleback"),
+    ("出典", "試算表（Notion 月次試算表）、admin315（2026/11/11取得）、リーダーMTG 9/4・10/8・11/5、経営MTG 11/9、各商談のNotion・Circleback"),
 ])
 
 os.makedirs(os.path.dirname(os.path.abspath(out)), exist_ok=True)
