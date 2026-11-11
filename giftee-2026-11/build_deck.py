@@ -118,8 +118,8 @@ vline(s, 716, 170, 230)
 hline(s, 56, 424, 1016)
 topics = [
     ("ハナイチ（生花）はリピートが積み上がり、出荷能力の強化へ",
-     f"生花のリピート注文は8月{HF_REPEAT[0]}件 → 10月{HF_REPEAT[-1]}件（率{HF_REPEAT_RATE[-1]}%）と積み上がり、顧客数も{HF_CUSTOMERS[-1]}人まで増えています。一方で9月中旬から毎日発送上限に達し、"
-     "売れているのに送れない状態が続いています。11/9から体制を組み替え、OP効率化と卸・輸入による原価調整で、1月までに出荷能力を引き上げます。"),
+     f"生花のリピート注文は昨年10月{HY_REPEAT[0]}件 → 今年10月{HY_REPEAT[-1]}件（率{HY_REPEAT_RATE[0]:.0f}%→{HY_REPEAT_RATE[-1]:.0f}%）と積み上がり、売上は{HY_SALES[-1] / HY_SALES[0]:.1f}倍の{m(HY_SALES[-1])}百万円です。"
+     "9月中旬から毎日発送上限に達しているため、11/9から体制を組み替え、OP効率化と卸・輸入による原価調整で1月までに出荷能力を引き上げます。"),
     ("生花イネイブラーがギフティ社との共同案件で本格化",
      f"60サイズ箱は11/27入稿・12月営業開始で、同梱手数料300円など主要条件は合意済みです。ギフティ社経由で日立ビルシステム（1万件・{HITACHI['sales'][0]:.1f}〜{HITACHI['sales'][2]:.1f}百万円）、"
      "TENTIAL（母の日〜父の日で1万件見込み）が進み、野菜をMOTTO（ギフティ川崎さんご紹介）も来年母の日のテストに前向きです。HAKUBA CRAFTなど生花3案件は12月にローンチします。"),
@@ -212,35 +212,39 @@ text(s, 56, 676, 1016, 70, ["母の日までの3か月が踏ん張りどころ�
 footnote(s, "※ 貢献利益・OPEX比率・ロス率はリーダーMTG（11/5）の管理数値。モール・LINEギフトを含む")
 
 # --- ハナイチ: KPI ---
-s = content_slide("ハナイチ生花：リピート注文は2か月で+31%", accent=HANA)
-message(s, f"10月は注文{HF_ORDERS[-1]}件・リピート{HF_REPEAT[-1]}件（率{HF_REPEAT_RATE[-1]}%）。客単価{HF_AOV[-1]:,}円、売上{m(HF_SALES[-1])}百万円（+{(HF_SALES[-1] / HF_SALES[-2] - 1) * 100:.0f}%）")
-text(s, 56, 154, 400, 24, "生花の注文数（新規・リピート）とリピート率", size=14, color=SECONDARY, bold=True)
+s = content_slide("ハナイチ生花：リピート率は1年で24%→47%", accent=HANA)
+L, Y = -1, 0  # 今年10月, 昨年10月
+message(s, f"10月は注文{HY_ORDERS[L]}件・リピート{HY_REPEAT[L]}件（率{HY_REPEAT_RATE[L]:.0f}%、昨年{HY_REPEAT_RATE[Y]:.0f}%）。3,000円超の客単価は{HY_AOV_3K[L]:,}円（{pct(HY_AOV_3K[L], HY_AOV_3K[Y])}）")
+text(s, 56, 154, 460, 24, "生花の注文数（新規・リピート）とリピート率　2025年10月〜", size=14, color=SECONDARY, bold=True)
 legend(s, 56, 182, [("新規", HANA_LIGHT), ("リピート", HANA)])
 legend(s, 262, 182, [("リピート率（右軸）", HANA_DARK)], line=True)
-ax = bar_chart(s, 56, 206, 520, 300, HF_LABELS, [("新規", HF_FIRST), ("リピート", HF_REPEAT)], stacked=True,
-               colors=[HANA_LIGHT, HANA], vmax=700, ticks=(0, 200, 400), value_labels=True)
+ax = bar_chart(s, 56, 206, 520, 300, HY_LABELS, [("新規", HY_FIRST), ("リピート", HY_REPEAT)], stacked=True,
+               colors=[HANA_LIGHT, HANA], vmax=700, ticks=(0, 200, 400))
 ry = ax.yv2(60)
-polyline(s, [(ax.x(i), ry(HF_REPEAT_RATE[i])) for i in range(len(HF_LABELS))], HANA_DARK, 2.0)
-for i in range(len(HF_LABELS)):
-    text(s, ax.x(i) - 30, ry(HF_REPEAT_RATE[i]) - 22, 60, 16, f"{HF_REPEAT_RATE[i]:.1f}%", size=10, bold=True, color=HANA_DARK, align=PP_ALIGN.CENTER, en=True)
-for i in range(len(HF_LABELS)):
-    text(s, ax.x(i) - 40, ax.yv(HF_FIRST[i] + HF_REPEAT[i] / 2) - 8, 80, 16, f"リピート {HF_REPEAT[i]}", size=9, bold=True, color=MOSS, align=PP_ALIGN.CENTER)
-vline(s, 596, 154, 400)
-text(s, 616, 154, 456, 24, "生花の客単価（AOV）　単位：円", size=14, color=SECONDARY, bold=True)
-bar_chart(s, 604, 182, 468, 180, HF_LABELS, [("AOV", HF_AOV)], colors=[HANA], vmax=12000, ticks=(0, 4000, 8000), value_labels=True)
-kpi_table(s, 616, 380, 456, ["生花", "9月", "10月", "前月比"], [
-    ["売上（百万円）", m(HF_SALES[-2]), m(HF_SALES[-1]), pct(HF_SALES[-1], HF_SALES[-2])],
-    ["注文数", f"{HF_ORDERS[-2]}", f"{HF_ORDERS[-1]}", pct(HF_ORDERS[-1], HF_ORDERS[-2])],
-    ["購入顧客数", f"{HF_CUSTOMERS[-2]}", f"{HF_CUSTOMERS[-1]}", pct(HF_CUSTOMERS[-1], HF_CUSTOMERS[-2])],
-    ["リピート注文数", f"{HF_REPEAT[-2]}", f"{HF_REPEAT[-1]}", pct(HF_REPEAT[-1], HF_REPEAT[-2])],
-    ["リピート率", f"{HF_REPEAT_RATE[-2]}%", f"{HF_REPEAT_RATE[-1]}%", mom_pt(HF_REPEAT_RATE[-1], HF_REPEAT_RATE[-2])],
-    ["客単価", f"{HF_AOV[-2]:,}円", f"{HF_AOV[-1]:,}円", pct(HF_AOV[-1], HF_AOV[-2])],
-], col_w=[176, 90, 100, 90], bold_rows=(3,), row_h=33)
-text(s, 56, 612, 1016, 110, [
-    f"リピート注文は{HF_REPEAT[0]} → {HF_REPEAT[1]} → {HF_REPEAT[2]}件と毎月増え、率も{HF_REPEAT_RATE[0]}%から{HF_REPEAT_RATE[-1]}%へ。新規は{HF_FIRST[-1]}件で横ばい。",
-    f"ハナイチ全体（鉢込み）は売上{m(HT_SALES[-1])}百万円、限界利益{m(HT_MP[-1])}百万円、広告費込み{m(HT_NET[-1])}百万円。鉢は{m(HT_POTS[-2])} → {m(HT_POTS[-1])}百万円と月によるブレが大きい。",
-    "売れているのに送れない状態が続いており、出荷能力がボトルネック。"], size=17, bold=True, spacing=1.45)
-footnote(s, "※ リーダーMTG（9/4・10/8・11/5）の生花KPI。納品・発送日ベース・税抜。リピート率＝リピート注文÷全注文。全体の限界利益はSBS費の請求前")
+polyline(s, [(ax.x(i), ry(HY_REPEAT_RATE[i])) for i in range(len(HY_LABELS))], HANA_DARK, 2.0)
+for i in (0, 6, len(HY_LABELS) - 1):
+    text(s, ax.x(i) - 30, ry(HY_REPEAT_RATE[i]) - 22, 60, 16, f"{HY_REPEAT_RATE[i]:.0f}%", size=10, bold=True, color=HANA_DARK, align=PP_ALIGN.CENTER, en=True)
+for i in (0, len(HY_LABELS) - 1):
+    text(s, ax.x(i) - 24, ax.yv(HY_ORDERS[i]) - 18, 48, 16, f"{HY_ORDERS[i]}", size=9, bold=True, align=PP_ALIGN.CENTER, en=True)
+vline(s, 596, 154, 440)
+text(s, 616, 154, 456, 24, "生花の客単価（3,000円以下の注文を除く）　単位：円", size=14, color=SECONDARY, bold=True)
+ax2 = bar_chart(s, 604, 182, 468, 150, HY_LABELS, [("AOV", HY_AOV_3K)], colors=[HANA], vmax=12000, ticks=(0, 4000, 8000), label_every=3)
+for i in (0, len(HY_LABELS) - 1):
+    text(s, ax2.x(i) - 30, ax2.yv(HY_AOV_3K[i]) - 16, 60, 14, f"{HY_AOV_3K[i]:,}", size=9, bold=True, align=PP_ALIGN.CENTER, en=True)
+kpi_table(s, 616, 346, 456, ["生花", "昨年10月", "今年10月", "昨年対比"], [
+    ["売上（百万円）", m(HY_SALES[Y]), m(HY_SALES[L]), f"{HY_SALES[L] / HY_SALES[Y]:.1f}倍"],
+    ["注文数", f"{HY_ORDERS[Y]}", f"{HY_ORDERS[L]}", f"{HY_ORDERS[L] / HY_ORDERS[Y]:.1f}倍"],
+    ["購入顧客数", f"{HY_CUSTOMERS[Y]}", f"{HY_CUSTOMERS[L]}", f"{HY_CUSTOMERS[L] / HY_CUSTOMERS[Y]:.1f}倍"],
+    ["リピート注文数", f"{HY_REPEAT[Y]}", f"{HY_REPEAT[L]}", f"{HY_REPEAT[L] / HY_REPEAT[Y]:.1f}倍"],
+    ["リピート率", f"{HY_REPEAT_RATE[Y]:.1f}%", f"{HY_REPEAT_RATE[L]:.1f}%", mom_pt(HY_REPEAT_RATE[L], HY_REPEAT_RATE[Y])],
+    ["客単価（3,000円超）", f"{HY_AOV_3K[Y]:,}円", f"{HY_AOV_3K[L]:,}円", pct(HY_AOV_3K[L], HY_AOV_3K[Y])],
+    ["客単価（全注文）", f"{HY_AOV[Y]:,}円", f"{HY_AOV[L]:,}円", pct(HY_AOV[L], HY_AOV[Y])],
+], col_w=[176, 90, 100, 90], bold_rows=(3,), row_h=32)
+text(s, 56, 628, 1016, 100, [
+    f"リピート注文は昨年10月{HY_REPEAT[Y]}件 → {HY_REPEAT[L]}件（{HY_REPEAT[L] / HY_REPEAT[Y]:.1f}倍）。率は{HY_REPEAT_RATE[Y]:.0f}%→{HY_REPEAT_RATE[L]:.0f}%で、新規に頼らず積み上がる構造に変わった。",
+    f"3,000円以下の小口注文は{HY_SMALL[Y] / HY_ORDERS[Y] * 100:.0f}%→{HY_SMALL[L] / HY_ORDERS[L] * 100:.0f}%に減り、全注文の客単価は{pct(HY_AOV[L], HY_AOV[Y])}。小口を除いた客単価は{pct(HY_AOV_3K[L], HY_AOV_3K[Y])}。",
+    "9月中旬から毎日発送上限に達し、売れているのに送れない状態。出荷能力がボトルネック。"], size=16, bold=True, spacing=1.45)
+footnote(s, "※ BigQuery（ハナイチ注文データ）で集計。生花を含む注文・注文日ベース・税抜（税込÷1.1）、キャンセル・返金・スキップは除く。リピート＝その顧客の生花2回目以降の注文。10月はリーダーMTG（11/5）の生花KPIと一致")
 
 # --- ハナイチ: 今後のステップ ---
 s = content_slide("ハナイチ：体制を変え、1月までに出荷能力を上げる", accent=HANA)
@@ -533,12 +537,12 @@ footnote(s, "※ 母の日の見込みは経営MTG（11/9）の暫定値。ス�
 # 6. 要約（数字が出そろったので埋める）・用語
 # =====================================================================
 draw_claims(summary, [
-    ("1", f"10月の売上高は{TB_SALES[-1]:.1f}百万円（前月比{pct(TB_SALES[-1], TB_SALES[-2])}）、限界利益{TB_MP[-1]:.1f}百万円", [
-        f"広告宣伝費{TB_AD[-1]:.1f}百万円（{pct(TB_AD[-1], TB_AD[-2])}）に対し売上の伸びは小さく、全体ROASは{TB_ROAS[-2]:.0f}%→{TB_ROAS[-1]:.0f}%",
+    ("1", f"10月の売上高は{TB_SALES[-1]:.1f}百万円（昨年対比{pct(TB_SALES[-1], TB_SALES[0])}）、限界利益{TB_MP[-1]:.1f}百万円（{pct(TB_MP[-1], TB_MP[0])}）", [
+        f"広告宣伝費{TB_AD[-1]:.1f}百万円（前月比{pct(TB_AD[-1], TB_AD[-2])}）に対し売上は前月比{pct(TB_SALES[-1], TB_SALES[-2])}。全体ROASは{TB_ROAS[-2]:.0f}%→{TB_ROAS[-1]:.0f}%",
         f"AP/AF自社EC＋モールは{m(TOTAL['sales'][i10])}百万円で計画比{TOTAL['sales'][i10] / PLAN_OCT['total'] * 100:.0f}%。広告費込み限界利益は計画の{TOTAL['net'][i10] / PLAN_OCT['net_total'] * 100:.0f}%"]),
     ("2", "AFは値下げで件数+27%。ハナイチ生花はリピートが積み上がり、出荷能力を強化", [
         f"AFは10/16の価格調整で売上{pct(AF['sales'][i10], AF['sales'][i9])}。貢献利益は▲4.8→▲3.8百万円に縮小。組織分離でOPを立て直す",
-        f"生花のリピート注文は{HF_REPEAT[0]}→{HF_REPEAT[-1]}件（率{HF_REPEAT_RATE[-1]}%）。発送上限がボトルネックで、体制変更と卸・輸入で強化"]),
+        f"生花のリピート注文は昨年10月{HY_REPEAT[0]}→{HY_REPEAT[-1]}件（率{HY_REPEAT_RATE[0]:.0f}%→{HY_REPEAT_RATE[-1]:.0f}%）。発送上限がボトルネックで、体制変更と卸・輸入で強化"]),
     ("3", "イネイブラーは12月から本格稼働。ギフティ経由で1万件規模の案件が2本", [
         f"箱は11/27入稿、同梱手数料300円で合意。日立（{HITACHI['sales'][0]:.1f}〜{HITACHI['sales'][2]:.1f}百万円）とTENTIAL（1万件）"]),
     ("4", "カインズはECOPOTS卸が決定。資本を含む協業の打診も", [
