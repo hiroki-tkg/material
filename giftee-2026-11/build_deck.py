@@ -10,6 +10,7 @@ SKILL = os.path.expanduser("~/.claude/skills/synced/c877595e-9c45-49a9-8ea7-19fa
 sys.path.insert(0, SKILL)
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 from deck_lib import *  # noqa: E402,F401
+from deck_lib import _drop_style  # noqa: E402
 from data_giftee import *  # noqa: E402,F401
 
 out = sys.argv[1] if len(sys.argv) > 1 else "out/giftee_2026-11.pptx"
@@ -67,20 +68,20 @@ def panel(s, x, y, w, title, color=None, size=20):
     return y + 60
 
 
-def grid(s, x, y, col_w, header, rows, size=13, row_h=40, bold_col0=True):
+def grid(s, x, y, col_w, header, rows, size=13, row_h=40, bold_col0=True, pad=0):
     """左寄せの文章表。rows の各セルは文字列（\\n で改行可）。"""
     xs = [x]
     for cw in col_w[:-1]:
         xs.append(xs[-1] + cw)
     w = sum(col_w)
     for j, hd in enumerate(header):
-        text(s, xs[j], y, col_w[j] - 8, 22, hd, size=12, color=SECONDARY, bold=True)
+        text(s, xs[j] + pad, y, col_w[j] - 8 - pad, 22, hd, size=12, color=SECONDARY, bold=True)
     hline(s, x, y + 26, w, MOSS, 1.5)
     y += 32
     for row in rows:
         rh = row_h if isinstance(row_h, (int, float)) else row_h[rows.index(row)]
         for j, v in enumerate(row):
-            text(s, xs[j], y, col_w[j] - 10, rh - 4, v.split("\n"), size=size, bold=(j == 0 and bold_col0),
+            text(s, xs[j] + pad, y, col_w[j] - 10 - pad, rh - 4, v.split("\n"), size=size, bold=(j == 0 and bold_col0),
                  anchor=MSO_ANCHOR.MIDDLE, spacing=1.3)
         y += rh
         hline(s, x, y - 2, w)
@@ -106,34 +107,34 @@ i_t, i_p, i_y = -1, -2, 0  # 10月, 9月, 昨年10月
 cols = [(56, "売上高", f"{TB_SALES[i_t]:.1f}", "百万円", "昨年対比", pct(TB_SALES[i_t], TB_SALES[i_y]), f"昨年10月 {TB_SALES[i_y]:.1f} → {TB_SALES[i_t]:.1f}"),
         (564, "限界利益", f"{TB_MP[i_t]:.1f}", "百万円", "昨年対比", pct(TB_MP[i_t], TB_MP[i_y]), f"昨年10月 {TB_MP[i_y]:.1f} → {TB_MP[i_t]:.1f}")]
 for x, label, val, unit, sub1label, sub1, sub2 in cols:
-    text(s, x, 158, 300, 30, label, size=22, color=SECONDARY)
-    outfit(big_number(s, x, 186, "", val, unit, size=64, w=320))
-    text(s, x, 280, 300, 22, sub1label, size=15, color=SECONDARY)
+    text(s, x, 150, 300, 30, label, size=22, color=SECONDARY)
+    outfit(big_number(s, x, 176, "", val, unit, size=64, w=320))
+    text(s, x, 266, 300, 22, sub1label, size=15, color=SECONDARY)
     neg = sub1.startswith("▲")
-    outfit(text(s, x, 300, 300, 44, sub1, size=32, bold=True, color=(STRONG if neg else T.accent), en=True, spacing=1.0))
-    outfit(text(s, x, 346, 320, 22, sub2, size=14, color=SECONDARY))
-vline(s, 540, 158, 212)
-hline(s, 56, 392, 1016)
+    outfit(text(s, x, 286, 300, 44, sub1, size=32, bold=True, color=(STRONG if neg else T.accent), en=True, spacing=1.0))
+    outfit(text(s, x, 330, 320, 22, sub2, size=14, color=SECONDARY))
+vline(s, 540, 150, 200)
+hline(s, 56, 372, 1016)
 topics = [
     ("ハナイチ（生花）はリピートが積み上がり、出荷能力の強化へ",
      f"生花のリピート注文は昨年10月{HY_REPEAT[0]}件 → 今年10月{HY_REPEAT[-1]}件（率{HY_REPEAT_RATE[0]:.0f}%→{HY_REPEAT_RATE[-1]:.0f}%）と積み上がり、売上は{HY_SALES[-1] / HY_SALES[0]:.1f}倍の{m(HY_SALES[-1])}百万円です。"
      "9月中旬から毎日発送上限に達しているため、11/9から体制を組み替え、OP効率化と卸・輸入による原価調整で1月までに出荷能力を引き上げます。"),
     ("生花イネイブラーがギフティ社との共同案件で本格化",
-     f"60サイズ箱は11/27入稿・12月営業開始で、同梱手数料300円など主要条件は合意済みです。ギフティ社経由で日立ビルシステム（1万件・{HITACHI['sales'][0]:.1f}〜{HITACHI['sales'][2]:.1f}百万円）、"
-     "TENTIAL（母の日〜父の日で1万件見込み）が進み、野菜をMOTTO（ギフティ川崎さんご紹介）も来年母の日のテストに前向きです。HAKUBA CRAFTなど生花3案件は12月にローンチします。"),
+     f"箱（11/27入稿）や同梱手数料300円など主要条件は合意済みです。ギフティ社経由の日立ビルシステム（1万件・{HITACHI['sales'][0]:.1f}〜{HITACHI['sales'][2]:.1f}百万円）と"
+     "TENTIAL（母の日〜父の日で1万件見込み）が進み、野菜をMOTTOも来年母の日のテストに前向きです。HAKUBA CRAFTなど生花3案件は12月にローンチします。"),
     ("AFは価格調整で件数+27%。カインズとはECOPOTS卸から協業へ",
      f"10/16の価格調整で注文数{pct(AF['orders'][i10], AF['orders'][i9])}・売上{pct(AF['sales'][i10], AF['sales'][i9])}。競合他社との価格に対して価格競争力があるような金額に調整中です。"
      "カインズとは来春30店舗でのECOPOTS卸が決まり、リアル店舗・EC受託・関東の生産拠点まで含む協業の話が出ています。"),
 ]
-y = 408
+y = 386
 for head, body in topics:
-    text(s, 56, y, 1016, 36, head, size=24, bold=True, color=T.accent)
+    text(s, 56, y, 1016, 34, head, size=22, bold=True, color=T.accent)
     vis = sum(1.0 if ord(ch) > 0x7F else 0.55 for ch in body)
-    n = max(1, -(-int(vis + 0.999) // 58))
-    bh = int(15 * 1.4 * n) + 4
-    text(s, 56, y + 36, 1016, bh, body, size=15, spacing=1.4)
-    y += 36 + bh + 14
-footnote(s, f"※ 限界利益＝売上総利益 − 荷造運賃 − 支払手数料。前月比は売上{pct(TB_SALES[i_t], TB_SALES[i_p])}・限界利益{pct(TB_MP[i_t], TB_MP[i_p])}（9月 {TB_SALES[i_p]:.1f}／{TB_MP[i_p]:.1f}。試算表の更新で前回資料から変更）。広告宣伝費 {TB_AD[i_t]:.1f}百万円（昨年10月 {TB_AD[i_y]:.1f}）")
+    n = max(1, -(-int(vis + 0.999) // 62))  # 16px・幅1016pxで実測 約64字/行
+    bh = int(16 * 1.4 * n) + 4
+    text(s, 56, y + 48, 1016, bh, body, size=16, spacing=1.4)
+    y += 48 + bh + 18
+footnote(s, f"※ 限界利益＝売上総利益 − 荷造運賃 − 支払手数料。前月比は売上{pct(TB_SALES[i_t], TB_SALES[i_p])}・限界利益{pct(TB_MP[i_t], TB_MP[i_p])}。広告宣伝費 {TB_AD[i_t]:.1f}百万円（昨年10月 {TB_AD[i_y]:.1f}）")
 
 # 月次推移（試算表）
 s = content_slide("月次推移：売上は前年同月比+13%、利益の山は母の日", "試算表ベースの売上高と限界利益　2025年10月〜2026年10月　単位：百万円")
@@ -271,7 +272,7 @@ footnote(s, "※ リーダーMTG（11/5）・経営MTG（11/9）の決定事項�
 # --- イネイブラー: 案件一覧 ---
 s = content_slide("イネイブラー：多くの案件が卸と生花で進捗")
 active = EN_PIPE["before"] + EN_PIPE["undated"] + EN_PIPE["first"] + EN_PIPE["negotiating"] + EN_PIPE["won"] + EN_PIPE["producing"]
-message(s, f"進行中{active}社（商談・交渉{EN_PIPE['before'] + EN_PIPE['undated'] + EN_PIPE['first'] + EN_PIPE['negotiating']}、受注・制作中{EN_PIPE['won'] + EN_PIPE['producing']}）。ギフティ経由の1万件規模の案件が2本")
+message(s, f"進行中{active}件（商談・交渉{EN_PIPE['before'] + EN_PIPE['undated'] + EN_PIPE['first'] + EN_PIPE['negotiating']}、受注・制作中{EN_PIPE['won'] + EN_PIPE['producing']}）。ギフティ経由の1万件規模の案件が2本")
 deals = [
     ["PAPABUBBLE", "生花", "キャンディ×花 16SKU（10/13〜）", "稼働中。新箱版を提案", True],
     ["HAKUBA CRAFT", "プリ卸＋生花", "プリ200個納品済。ビール×生花", "生花は12月ローンチ", True],
@@ -285,17 +286,18 @@ deals = [
     ["UCC・BAKE", "プリ卸", "2027年母の日、1,200個〜", "見積・サンプル検討中", False],
     ["遠鉄百貨店", "生花", "百貨店EC 66SKU、1/12公開", "受注確定、連携確認中", False],
 ]
-gy, grh = 150, 42
+gy, grh = 170, 40
 for i, row in enumerate(deals):
     if row[4]:  # ギフティ経由は網掛け
         rect(s, 56, gy + 32 + i * grh, 1016, grh - 2, PALE)
-grid(s, 56, gy, [210, 140, 400, 266], ["案件", "種別", "内容・規模", "状況"], [r[:4] for r in deals], size=14, row_h=grh)
-rect(s, 56, 650, 18, 14, PALE)
-text(s, 82, 646, 400, 22, "網掛け＝ギフティ様よりご紹介いただいた案件", size=12, color=SECONDARY)
-text(s, 56, 672, 1016, 46, [f"ほかに一次商談済み・条件交渉中が{EN_PIPE['first'] + EN_PIPE['negotiating'] - 8}社（GREEN SPOON・JTB・BENAMOR・グレープストーン・にしき食品など）、"
-                              f"商談待ち{EN_PIPE['before'] + EN_PIPE['undated']}社（コーセー・ゴントランシェリエ・チーズガーデンなど）。納品済み{EN_PIPE['delivered']}社、継続取引{EN_PIPE['ongoing']}社。"],
-     size=13, color=SECONDARY, spacing=1.4)
-footnote(s, "※ 営業進捗リスト（11/11時点）。金額は税抜")
+gy2 = grid(s, 56, gy, [210, 140, 400, 266], ["案件", "種別", "内容・規模", "状況"], [r[:4] for r in deals], size=14, row_h=grh, pad=12)
+IN_TABLE_ACTIVE = 10  # 表の中で営業進捗リスト上「進行中」の行数（HAKUBA生花・MOTTO・SILK・CYL・Mr.C①・エール①②・UCC・BAKE・遠鉄）
+others = active - IN_TABLE_ACTIVE
+text(s, 56, gy2 + 4, 1004, 26, f"その他　進行中{others}件", size=15, bold=True, align=PP_ALIGN.RIGHT, anchor=MSO_ANCHOR.MIDDLE, spacing=1.0)
+rect(s, 68, gy2 + 10, 18, 14, PALE)
+text(s, 94, gy2 + 6, 400, 22, "網掛け＝ギフティ様よりご紹介いただいた案件", size=12, color=SECONDARY)
+footnote(s, f"※ 営業進捗リスト（11/11時点）。その他{others}件の内訳：商談・交渉中{EN_PIPE['first'] + EN_PIPE['negotiating'] - 5}件（GREEN SPOON・JTB・BENAMOR・グレープストーンなど）、"
+            f"商談待ち{EN_PIPE['before'] + EN_PIPE['undated']}件（コーセー・ゴントランシェリエなど）、制作中2件。納品済み{EN_PIPE['delivered']}件・継続取引{EN_PIPE['ongoing']}件は含まない。金額は税抜")
 
 # --- イネイブラー: 同梱イメージ ---
 def picture(s, path, x, y, w, h):
@@ -319,27 +321,74 @@ text(s, 56, 666, 1016, 50, ["箱は制作中（Shizai）。開封の瞬間まで
      size=17, bold=True, spacing=1.45)
 footnote(s, "※ 画像は塚本作成の提案資料（PAPABUBBLE様 11/12、モンマルシェ様 11/11）より。箱はデザイン・寸法が変わる可能性あり。商品写真は各社サイトを基に作成したイメージ")
 
+# --- イネイブラー: 今後の大きな方針（自社ECでも販売） ---
+def arrow(s, x1, y1, x2, y2, color=None, weight=2.0, dash=False):
+    """矢印（終点に三角）。"""
+    from pptx.oxml import parse_xml
+    color = color or T.dark
+    ln = s.shapes.add_connector(1, px(x1), px(y1), px(x2), px(y2))
+    ln.line.color.rgb = color
+    ln.line.width = Emu(int(weight * 12700))
+    if dash:
+        ln.line.dash_style = 4
+    ln.line._get_or_add_ln().append(parse_xml('<a:tailEnd xmlns:a="http://schemas.openxmlformats.org/drawingml/2006/main" type="triangle" w="med" len="med"/>'))
+    _drop_style(ln)
+    return ln
+
+def node(s, x, y, w, h, title, lines, fill=None, line=None, title_color=None, size=13):
+    rect(s, x, y, w, h, fill if fill is not None else WHITE, line=line or BORDER_LIGHT, weight=1.5)
+    text(s, x + 16, y + 14, w - 32, 28, title, size=17, bold=True, color=title_color or MOSS)
+    text(s, x + 16, y + 46, w - 32, h - 54, lines, size=size, color=MOSS, spacing=1.4)
+
+s = content_slide("今後の大きな方針：イネイブラー商品を自社ECでも販売")
+message(s, "取引先の商品を弊社が在庫として預かり、取引先ECと AND FLOWER の両方で同じセットを売る")
+# 図：取引先 → Domuz拠点（在庫・データ） → 取引先EC／AND FLOWER EC → お客様
+node(s, 56, 200, 230, 160, "取引先", ["商品（キャンディ・スープ・", "プリザーブド等）を弊社拠点へ", "まとめて納品"], size=14)
+node(s, 336, 160, 360, 240, "Domuz 川崎拠点", [
+    "・取引先の商品と生花を在庫として保有",
+    "・セット制作、ギフトボックスへ同梱、出荷",
+    "・受注・顧客データが弊社に蓄積",
+    "・PAPABUBBLE等で既に運用中の流れ"], fill=T.light, line=T.accent, size=15)
+node(s, 746, 160, 326, 112, "取引先のEC（イネイブラー）", ["取引先が販売し、注文データを弊社へ連携。", "弊社が代理出荷（現在の形）"], fill=None, line=BORDER_LIGHT, size=14)
+node(s, 746, 288, 326, 112, "AND FLOWER EC（自社）", ["全く同じセット商品を弊社が販売・出荷。", "売上は取引先と精算"], fill=None, line=T.accent, title_color=T.dark, size=14)
+arrow(s, 286, 280, 336, 280)
+text(s, 288, 252, 48, 22, "納品", size=12, color=SECONDARY, align=PP_ALIGN.CENTER)
+arrow(s, 696, 216, 746, 216)
+arrow(s, 696, 344, 746, 344)
+text(s, 696, 190, 50, 22, "出荷", size=12, color=SECONDARY, align=PP_ALIGN.CENTER)
+text(s, 696, 318, 50, 22, "販売", size=12, color=SECONDARY, align=PP_ALIGN.CENTER)
+text(s, 746, 408, 326, 22, "→ どちらもお客様へ弊社拠点から直接お届け", size=12, color=SECONDARY)
+# 下段：意味合い
+hline(s, 56, 444, 1016)
+cols3 = [(56, "追加の仕組みは不要", ["在庫・出荷は既に弊社側に置く運用。", "AND FLOWERの商品として登録すれば", "すぐ販売できる"]),
+         (396, "取引先は販路が増える", ["弊社の会員43.5万人・SNS32.1万人に", "商品が届く。取引先の出荷作業は", "発生しない"]),
+         (736, "弊社は品揃えと粗利が増える", ["セット商品が AND FLOWER の", "ラインナップになり、顧客データも", "弊社に残る"])]
+for x, t_, ls in cols3:
+    y = panel(s, x, 466, 336, t_, size=17)
+    text(s, x, y - 6, 336, 80, ls, size=14, spacing=1.45)
+text(s, 56, 630, 1016, 60, ["イネイブラーを「卸・代理出荷」で終わらせず、自社ECの品揃えにもする。在庫とデータを持つ弊社だからできる形。"],
+     size=17, bold=True, spacing=1.45)
+footnote(s, "※ PAPABUBBLE様には11/12の提案（ご提案2「御社商品とのブーケセットの弊社EC販売」）で提示済み。今後の生花案件は原則この形で提案する")
+
 # --- イネイブラー: 1件あたりのエコノミクス ---
 s = content_slide("イネイブラー：1件あたりのエコノミクス")
 message(s, "新料金（送料込み）で、生花の貢献利益率は20〜35%。小さいブーケほど作業費の比重が重い")
 text(s, 56, 154, 560, 24, "1件あたりのエコノミクス（新料金・送料込み・税抜）", size=14, color=SECONDARY, bold=True)
-ey, erh = 184, 48
-rect(s, 56, ey + 38 + (len(EN_ECON) - 1) * erh, 560, erh - 3, PALE)  # 日立の試算は例なので網掛け
-kpi_table(s, 56, ey, 560, ["", "B2B下代", "限界利益率", "貢献利益率"], [
+ey, erh = 184, 42
+rect(s, 56, ey + 38 + (len(EN_ECON) - 1) * erh, 1016, erh - 3, PALE)  # 日立の試算は例なので網掛け
+kpi_table(s, 56, ey, 1016, ["", "B2B下代", "限界利益率", "貢献利益率"], [
     [n_, f"{p_:,}円", f"{r_:.0f}%", f"{cr_:.0f}%"] for n_, p_, r_, c_, cr_ in EN_ECON
-], col_w=[260, 100, 100, 100], row_h=erh)
-rect(s, 56, 568, 18, 14, PALE)
-text(s, 82, 564, 500, 22, "網掛け＝プリザーブド卸の試算例（日立ビルシステム向け）", size=12, color=SECONDARY)
-vline(s, 640, 154, 440)
-y = panel(s, 664, 154, 408, "前提", size=18)
-bullets(s, 664, y, 408, [
+], col_w=[556, 150, 150, 160], row_h=erh)
+ly = ey + 38 + len(EN_ECON) * erh + 6
+rect(s, 56, ly + 4, 18, 14, PALE)
+text(s, 82, ly, 500, 22, "網掛け＝プリザーブド卸の試算例（日立ビルシステム向け）", size=12, color=SECONDARY)
+y = panel(s, 56, ly + 40, 1016, "前提", size=17)
+bullets(s, 56, y - 4, 1016, [
     "卸値はEC価格の8掛け。送料は別建てで、送料差益率は33〜44%",
     "先方ラベルで出荷する場合は同梱作業費300円（ギフティ様と合意済み）",
     "通年は月20件、イベントは100件以上の最小ロットを契約に明記",
     "貢献利益＝下代＋送料収入 − 花材・資材・送料実費 − 作業費。貢献利益率は下代＋送料収入に対する比率",
-], size=14, gap=10)
-text(s, 56, 640, 1016, 60, ["ミニブーケ（S）は送料差益を除くと貢献利益ゼロ。作業効率の向上と、送料・同梱作業費を確実にもらうことが前提。"],
-     size=17, bold=True, spacing=1.45)
+], size=14, gap=6)
 footnote(s, "※ Notion「新料金・エコノミクス（2026年10月以降）」の通常配送（送料含む）ベース。作業費は分給ベース。プリ卸は下代1,150円・貢献利益392円の試算")
 
 # --- イネイブラー: 案件の詳細 ---
