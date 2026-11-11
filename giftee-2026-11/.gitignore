@@ -1,0 +1,5 @@
+out/
+*.pptx
+*.pdf
+*.html
+__pycache__/
