@@ -104,17 +104,15 @@ divider("01", "OCTOBER RESULTS", "10月の数字", "試算表ベースの売上�
 s = content_slide("10月の事業進捗", "試算表ベース　※税抜・暫定数字")
 i_t, i_p, i_y = -1, -2, 0  # 10月, 9月, 昨年10月
 cols = [(56, "売上高", f"{TB_SALES[i_t]:.1f}", "百万円", "昨年対比", pct(TB_SALES[i_t], TB_SALES[i_y]), f"昨年10月 {TB_SALES[i_y]:.1f} → {TB_SALES[i_t]:.1f}"),
-        (396, "限界利益", f"{TB_MP[i_t]:.1f}", "百万円", "昨年対比", pct(TB_MP[i_t], TB_MP[i_y]), f"昨年10月 {TB_MP[i_y]:.1f} → {TB_MP[i_t]:.1f}"),
-        (736, "全体ROAS", f"{TB_ROAS[i_t]:.0f}", "%", "昨年10月", f"{TB_ROAS[i_y]:.0f}%", f"広告宣伝費 {TB_AD[i_y]:.1f} → {TB_AD[i_t]:.1f}")]
+        (564, "限界利益", f"{TB_MP[i_t]:.1f}", "百万円", "昨年対比", pct(TB_MP[i_t], TB_MP[i_y]), f"昨年10月 {TB_MP[i_y]:.1f} → {TB_MP[i_t]:.1f}")]
 for x, label, val, unit, sub1label, sub1, sub2 in cols:
     text(s, x, 170, 300, 30, label, size=22, color=SECONDARY)
     outfit(big_number(s, x, 200, "", val, unit, size=64, w=320))
     text(s, x, 300, 300, 22, sub1label, size=15, color=SECONDARY)
     neg = sub1.startswith("▲")
-    outfit(text(s, x, 322, 300, 44, sub1, size=32, bold=True, color=(STRONG if neg else (T.accent if sub1label == "昨年対比" else MOSS)), en=True, spacing=1.0))
+    outfit(text(s, x, 322, 300, 44, sub1, size=32, bold=True, color=(STRONG if neg else T.accent), en=True, spacing=1.0))
     outfit(text(s, x, 372, 320, 22, sub2, size=14, color=SECONDARY))
-vline(s, 376, 170, 230)
-vline(s, 716, 170, 230)
+vline(s, 540, 170, 230)
 hline(s, 56, 424, 1016)
 topics = [
     ("ハナイチ（生花）はリピートが積み上がり、出荷能力の強化へ",
@@ -127,13 +125,15 @@ topics = [
      f"10/16の価格調整で注文数{pct(AF['orders'][i10], AF['orders'][i9])}・売上{pct(AF['sales'][i10], AF['sales'][i9])}。競合他社との価格に対して価格競争力があるような金額に調整中です。"
      "カインズとは来春30店舗でのECOPOTS卸が決まり、リアル店舗・EC受託・関東の生産拠点まで含む協業の話が出ています。"),
 ]
-y = 444
+y = 442
 for head, body in topics:
-    rect(s, 56, y + 4, 5, 30, T.accent)
-    text(s, 72, y, 1000, 34, head, size=23, bold=True, color=T.accent)
-    text(s, 72, y + 38, 1000, 60, body, size=14, spacing=1.45)
-    y += 104
-footnote(s, f"※ 限界利益＝売上総利益 − 荷造運賃 − 支払手数料。全体ROAS＝売上高÷広告宣伝費。前月比は売上{pct(TB_SALES[i_t], TB_SALES[i_p])}・限界利益{pct(TB_MP[i_t], TB_MP[i_p])}（9月 {TB_SALES[i_p]:.1f}／{TB_MP[i_p]:.1f}。試算表の更新で前回資料から変更）")
+    text(s, 56, y, 1016, 34, head, size=23, bold=True, color=T.accent)
+    vis = sum(1.0 if ord(ch) > 0x7F else 0.55 for ch in body)
+    n = max(1, -(-int(vis + 0.999) // 66))
+    bh = int(14 * 1.45 * n) + 4
+    text(s, 56, y + 36, 1016, bh, body, size=14, spacing=1.45)
+    y += 36 + bh + 22
+footnote(s, f"※ 限界利益＝売上総利益 − 荷造運賃 − 支払手数料。前月比は売上{pct(TB_SALES[i_t], TB_SALES[i_p])}・限界利益{pct(TB_MP[i_t], TB_MP[i_p])}（9月 {TB_SALES[i_p]:.1f}／{TB_MP[i_p]:.1f}。試算表の更新で前回資料から変更）。広告宣伝費 {TB_AD[i_t]:.1f}百万円（昨年10月 {TB_AD[i_y]:.1f}）")
 
 # 月次推移（試算表）
 s = content_slide("月次推移：売上は前年同月比+13%、利益の山は母の日", "試算表ベースの売上高と限界利益　2025年10月〜2026年10月　単位：百万円")
