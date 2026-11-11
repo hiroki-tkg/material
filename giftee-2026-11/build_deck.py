@@ -268,40 +268,79 @@ text(s, 56, 676, 1016, 70, ["出荷上限を外して注文を売上に変える
      size=17, bold=True, spacing=1.45)
 footnote(s, "※ リーダーMTG（11/5）・経営MTG（11/9）の決定事項。10月の限界利益はSBS費（倉庫）の請求前")
 
-# --- イネイブラー: エコノミクスと案件一覧 ---
+# --- イネイブラー: 案件一覧 ---
 s = content_slide("イネイブラー：多くの案件が卸と生花で進捗")
 active = EN_PIPE["before"] + EN_PIPE["undated"] + EN_PIPE["first"] + EN_PIPE["negotiating"] + EN_PIPE["won"] + EN_PIPE["producing"]
-message(s, f"進行中{active}社（商談・交渉{EN_PIPE['before'] + EN_PIPE['undated'] + EN_PIPE['first'] + EN_PIPE['negotiating']}、受注・制作中{EN_PIPE['won'] + EN_PIPE['producing']}）。1件の貢献利益は生花で400〜2,000円")
-text(s, 56, 154, 470, 24, "1件あたりのエコノミクス（新料金・送料込み・税抜）", size=14, color=SECONDARY, bold=True)
-kpi_table(s, 56, 182, 470, ["", "B2B下代", "限界利益率", "貢献利益"], [
-    [n_, f"{p_:,}円", f"{r_:.0f}%", f"+{c_:,}円"] for n_, p_, r_, c_ in EN_ECON
-], col_w=[200, 90, 90, 90], bold_rows=(0, 6), row_h=33)
-bullets(s, 56, 470, 470, [
+message(s, f"進行中{active}社（商談・交渉{EN_PIPE['before'] + EN_PIPE['undated'] + EN_PIPE['first'] + EN_PIPE['negotiating']}、受注・制作中{EN_PIPE['won'] + EN_PIPE['producing']}）。ギフティ経由の1万件規模の案件が2本")
+deals = [
+    ["PAPABUBBLE", "生花", "キャンディ×花 16SKU（10/13〜）", "稼働中。新箱版を提案", True],
+    ["HAKUBA CRAFT", "プリ卸＋生花", "プリ200個納品済。ビール×生花", "生花は12月ローンチ", True],
+    ["野菜をMOTTO", "生花", "母の日テスト 2,000〜3,000個", "価格・箱を再提案", True],
+    ["TENTIAL", "生花", "BAKUNE×花、母の日1万件", "11月中に企画決定", True],
+    ["日立ビルシステム", "プリ卸", f"1万件、{HITACHI['sales'][0]:.1f}〜{HITACHI['sales'][2]:.1f}百万円", "見積3案、11/27発注", True],
+    ["SILK THE RICH", "生花＋プリ", "ガラス一輪M 100個〜＋ブーケ", "12月中旬リリース", False],
+    ["Color Your Life", "生花", "チョコ×ミニブーケM", "12月開始、サンプル着", False],
+    ["Mr. CHEESECAKE", "プリ卸", "ボックス1,000個 1.75百万円", "制作中、1月下旬納品", False],
+    ["エール・エル", "プリ卸", "ドーム1,500個 1.76百万円", "最終分 11/27納品", False],
+    ["UCC・BAKE", "プリ卸", "2027年母の日、1,200個〜", "見積・サンプル検討中", False],
+    ["遠鉄百貨店", "生花", "百貨店EC 66SKU、1/12公開", "受注確定、連携確認中", False],
+]
+gy, grh = 150, 42
+for i, row in enumerate(deals):
+    if row[4]:  # ギフティ経由は網掛け
+        rect(s, 56, gy + 32 + i * grh, 1016, grh - 2, PALE)
+grid(s, 56, gy, [210, 140, 400, 266], ["案件", "種別", "内容・規模", "状況"], [r[:4] for r in deals], size=14, row_h=grh)
+rect(s, 56, 650, 18, 14, PALE)
+text(s, 82, 646, 400, 22, "網掛け＝ギフティ様よりご紹介いただいた案件", size=12, color=SECONDARY)
+text(s, 56, 672, 1016, 46, [f"ほかに一次商談済み・条件交渉中が{EN_PIPE['first'] + EN_PIPE['negotiating'] - 8}社（GREEN SPOON・JTB・BENAMOR・グレープストーン・にしき食品など）、"
+                              f"商談待ち{EN_PIPE['before'] + EN_PIPE['undated']}社（コーセー・ゴントランシェリエ・チーズガーデンなど）。納品済み{EN_PIPE['delivered']}社、継続取引{EN_PIPE['ongoing']}社。"],
+     size=13, color=SECONDARY, spacing=1.4)
+footnote(s, "※ 営業進捗リスト（11/11時点）。金額は税抜")
+
+# --- イネイブラー: 同梱イメージ ---
+def picture(s, path, x, y, w, h):
+    """画像を枠いっぱいに（縦横比を保って）配置する。"""
+    from PIL import Image as _Im
+    iw, ih = _Im.open(path).size
+    sc = min(w / iw, h / ih)
+    pw, ph = iw * sc, ih * sc
+    s.shapes.add_picture(path, px(x + (w - pw) / 2), px(y + (h - ph) / 2), px(pw), px(ph))
+
+ASSETS = os.path.join(os.path.dirname(os.path.abspath(__file__)), "assets")
+s = content_slide("同梱イメージ：こんな形でお届けします")
+message(s, "ギフト用の専用ボックス（60サイズ）に、先方の商品と弊社のミニブーケを一つに収めて出荷")
+for x, img, name, cap in [
+        (56, "papabubble_box.jpg", "PAPABUBBLE", "キャンディ2瓶＋ミニブーケ＋ギフトカード。2027年1月から現行セットに追加予定"),
+        (564, "motto_box.jpg", "野菜をMOTTO", "スープ2個＋生花ミニブーケ。来年の母の日向けに11/11提案。花代980円＋送料・同梱作業750円")]:
+    picture(s, os.path.join(ASSETS, img), x, 160, 508, 380)
+    text(s, x, 552, 508, 30, name, size=20, bold=True)
+    text(s, x, 586, 508, 60, [cap], size=14, color=SECONDARY, spacing=1.4)
+text(s, 56, 666, 1016, 50, ["箱は制作中（Shizai）。開封の瞬間まで含めてギフト体験を高め、他の案件（UCC・TENTIALなど）にも同じ箱で展開する。"],
+     size=17, bold=True, spacing=1.45)
+footnote(s, "※ 画像は塚本作成の提案資料（PAPABUBBLE様 11/12、モンマルシェ様 11/11）より。箱はデザイン・寸法が変わる可能性あり。商品写真は各社サイトを基に作成したイメージ")
+
+# --- イネイブラー: 1件あたりのエコノミクス ---
+s = content_slide("イネイブラー：1件あたりのエコノミクス")
+message(s, "新料金（送料込み）で、生花の貢献利益率は20〜35%。小さいブーケほど作業費の比重が重い")
+text(s, 56, 154, 560, 24, "1件あたりのエコノミクス（新料金・送料込み・税抜）", size=14, color=SECONDARY, bold=True)
+ey, erh = 184, 48
+rect(s, 56, ey + 38 + (len(EN_ECON) - 1) * erh, 560, erh - 3, PALE)  # 日立の試算は例なので網掛け
+kpi_table(s, 56, ey, 560, ["", "B2B下代", "限界利益率", "貢献利益率"], [
+    [n_, f"{p_:,}円", f"{r_:.0f}%", f"{cr_:.0f}%"] for n_, p_, r_, c_, cr_ in EN_ECON
+], col_w=[260, 100, 100, 100], row_h=erh)
+rect(s, 56, 568, 18, 14, PALE)
+text(s, 82, 564, 500, 22, "網掛け＝プリザーブド卸の試算例（日立ビルシステム向け）", size=12, color=SECONDARY)
+vline(s, 640, 154, 440)
+y = panel(s, 664, 154, 408, "前提", size=18)
+bullets(s, 664, y, 408, [
     "卸値はEC価格の8掛け。送料は別建てで、送料差益率は33〜44%",
     "先方ラベルで出荷する場合は同梱作業費300円（ギフティ様と合意済み）",
     "通年は月20件、イベントは100件以上の最小ロットを契約に明記",
-    "貢献利益＝下代＋送料収入 − 花材・資材・送料実費 − 作業費",
-], size=13, gap=5)
-vline(s, 546, 154, 480)
-grid(s, 566, 154, [116, 70, 198, 122], ["案件", "種別", "内容・規模", "状況"], [
-    ["PAPABUBBLE", "生花", "キャンディ×花 16SKU（10/13〜）", "稼働中。新箱版を提案"],
-    ["HAKUBA CRAFT", "プリ卸＋生花", "プリ200個納品済。ビール×生花", "生花は12月ローンチ"],
-    ["野菜をMOTTO", "生花", "母の日テスト 2,000〜3,000個", "価格・箱を再提案"],
-    ["TENTIAL", "生花※", "BAKUNE×花、母の日1万件", "11月中に企画決定"],
-    ["日立ビルシステム", "プリ卸※", f"1万件、{HITACHI['sales'][0]:.1f}〜{HITACHI['sales'][2]:.1f}百万円", "見積3案、11/27発注"],
-    ["SILK THE RICH", "生花＋プリ", "ガラス一輪M 100個〜＋ブーケ", "12月中旬リリース"],
-    ["Color Your Life", "生花", "チョコ×ミニブーケM", "12月開始、サンプル着"],
-    ["Mr. CHEESECAKE", "プリ卸", "ボックス1,000個 1.75百万円", "制作中、1月下旬納品"],
-    ["エール・エル", "プリ卸", "ドーム1,500個 1.76百万円", "最終分 11/27納品"],
-    ["UCC・BAKE", "プリ卸", "2027年母の日、1,200個〜", "見積・サンプル検討中"],
-    ["遠鉄百貨店", "生花", "百貨店EC 66SKU、1/12公開", "受注確定、連携確認中"],
-], size=11, row_h=34)
-text(s, 566, 572, 506, 60, [f"ほかに一次商談済み・条件交渉中が{EN_PIPE['first'] + EN_PIPE['negotiating'] - 8}社（GREEN SPOON・JTB・BENAMOR・グレープストーン・にしき食品など）、",
-                             f"商談待ち{EN_PIPE['before'] + EN_PIPE['undated']}社（コーセー・ゴントランシェリエ・チーズガーデンなど）。納品済み{EN_PIPE['delivered']}社、継続取引{EN_PIPE['ongoing']}社"],
-     size=12, color=SECONDARY, spacing=1.4)
-text(s, 56, 660, 1016, 60, ["卸（プリザーブド）が売上を支え、生花は12月から順次稼働。ギフティ経由の1万件規模の案件が2本（日立・TENTIAL）。"],
+    "貢献利益＝下代＋送料収入 − 花材・資材・送料実費 − 作業費。貢献利益率は下代＋送料収入に対する比率",
+], size=14, gap=10)
+text(s, 56, 640, 1016, 60, ["ミニブーケ（S）は送料差益を除くと貢献利益ゼロ。作業効率の向上と、送料・同梱作業費を確実にもらうことが前提。"],
      size=17, bold=True, spacing=1.45)
-footnote(s, "※ エコノミクスはNotion「新料金・エコノミクス（2026年10月以降）」（送料込み・通常配送、作業費は分給ベース）。案件は営業進捗リスト（11/11時点）。※はギフティ経由。10月の売上は0.58百万円（予算比112%）")
+footnote(s, "※ Notion「新料金・エコノミクス（2026年10月以降）」の通常配送（送料含む）ベース。作業費は分給ベース。プリ卸は下代1,150円・貢献利益392円の試算")
 
 # --- イネイブラー: 案件の詳細 ---
 s = content_slide("案件の詳細：既存3社の進捗と次の一手")
