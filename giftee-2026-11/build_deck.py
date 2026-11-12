@@ -42,7 +42,7 @@ def bullets(s, x, y, w, items, size=16, color=MOSS, gap=6, dot=None, spacing=1.4
         vis = sum(1.0 if ord(ch) > 0x7F else 0.55 for ch in it.replace("[[", "").replace("]]", "").replace("**", ""))
         n = max(1, -(-int(vis + 0.999) // per_line))
         h = int(size * spacing * n) + 2
-        rect(s, x, y + int(size * 0.55), 7, 7, dot)
+        rect(s, x, y + int(size * (spacing - 1) / 2 + size * 0.5), 7, 7, dot)  # 1行目の上下中央
         text(s, x + 16, y, w - 16, h, it, size=size, color=color, spacing=spacing)
         y += h + gap
     return y
@@ -159,27 +159,26 @@ divider("02", "BUSINESS TOPICS", "事業のトピックス", "アンドフラワ
 # --- AF: 価格調整 ---
 s = content_slide("AF：価格を下げて件数+27%、売上は前月比+18%", accent=FLOWER)
 message(s, f"10/16の値下げが効き、広告費込み限界利益は{m(AF['net'][i10])}百万円（前月比{pct(AF['net'][i10], AF['net'][i9])}）。客単価の低下が課題")
-kpi_table(s, 56, 160, 470, ["AF 自社EC", "9月", "10月", "前月比"], [
+kpi_table(s, 56, 176, 470, ["AF 自社EC", "9月", "10月", "前月比"], [
     ["売上（百万円）", m(AF["sales"][i9]), m(AF["sales"][i10]), pct(AF["sales"][i10], AF["sales"][i9])],
     ["注文数", f"{AF['orders'][i9]:,}", f"{AF['orders'][i10]:,}", pct(AF["orders"][i10], AF["orders"][i9])],
     ["客単価", f"{AF['aov'][i9]:,}円", f"{AF['aov'][i10]:,}円", pct(AF["aov"][i10], AF["aov"][i9])],
     ["限界利益", m(AF["mp"][i9]), m(AF["mp"][i10]), pct(AF["mp"][i10], AF["mp"][i9])],
     ["　限界利益率", f"{AF['mp'][i9] / AF['sales'][i9] * 100:.0f}%", f"{AF['mp'][i10] / AF['sales'][i10] * 100:.0f}%",
      mom_pt(AF["mp"][i10] / AF["sales"][i10] * 100, AF["mp"][i9] / AF["sales"][i9] * 100)],
-    ["広告費", m(AF["ad"][i9]), m(AF["ad"][i10]), pct(AF["ad"][i10], AF["ad"][i9])],
     ["広告費込み限界利益", m(AF["net"][i9]), m(AF["net"][i10]), pct(AF["net"][i10], AF["net"][i9])],
     ["　同率", f"{AF['net'][i9] / AF['sales'][i9] * 100:.0f}%", f"{AF['net'][i10] / AF['sales'][i10] * 100:.0f}%",
      mom_pt(AF["net"][i10] / AF["sales"][i10] * 100, AF["net"][i9] / AF["sales"][i9] * 100)],
-], col_w=[200, 90, 90, 90], bold_rows=(6,), row_h=36)
-vline(s, 556, 160, 480)
-y = panel(s, 584, 160, 488, "10月に行った価格・商品の調整", FLOWER)
+], col_w=[200, 90, 90, 90], bold_rows=(5,), row_h=36)
+vline(s, 556, 176, 464)
+y = panel(s, 584, 176, 488, "10月に行った価格・商品の調整", FLOWER)
 bullets(s, 584, y, 488, [
     "10/2　そのまま飾れる花束S 3,980→3,480円、S/Mの送料 1,100→990円。売上ベースで[[+25%]]",
     "10/16　8商品群を10〜20%値下げ（おまかせ花束S/M/L、そのまま飾れる花束S/M、アレンジ3品）。件数[[+27%]]",
     "効いた：そのまま飾れるS/M・花束L。効かず：花束S/M・お供えアレンジ",
     "10/26　お供え商品の写真を取り直し。閲覧+44%・件数+18%",
     "10/29〜　商品ページの改善をテスト中",
-], size=15, dot=FLOWER)
+], size=15, dot=FLOWER, gap=16)
 text(s, 56, 676, 1016, 70, ["値下げで件数は増えたが、客単価が下がり利益の伸びは小さい。",
                             "11月は価格・写真の適正化を横展開し、クリスマス・成人の日、CRM、レビュー増施策で利益率を戻す。"],
      size=17, bold=True, spacing=1.45)
@@ -188,28 +187,17 @@ footnote(s, "※ AF自社EC（モールは含まない）。価格は税込、�
 # --- AF: OP問題 ---
 s = content_slide("AF：OP問題。貢献利益の赤字は4か月続けて縮小", accent=FLOWER)
 message(s, f"10月の貢献利益は{m(AF_CONTRIB['contrib'][-1])}百万円。OPEX比率は{AF_CONTRIB['opex'][0]}%→{AF_CONTRIB['opex'][-1]}%、ロス率は{AF_CONTRIB['loss'][2]}%→{AF_CONTRIB['loss'][3]}%")
-kpi_table(s, 56, 160, 470, ["AF（モール含む）", *AF_CONTRIB["months"]], [
+kpi_table(s, 56, 176, 1016, ["AF（モール含む）", *AF_CONTRIB["months"]], [
     ["広告費込み限界利益", "—", "—", "—", m(AF_CONTRIB["net_oct"])],
     ["貢献利益", *[m(v) for v in AF_CONTRIB["contrib"]]],
     ["OPEX比率", *[f"{v}%" for v in AF_CONTRIB["opex"]]],
     ["ロス率（仕入額比）", *["—" if v is None else f"{v}%" for v in AF_CONTRIB["loss"]]],
     ["（参考）AP 貢献利益", *[m(v) for v in AP_CONTRIB["contrib"]]],
-], col_w=[190, 70, 70, 70, 70], bold_rows=(1,), row_h=38)
-text(s, 56, 400, 470, 150, [
+], col_w=[456, 140, 140, 140, 140], bold_rows=(1,), row_h=42)
+text(s, 56, 446, 1016, 120, [
     "貢献利益＝広告費込み限界利益 − 拠点のアルバイト人件費等。",
     f"10月のAFはアルバイト給与・法定福利・交通費で{2.735333 + 0.303102 + 0.181778:.1f}百万円。",
     "OPEX比率は7月38%から毎月下がり、10月は20%。"], size=15, color=SECONDARY, spacing=1.5)
-vline(s, 556, 160, 480)
-y = panel(s, 584, 160, 488, "何が起きているか・どう解くか", FLOWER)
-bullets(s, 584, y, 488, [
-    "9月中旬から11月頭までハナイチが毎日発送上限に達し、AF社員がハナイチのOPに入っている。花拠点の機動力が落ち、新しい売上施策が出しづらい",
-    "11月：AFとハナイチの組織を分離。ハナイチのOPには経営陣・他事業の社員・インターンが入り、AFを本業に戻す（11/9〜）",
-    "採用：AF梱包 11/9入社、花事務 11/1入社。フローリストは面接中。紹介で3万円のリファラル制度を開始",
-    "ロス削減：余った花材に即日割引を付け、花材の声掛けを増やしてロス率10.3%→8.3%",
-], size=15, dot=FLOWER)
-text(s, 56, 676, 1016, 70, ["母の日までの3か月が踏ん張りどころ。OPの効率化と組織分離で、貢献利益を黒字圏に近づける。"],
-     size=17, bold=True, spacing=1.45)
-footnote(s, "※ 貢献利益・OPEX比率・ロス率はリーダーMTG（11/5）の管理数値。モール・LINEギフトを含む")
 
 # --- ハナイチ: KPI ---
 s = content_slide("ハナイチ生花：リピート率は昨対比で24%→47%", accent=HANA)
