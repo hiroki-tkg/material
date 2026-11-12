@@ -12,41 +12,14 @@ import sys
 
 _SKILL = sorted(glob.glob(os.path.expanduser("~/.claude/skills/**/domuz-deck/scripts"), recursive=True))
 sys.path.insert(0, _SKILL[-1] if _SKILL else os.path.join(os.path.dirname(os.path.abspath(__file__)), "scripts"))
+sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 from deck_lib import *  # noqa: E402,F401,F403
-from pptx.enum.shapes import MSO_SHAPE  # noqa: E402
 from pptx.enum.text import MSO_ANCHOR, PP_ALIGN  # noqa: E402
 
 out = sys.argv[1] if len(sys.argv) > 1 else "out/hanaichi_platform.pptx"
 use_theme("hanaichi")
 
-# ---- 低レベル部品（この資料だけで使う矢印と箱） ----
-def _head(s, cx, cy, rot, color, d=10):
-    tri = rect(s, cx - d / 2, cy - d / 2, d, d, color, shape=MSO_SHAPE.ISOSCELES_TRIANGLE)
-    tri.rotation = rot
-
-
-def arrow_h(s, x1, x2, y, color, weight=1.5):
-    """横向きの矢印。x1 → x2 の向きに先端を付ける。"""
-    hline(s, min(x1, x2), y, abs(x2 - x1) - 4, color, weight)
-    _head(s, x2 - 5 if x2 > x1 else x2 + 5, y, 90 if x2 > x1 else 270, color)
-
-
-def arrow_v(s, x, y1, y2, color, weight=1.5):
-    """縦向きの矢印。y1 → y2 の向きに先端を付ける。"""
-    vline(s, x, min(y1, y2) + (0 if y2 > y1 else 4), abs(y2 - y1) - 4, color, weight)
-    _head(s, x, y2 - 5 if y2 > y1 else y2 + 5, 180 if y2 > y1 else 0, color)
-
-
-def box(s, x, y, w, h, line, fill=WHITE, weight=1.5):
-    return rect(s, x, y, w, h, fill, line=line, weight=weight)
-
-
-def chip(s, x, y, w, h, body, size=12, fill=WHITE, line=BORDER_LIGHT, bold=False, color=MOSS, band=None):
-    rect(s, x, y, w, h, fill, line=line, weight=1.0)
-    if band:
-        rect(s, x, y, w, 3, band)
-    text(s, x + 8, y, w - 16, h, body, size=size, color=color, bold=bold, anchor=MSO_ANCHOR.MIDDLE, spacing=1.3)
-
+from diagram_lib import arrow_h, arrow_v, box, chip  # noqa: E402
 
 # =====================================================================
 # ページ：ハナイチを花業界のプラットフォームに
