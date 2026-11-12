@@ -374,10 +374,13 @@ text(s, CX + 20, DY + 182, 24, 32, "＝", size=18, bold=True, color=T.dark, anch
 chip(s, CX + 46, DY + 182, 346, "ギフトボックスにセットで同梱して出荷", fill=T.accent, line=T.accent, color=WHITE, size=13, h=32, pad=30)
 box_icon(s, CX + 58, DY + 191)
 text(s, CX + 20, DY + DH - 10, CW - 40, 20, "※ 受注・顧客データも弊社に蓄積", size=11, color=SECONDARY, align=PP_ALIGN.RIGHT)
-# 右：2つの販路
-RX, RW, RH = 748, 192, 120
-node(s, RX, DY, RW, RH, "取引先のEC", ["イネイブラー", "取引先が販売し", "弊社が代理出荷（現在の形）"], fill=None, line=BORDER_LIGHT, size=12)
-node(s, RX, DY + DH - RH, RW, RH, "AND FLOWER EC", ["自社EC", "全く同じセット商品を", "弊社が販売・出荷"], fill=None, line=T.accent, title_color=T.dark, size=12)
+# 右：2つの販路（上下の枠を合わせて川崎拠点と同じ高さ。間の隙間を「発送」の矢印が通る）
+RX, RW = 748, 192
+GAP = 40
+RH = (DH + 24 - GAP) / 2
+R1Y, R2Y = DY - 12, DY - 12 + RH + GAP
+node(s, RX, R1Y, RW, RH, "取引先のEC", ["イネイブラー", "取引先が販売し", "注文情報を弊社へ連携"], fill=None, line=BORDER_LIGHT, size=12)
+node(s, RX, R2Y, RW, RH, "AND FLOWER EC", ["自社EC", "全く同じセット商品を", "弊社が販売・出荷"], fill=None, line=T.accent, title_color=T.dark, size=12)
 # 右端：お客様
 KX = 1000
 kcy = DY + DH / 2
@@ -388,15 +391,23 @@ text(s, KX, kcy + 16, 72, 22, "お客様", size=13, bold=True, align=PP_ALIGN.CE
 # 矢印
 arrow(s, LX + LW, DY + DH / 2, CX, DY + DH / 2)
 text(s, LX + LW - 10, DY + DH / 2 - 26, CX - LX - LW + 20, 20, "納品", size=11, color=SECONDARY, align=PP_ALIGN.CENTER)
-arrow(s, CX + CW, DY + RH / 2, RX, DY + RH / 2)
-arrow(s, CX + CW, DY + DH - RH / 2, RX, DY + DH - RH / 2)
-text(s, CX + CW - 6, DY + RH / 2 - 26, RX - CX - CW + 12, 20, "出荷", size=11, color=SECONDARY, align=PP_ALIGN.CENTER)
-text(s, CX + CW - 6, DY + DH - RH / 2 - 26, RX - CX - CW + 12, 20, "販売", size=11, color=SECONDARY, align=PP_ALIGN.CENTER)
-for top in (DY, DY + DH - RH):  # 各ECとお客様の双方向（購入・発送）
-    arrow(s, RX + RW, top + RH / 2 - 16, KX, top + RH / 2 - 16)
-    text(s, RX + RW - 4, top + RH / 2 - 38, KX - RX - RW + 8, 20, "発送", size=11, color=SECONDARY, align=PP_ALIGN.CENTER)
-    arrow(s, KX, top + RH / 2 + 16, RX + RW, top + RH / 2 + 16)
-    text(s, RX + RW - 4, top + RH / 2 + 20, KX - RX - RW + 8, 20, "購入", size=11, color=SECONDARY, align=PP_ALIGN.CENTER)
+# 取引先EC：お客様が購入 → 注文情報が弊社へ → 弊社拠点からお客様へ発送
+y1 = R1Y + RH / 2 + 8
+arrow(s, KX, y1, RX + RW, y1)
+text(s, RX + RW - 4, y1 - 26, KX - RX - RW + 8, 20, "購入", size=11, color=SECONDARY, align=PP_ALIGN.CENTER)
+arrow(s, RX, y1, CX + CW, y1)
+text(s, CX + CW - 10, y1 - 26, RX - CX - CW + 20, 20, "注文情報", size=11, color=SECONDARY, align=PP_ALIGN.CENTER)
+ys = R1Y + RH + GAP / 2
+arrow(s, CX + CW, ys, KX, ys)
+text(s, RX, ys - 24, RW, 20, "発送（弊社拠点から直接）", size=11, color=SECONDARY, align=PP_ALIGN.CENTER)
+# AND FLOWER EC：弊社が販売し、お客様と購入・発送
+y2 = R2Y + RH / 2
+arrow(s, CX + CW, y2, RX, y2)
+text(s, CX + CW - 6, y2 - 26, RX - CX - CW + 12, 20, "販売", size=11, color=SECONDARY, align=PP_ALIGN.CENTER)
+arrow(s, RX + RW, y2 - 16, KX, y2 - 16)
+text(s, RX + RW - 4, y2 - 38, KX - RX - RW + 8, 20, "発送", size=11, color=SECONDARY, align=PP_ALIGN.CENTER)
+arrow(s, KX, y2 + 16, RX + RW, y2 + 16)
+text(s, RX + RW - 4, y2 + 20, KX - RX - RW + 8, 20, "購入", size=11, color=SECONDARY, align=PP_ALIGN.CENTER)
 # 下段：意味合い
 hline(s, 56, DY + DH + 52, 1016)
 cols3 = [(56, "追加の仕組みは不要", ["在庫・出荷は既に弊社側に置く運用。", "AND FLOWERの商品として登録すれば", "すぐ販売できる"]),
@@ -405,15 +416,14 @@ cols3 = [(56, "追加の仕組みは不要", ["在庫・出荷は既に弊社側
 for x, t_, ls in cols3:
     y = panel(s, x, DY + DH + 68, 336, t_, size=17)
     text(s, x, y - 6, 336, 80, ls, size=14, spacing=1.45)
-text(s, 56, 650, 1016, 30, ["イネイブラー事業を卸・代理出荷で終わらせず、弊社ECの品揃えも充実させる。これをフックに中長期の売上をつくる。"],
+text(s, 56, 636, 1016, 60, ["イネイブラー事業を卸・代理出荷で終わらせず、花のECに限らずギフト商品がラインナップされたギフトECへの転換を図り、これを含め中長期の売上成長を志向する。"],
      size=17, bold=True, spacing=1.45)
-tb = text(s, 56, 684, 1016, 26, ["在庫の持ち方は、イネイブラーはあくまで取引先からの**委託在庫**、自社ECでは**消化在庫**（売れた分を精算）とする形で現在提案中。"],
+tb = text(s, 56, 696, 1016, 26, ["在庫の持ち方は、イネイブラーはあくまで取引先からの**委託在庫**、自社ECでは**消化在庫**（売れた分を精算）とする形で現在提案中。"],
      size=14, color=SECONDARY, spacing=1.4)
 for r in tb.text_frame.paragraphs[0].runs:
     if r.text in ("委託在庫", "消化在庫"):
         r.font.bold = False
         r.font.underline = True
-footnote(s, "※ PAPABUBBLE様には11/12の提案（ご提案2「御社商品とのブーケセットの弊社EC販売」）で提示済み。今後の生花案件は原則この形で提案する")
 
 # --- イネイブラー: 1件あたりのエコノミクス ---
 s = content_slide("イネイブラー：1件あたりのエコノミクス")
