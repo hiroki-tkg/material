@@ -422,13 +422,12 @@ for i, (num, t_, ls) in enumerate(cols4):
     text(s, x, py + 18, IND, 32, num, size=17, bold=True)
     text(s, x + IND, py + 18, PW - IND, 32, t_, size=17, bold=True)
     text(s, x + IND, py + 56, PW - IND, 84, ls, size=13, spacing=1.45)
-tb = text(s, 56, 676, 1016, 64, ["イネイブラー事業を卸・代理出荷で終わらせず、花のECに限らずギフト商品がラインナップされた**ギフトＥＣへの転換**を図り、これを含め中長期の売上成長を志向する。"],
+text(s, 56, 676, 1016, 64, ["イネイブラー事業を卸・代理出荷で終わらせず、花のECに限らずギフト商品がラインナップされた",
+                             "ギフトECへの転換を図り、これを含め中長期の売上成長を志向する。"],
      size=19, bold=True, spacing=1.45)
-for r in tb.text_frame.paragraphs[0].runs:
-    if r.text == "ギフトＥＣへの転換":  # 全角ＥＣにして和欧間の自動スペースで下線が切れないように
-        r.font.underline = True
-        r.font.name = FONT_JA  # 英数字も和文フォントにして下線を途切れさせない
-        r._r.get_or_add_rPr().find(qn("a:cs")).set("typeface", FONT_JA)
+# 「ギフトECへの転換」の下線：和欧混在だと描画側で下線が途切れるため、2行目の先頭に置いて線を引く
+UL_Y, UL_W = 741, 166  # 2行目の文字の下端（実測738）の少し下、「換」の右端（実測221）まで
+hline(s, 56, UL_Y, UL_W, MOSS, 1.5)
 tb = text(s, 56, 750, 1016, 50, ["在庫の持ち方は、イネイブラーはあくまで取引先からの**委託在庫**、自社ECでは**消化在庫**（売れた分を精算）とする形での運用を想定。",
                               "生花以外の商品を単品で販売する等も可能（例：イネイブラーで扱う取引先の商品を、花付きではなく単体で販売する FLOWARD モデル）。"],
      size=14, color=SECONDARY, spacing=1.4)
