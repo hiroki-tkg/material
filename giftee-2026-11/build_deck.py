@@ -347,11 +347,12 @@ def chip(s, x, y, w, label, fill=None, line=None, color=None, size=13, h=30):
     rect(s, x, y, w, h, fill if fill is not None else WHITE, line=line or BORDER_LIGHT, shape=MSO_SHAPE.ROUNDED_RECTANGLE, weight=1.25)
     text(s, x, y, w, h, label, size=size, bold=True, color=color or MOSS, align=PP_ALIGN.CENTER, anchor=MSO_ANCHOR.MIDDLE, spacing=1.0)
 
-DY, DH = 156, 256  # 図の上端と高さ（3ブロックとも同じ高さ）
+DY, DH = 176, 256  # 図の上端と高さ（3ブロックとも同じ高さ）
 # 左：取引先（細く）
-node(s, 56, DY, 200, DH, "取引先", ["商品を弊社拠点へ", "まとめて納品"], size=14)
+LW = 236  # 左ブロックは中央に寄せて矢印を短く
+node(s, 56, DY, LW, DH, "取引先", ["商品を弊社拠点へまとめて納品"], size=14)
 for i, p_ in enumerate(["キャンディ", "スープ", "コスメ", "スイーツ"]):
-    chip(s, 72, DY + 108 + i * 34, 168, p_, size=13, h=28)
+    chip(s, 72, DY + 90 + i * 36, LW - 32, p_, size=13, h=28)
 # 中央：Domuz拠点（大きく・センタリング）
 CX, CW = 334, 460  # 中心 564
 rect(s, CX, DY - 12, CW, DH + 24, T.light, line=T.accent, weight=2.5)
@@ -365,27 +366,29 @@ chip(s, CX + 20, DY + 152, 204, "ミニブーケ・一輪ブーケ", fill=T.acce
 chip(s, CX + 236, DY + 152, 204, "ギフトボックスに同梱", fill=WHITE, line=T.accent, color=T.dark, size=13)
 text(s, CX + 20, DY + 196, CW - 40, 48, ["受注・顧客データも弊社に蓄積。", "PAPABUBBLE・HAKUBA CRAFTで既に運用中の流れ"], size=13, color=MOSS, spacing=1.4)
 # 右：2つの販路
-RX, RW = 834, 238
-node(s, RX, DY, RW, 120, "取引先のEC", ["イネイブラー。取引先が販売し、", "弊社が代理出荷（現在の形）"], fill=None, line=BORDER_LIGHT, size=13)
-node(s, RX, DY + DH - 120, RW, 120, "AND FLOWER EC", ["自社EC。全く同じセット商品を", "弊社が販売・出荷"], fill=None, line=T.accent, title_color=T.dark, size=13)
+RX, RW = 866, 206  # 右ブロックは外側に寄せて矢印を長く
+node(s, RX, DY, RW, 120, "取引先のEC", ["イネイブラー", "取引先が販売し", "弊社が代理出荷（現在の形）"], fill=None, line=BORDER_LIGHT, size=12)
+node(s, RX, DY + DH - 120, RW, 120, "AND FLOWER EC", ["自社EC", "全く同じセット商品を", "弊社が販売・出荷"], fill=None, line=T.accent, title_color=T.dark, size=12)
 # 矢印
-arrow(s, 256, DY + DH / 2, CX, DY + DH / 2)
-text(s, 256, DY + DH / 2 - 28, CX - 256, 22, "納品", size=12, color=SECONDARY, align=PP_ALIGN.CENTER)
+arrow(s, 56 + LW, DY + DH / 2, CX, DY + DH / 2)
+text(s, 56 + LW - 10, DY + DH / 2 - 28, CX - 56 - LW + 20, 22, "納品", size=12, color=SECONDARY, align=PP_ALIGN.CENTER)
 arrow(s, CX + CW, DY + 60, RX, DY + 60)
 arrow(s, CX + CW, DY + DH - 60, RX, DY + DH - 60)
 text(s, CX + CW, DY + 34, RX - CX - CW, 22, "出荷", size=12, color=SECONDARY, align=PP_ALIGN.CENTER)
 text(s, CX + CW, DY + DH - 86, RX - CX - CW, 22, "販売", size=12, color=SECONDARY, align=PP_ALIGN.CENTER)
-text(s, RX, DY + DH + 16, RW + 10, 22, "→ どちらも弊社拠点からお客様へ直接お届け", size=11, color=SECONDARY)
+text(s, CX + CW, DY + DH + 20, 1072 - CX - CW, 22, "→ どちらも弊社拠点からお客様へ直接お届け", size=12, color=SECONDARY, align=PP_ALIGN.RIGHT)
 # 下段：意味合い
-hline(s, 56, 444, 1016)
+hline(s, 56, DY + DH + 52, 1016)
 cols3 = [(56, "追加の仕組みは不要", ["在庫・出荷は既に弊社側に置く運用。", "AND FLOWERの商品として登録すれば", "すぐ販売できる"]),
          (396, "取引先は販路が増える", ["弊社の会員43.5万人・SNS32.1万人に", "商品が届く。取引先の出荷作業は", "発生しない"]),
          (736, "弊社は品揃えと粗利が増える", ["セット商品が AND FLOWER の", "ラインナップになり、顧客データも", "弊社に残る"])]
 for x, t_, ls in cols3:
-    y = panel(s, x, 466, 336, t_, size=17)
+    y = panel(s, x, DY + DH + 68, 336, t_, size=17)
     text(s, x, y - 6, 336, 80, ls, size=14, spacing=1.45)
-text(s, 56, 630, 1016, 60, ["イネイブラー事業を卸・代理出荷で終わらせず、弊社ECの品揃えも充実させる。これをフックに中長期の売上をつくる。"],
+text(s, 56, 650, 1016, 30, ["イネイブラー事業を卸・代理出荷で終わらせず、弊社ECの品揃えも充実させる。これをフックに中長期の売上をつくる。"],
      size=17, bold=True, spacing=1.45)
+text(s, 56, 684, 1016, 26, ["在庫の持ち方は、イネイブラーはあくまで取引先からの委託在庫、自社ECでは消化在庫（売れた分を精算）とする形で現在提案中。"],
+     size=14, color=SECONDARY, spacing=1.4)
 footnote(s, "※ PAPABUBBLE様には11/12の提案（ご提案2「御社商品とのブーケセットの弊社EC販売」）で提示済み。今後の生花案件は原則この形で提案する")
 
 # --- イネイブラー: 1件あたりのエコノミクス ---
