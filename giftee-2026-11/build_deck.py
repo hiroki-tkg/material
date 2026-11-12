@@ -10,7 +10,7 @@ SKILL = os.path.expanduser("~/.claude/skills/synced/c877595e-9c45-49a9-8ea7-19fa
 sys.path.insert(0, SKILL)
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 from deck_lib import *  # noqa: E402,F401
-from deck_lib import _drop_style  # noqa: E402
+from deck_lib import _drop_style, FONT_JA  # noqa: E402
 from data_giftee import *  # noqa: E402,F401
 
 out = sys.argv[1] if len(sys.argv) > 1 else "out/giftee_2026-11.pptx"
@@ -364,12 +364,12 @@ text(s, LX + 16, DY + 244, LW - 32, 20, "など", size=12, color=SECONDARY, alig
 CX, CW = 276, 400
 rect(s, CX, DY - 12, CW, DH + 24, T.light, line=T.accent, weight=2.5)
 text(s, CX + 20, DY + 2, CW - 40, 30, "Domuz 川崎拠点", size=20, bold=True, color=T.dark, align=PP_ALIGN.CENTER)
-text(s, CX + 20, DY + 36, CW - 40, 22, "取引先の商品と生花を在庫として保有し、セットにして出荷", size=13, color=MOSS, align=PP_ALIGN.CENTER)
+text(s, CX + 20, DY + 36, CW - 40, 22, "取引先の商品を委託在庫として保管、生花とセットで発送", size=13, color=MOSS, align=PP_ALIGN.CENTER)
 text(s, CX + 20, DY + 76, 200, 20, "取引先の商品", size=12, color=SECONDARY, bold=True)
 for i, p_ in enumerate(["キャンディ", "スープ", "コスメ", "スイーツ"]):
     chip(s, CX + 20 + i * 92, DY + 104, 84, p_, size=13, h=30)
 text(s, CX + 20, DY + 150, 24, 44, "＋", size=18, bold=True, color=T.dark, anchor=MSO_ANCHOR.MIDDLE, spacing=1.0)
-chip(s, CX + 46, DY + 150, 334, ["弊社の生花", "（ブーケ・ミニブーケ・仕入れ向けミニブーケ等）"], fill=WHITE, line=T.accent, color=T.dark, size=12, h=44, pad=30)
+chip(s, CX + 46, DY + 150, 334, ["AND FLOWERの花", "（ミニブーケ、フラワーボックス等）"], fill=WHITE, line=T.accent, color=T.dark, size=12, h=44, pad=36, align=PP_ALIGN.LEFT)
 flower_icon(s, CX + 66, DY + 172, r=8)
 text(s, CX + 20, DY + 206, 24, 36, "＝", size=18, bold=True, color=T.dark, anchor=MSO_ANCHOR.MIDDLE, spacing=1.0)
 chip(s, CX + 46, DY + 206, 334, "ギフトボックスにセットで同梱して出荷", fill=T.accent, line=T.accent, color=WHITE, size=13, h=36, pad=30)
@@ -410,9 +410,9 @@ text(s, RX + RW - 4, y2 - 26, KX - RX - RW + 8, 20, "購入", size=11, color=SEC
 # 下段：意味合い
 hline(s, 56, DY + DH + 52, 1016)
 cols4 = [("①", "仕組みの追加は不要", ["在庫・出荷は既に弊社側の", "運用。AND FLOWERの商品", "として登録すれば販売できる"]),
-         ("②", "取引先の販路が増える", ["弊社のLINE・メルマガ43.5万", "人・SNS32.1万人に商品が届く。", "取引先の出荷作業は発生しない"]),
+         ("②", "取引先の販路が増える", ["弊社のLINE・メルマガ 43.5万人", "・SNS 32.1万人に商品が届く。", "取引先の出荷作業は発生しない"]),
          ("③", "品揃えと粗利が増える", ["セット商品がAND FLOWERの", "ラインナップになり、", "顧客データも弊社に残る"]),
-         ("④", "取引先ECで認知を獲得", ["プラグイン導入で取引先の", "ECサイト上にAND FLOWERの", "名前が出て、サイテーション獲得"])]
+         ("④", "取引先ECで認知を獲得", ["プラグイン導入で取引先の", "ECサイト上にAND FLOWERの", "名前が出て、被リンクと", "サイテーションを獲得"])]
 PW = (1016 - 3 * 24) / 4
 IND = 28  # 番号のぶんインデントし、タイトルと本文の左端を揃える
 for i, (num, t_, ls) in enumerate(cols4):
@@ -421,13 +421,15 @@ for i, (num, t_, ls) in enumerate(cols4):
     rect(s, x, py, PW, 5, T.accent)
     text(s, x, py + 18, IND, 32, num, size=17, bold=True)
     text(s, x + IND, py + 18, PW - IND, 32, t_, size=17, bold=True)
-    text(s, x + IND, py + 56, PW - IND, 70, ls, size=13, spacing=1.45)
-tb = text(s, 56, 660, 1016, 60, ["イネイブラー事業を卸・代理出荷で終わらせず、花のECに限らずギフト商品がラインナップされた**ギフトECへの転換**を図り、これを含め中長期の売上成長を志向する。"],
-     size=17, bold=True, spacing=1.45)
+    text(s, x + IND, py + 56, PW - IND, 84, ls, size=13, spacing=1.45)
+tb = text(s, 56, 676, 1016, 64, ["イネイブラー事業を卸・代理出荷で終わらせず、花のECに限らずギフト商品がラインナップされた**ギフトＥＣへの転換**を図り、これを含め中長期の売上成長を志向する。"],
+     size=19, bold=True, spacing=1.45)
 for r in tb.text_frame.paragraphs[0].runs:
-    if r.text == "ギフトECへの転換":
+    if r.text == "ギフトＥＣへの転換":  # 全角ＥＣにして和欧間の自動スペースで下線が切れないように
         r.font.underline = True
-tb = text(s, 56, 716, 1016, 50, ["在庫の持ち方は、イネイブラーはあくまで取引先からの**委託在庫**、自社ECでは**消化在庫**（売れた分を精算）とする形で現在提案中。",
+        r.font.name = FONT_JA  # 英数字も和文フォントにして下線を途切れさせない
+        r._r.get_or_add_rPr().find(qn("a:cs")).set("typeface", FONT_JA)
+tb = text(s, 56, 750, 1016, 50, ["在庫の持ち方は、イネイブラーはあくまで取引先からの**委託在庫**、自社ECでは**消化在庫**（売れた分を精算）とする形での運用を想定。",
                               "生花以外の商品を単品で販売する等も可能（例：イネイブラーで扱う取引先の商品を、花付きではなく単体で販売する FLOWARD モデル）。"],
      size=14, color=SECONDARY, spacing=1.4)
 for r in tb.text_frame.paragraphs[0].runs:
