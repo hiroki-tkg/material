@@ -3,3 +3,4 @@ preview/
 *.pdf
 *.html
 *.png
+__pycache__/
