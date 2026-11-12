@@ -236,7 +236,6 @@ kpi_table(s, 616, 176, 456, ["生花", "昨年10月", "今年10月", "昨年対�
     ["リピート注文数", f"{HY_REPEAT[Y]}", f"{HY_REPEAT[L]}", f"{HY_REPEAT[L] / HY_REPEAT[Y]:.1f}倍"],
     ["リピート率", f"{HY_REPEAT_RATE[Y]:.1f}%", f"{HY_REPEAT_RATE[L]:.1f}%", mom_pt(HY_REPEAT_RATE[L], HY_REPEAT_RATE[Y])],
     ["5,000円以上の注文数", f"{B5Y}", f"{B5L}", f"{B5L / B5Y:.1f}倍"],
-    ["平均単価（5,000円以上）", f"{HY_FAOV_5K[Y]:,}円", f"{HY_FAOV_5K[L]:,}円", pct(HY_FAOV_5K[L], HY_FAOV_5K[Y])],
     ["1注文あたり本数", f"{HY_STEMS[Y]:.1f}本", f"{HY_STEMS[L]:.1f}本", pct(HY_STEMS[L], HY_STEMS[Y])],
 ], col_w=[196, 80, 90, 90], bold_rows=(3,), row_h=40)
 text(s, 56, 596, 1016, 100, [
