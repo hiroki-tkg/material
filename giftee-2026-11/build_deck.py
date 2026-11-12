@@ -356,24 +356,24 @@ def box_icon(s, x, y, w=18, h=14, color=None):
 DY, DH = 176, 256  # 図の上端と高さ（3ブロックとも同じ高さ）
 # 左：取引先
 LX, LW = 56, 176
-node(s, LX, DY, LW, DH, "取引先", ["商品を弊社拠点へ", "まとめて納品"], size=13)
+node(s, LX, DY - 12, LW, DH + 24, "取引先", ["商品を弊社拠点へ", "まとめて納品"], size=13)  # 高さは川崎拠点と同じ
 for i, p_ in enumerate(["キャンディ", "スープ", "コスメ", "スイーツ"]):
-    chip(s, LX + 16, DY + 100 + i * 36, LW - 32, p_, size=13, h=28)
+    chip(s, LX + 16, DY + 96 + i * 38, LW - 32, p_, size=13, h=28)
 # 中央：Domuz拠点
 CX, CW = 276, 424
 rect(s, CX, DY - 12, CW, DH + 24, T.light, line=T.accent, weight=2.5)
-text(s, CX + 20, DY + 2, CW - 40, 30, "Domuz 川崎拠点", size=20, bold=True, color=T.dark)
-text(s, CX + 20, DY + 36, CW - 40, 22, "取引先の商品と生花を在庫として保有し、セットにして出荷", size=13, color=MOSS)
-text(s, CX + 20, DY + 64, 200, 20, "取引先の商品", size=12, color=SECONDARY, bold=True)
+text(s, CX + 20, DY + 2, CW - 40, 30, "Domuz 川崎拠点", size=20, bold=True, color=T.dark, align=PP_ALIGN.CENTER)
+text(s, CX + 20, DY + 36, CW - 40, 22, "取引先の商品と生花を在庫として保有し、セットにして出荷", size=13, color=MOSS, align=PP_ALIGN.CENTER)
+text(s, CX + 20, DY + 76, 200, 20, "取引先の商品", size=12, color=SECONDARY, bold=True)
 for i, p_ in enumerate(["キャンディ", "スープ", "コスメ", "スイーツ"]):
-    chip(s, CX + 20 + i * 100, DY + 86, 92, p_, size=13, h=30)
-text(s, CX + 20, DY + 124, 24, 30, "＋", size=18, bold=True, color=T.dark, anchor=MSO_ANCHOR.MIDDLE, spacing=1.0)
-chip(s, CX + 46, DY + 124, 346, "弊社の生花（ミニブーケ・一輪ブーケ）", fill=WHITE, line=T.accent, color=T.dark, size=13, h=30, pad=30)
-flower_icon(s, CX + 66, DY + 139, r=8)
-text(s, CX + 20, DY + 162, 24, 32, "＝", size=18, bold=True, color=T.dark, anchor=MSO_ANCHOR.MIDDLE, spacing=1.0)
-chip(s, CX + 46, DY + 162, 346, "ギフトボックスにセットで同梱して出荷", fill=T.accent, line=T.accent, color=WHITE, size=13, h=32, pad=30)
-box_icon(s, CX + 58, DY + 171)
-text(s, CX + 20, DY + 208, CW - 40, 22, "受注・顧客データも弊社に蓄積", size=13, color=MOSS)
+    chip(s, CX + 20 + i * 100, DY + 104, 92, p_, size=13, h=30)
+text(s, CX + 20, DY + 144, 24, 30, "＋", size=18, bold=True, color=T.dark, anchor=MSO_ANCHOR.MIDDLE, spacing=1.0)
+chip(s, CX + 46, DY + 144, 346, "弊社の生花（ミニブーケ・一輪ブーケ）", fill=WHITE, line=T.accent, color=T.dark, size=13, h=30, pad=30)
+flower_icon(s, CX + 66, DY + 159, r=8)
+text(s, CX + 20, DY + 182, 24, 32, "＝", size=18, bold=True, color=T.dark, anchor=MSO_ANCHOR.MIDDLE, spacing=1.0)
+chip(s, CX + 46, DY + 182, 346, "ギフトボックスにセットで同梱して出荷", fill=T.accent, line=T.accent, color=WHITE, size=13, h=32, pad=30)
+box_icon(s, CX + 58, DY + 191)
+text(s, CX + 20, DY + DH - 10, CW - 40, 20, "※ 受注・顧客データも弊社に蓄積", size=11, color=SECONDARY, align=PP_ALIGN.RIGHT)
 # 右：2つの販路
 RX, RW, RH = 748, 192, 120
 node(s, RX, DY, RW, RH, "取引先のEC", ["イネイブラー", "取引先が販売し", "弊社が代理出荷（現在の形）"], fill=None, line=BORDER_LIGHT, size=12)
@@ -381,10 +381,10 @@ node(s, RX, DY + DH - RH, RW, RH, "AND FLOWER EC", ["自社EC", "全く同じセ
 # 右端：お客様
 KX = 1000
 kcy = DY + DH / 2
-rect(s, KX + 10, kcy - 26, 52, 52, T.light, line=T.accent, shape=MSO_SHAPE.OVAL, weight=1.5)
-rect(s, KX + 28, kcy - 16, 16, 16, T.dark, shape=MSO_SHAPE.OVAL)  # 頭
-rect(s, KX + 21, kcy + 3, 30, 16, T.dark, shape=MSO_SHAPE.ROUND_2_SAME_RECTANGLE)  # 肩
-text(s, KX, kcy + 32, 72, 22, "お客様", size=13, bold=True, align=PP_ALIGN.CENTER)
+rect(s, KX, DY - 12, 72, DH + 24, T.light, line=T.accent, shape=MSO_SHAPE.ROUNDED_RECTANGLE, weight=1.5)  # 縦長にして矢印を受ける
+rect(s, KX + 27, kcy - 30, 18, 18, T.dark, shape=MSO_SHAPE.OVAL)  # 頭
+rect(s, KX + 19, kcy - 8, 34, 18, T.dark, shape=MSO_SHAPE.ROUND_2_SAME_RECTANGLE)  # 肩
+text(s, KX, kcy + 16, 72, 22, "お客様", size=13, bold=True, align=PP_ALIGN.CENTER)
 # 矢印
 arrow(s, LX + LW, DY + DH / 2, CX, DY + DH / 2)
 text(s, LX + LW - 10, DY + DH / 2 - 26, CX - LX - LW + 20, 20, "納品", size=11, color=SECONDARY, align=PP_ALIGN.CENTER)
