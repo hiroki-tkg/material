@@ -359,21 +359,22 @@ LX, LW = 56, 176
 node(s, LX, DY - 12, LW, DH + 24, "取引先", ["商品を弊社拠点へ", "まとめて納品"], size=13)  # 高さは川崎拠点と同じ
 for i, p_ in enumerate(["キャンディ", "スープ", "コスメ", "スイーツ"]):
     chip(s, LX + 16, DY + 96 + i * 38, LW - 32, p_, size=13, h=28)
+text(s, LX + 16, DY + 244, LW - 32, 20, "など", size=12, color=SECONDARY, align=PP_ALIGN.RIGHT)
 # 中央：Domuz拠点
-CX, CW = 276, 424
+CX, CW = 276, 400
 rect(s, CX, DY - 12, CW, DH + 24, T.light, line=T.accent, weight=2.5)
 text(s, CX + 20, DY + 2, CW - 40, 30, "Domuz 川崎拠点", size=20, bold=True, color=T.dark, align=PP_ALIGN.CENTER)
 text(s, CX + 20, DY + 36, CW - 40, 22, "取引先の商品と生花を在庫として保有し、セットにして出荷", size=13, color=MOSS, align=PP_ALIGN.CENTER)
 text(s, CX + 20, DY + 76, 200, 20, "取引先の商品", size=12, color=SECONDARY, bold=True)
 for i, p_ in enumerate(["キャンディ", "スープ", "コスメ", "スイーツ"]):
-    chip(s, CX + 20 + i * 100, DY + 104, 92, p_, size=13, h=30)
+    chip(s, CX + 20 + i * 92, DY + 104, 84, p_, size=13, h=30)
 text(s, CX + 20, DY + 144, 24, 30, "＋", size=18, bold=True, color=T.dark, anchor=MSO_ANCHOR.MIDDLE, spacing=1.0)
-chip(s, CX + 46, DY + 144, 346, "弊社の生花（ミニブーケ・一輪ブーケ）", fill=WHITE, line=T.accent, color=T.dark, size=13, h=30, pad=30)
+chip(s, CX + 46, DY + 144, 314, "弊社の生花（ミニブーケ・一輪ブーケ）", fill=WHITE, line=T.accent, color=T.dark, size=13, h=30, pad=30)
 flower_icon(s, CX + 66, DY + 159, r=8)
 text(s, CX + 20, DY + 182, 24, 32, "＝", size=18, bold=True, color=T.dark, anchor=MSO_ANCHOR.MIDDLE, spacing=1.0)
-chip(s, CX + 46, DY + 182, 346, "ギフトボックスにセットで同梱して出荷", fill=T.accent, line=T.accent, color=WHITE, size=13, h=32, pad=30)
+chip(s, CX + 46, DY + 182, 314, "ギフトボックスにセットで同梱して出荷", fill=T.accent, line=T.accent, color=WHITE, size=13, h=32, pad=30)
 box_icon(s, CX + 58, DY + 191)
-text(s, CX + 20, DY + DH - 10, CW - 40, 20, "※ 受注・顧客データも弊社に蓄積", size=11, color=SECONDARY, align=PP_ALIGN.RIGHT)
+text(s, CX + 20, DY + DH - 28, CW - 40, 20, "※ 受注・顧客データも弊社に蓄積", size=11, color=SECONDARY, align=PP_ALIGN.RIGHT)
 # 右：2つの販路（上下の枠を合わせて川崎拠点と同じ高さ。間の隙間を「発送」の矢印が通る）
 RX, RW = 748, 192
 GAP = 40
@@ -399,26 +400,30 @@ arrow(s, RX, y1, CX + CW, y1)
 text(s, CX + CW - 10, y1 - 26, RX - CX - CW + 20, 20, "注文情報", size=11, color=SECONDARY, align=PP_ALIGN.CENTER)
 ys = R1Y + RH + GAP / 2
 arrow(s, CX + CW, ys, KX, ys)
-text(s, RX, ys - 24, RW, 20, "発送（弊社拠点から直接）", size=11, color=SECONDARY, align=PP_ALIGN.CENTER)
+text(s, RX, ys - 24, RW, 20, "発送（どちらも弊社拠点から）", size=11, color=SECONDARY, align=PP_ALIGN.CENTER)
 # AND FLOWER EC：弊社が販売し、お客様と購入・発送
 y2 = R2Y + RH / 2
 arrow(s, CX + CW, y2, RX, y2)
 text(s, CX + CW - 6, y2 - 26, RX - CX - CW + 12, 20, "販売", size=11, color=SECONDARY, align=PP_ALIGN.CENTER)
-arrow(s, RX + RW, y2 - 16, KX, y2 - 16)
-text(s, RX + RW - 4, y2 - 38, KX - RX - RW + 8, 20, "発送", size=11, color=SECONDARY, align=PP_ALIGN.CENTER)
-arrow(s, KX, y2 + 16, RX + RW, y2 + 16)
-text(s, RX + RW - 4, y2 + 20, KX - RX - RW + 8, 20, "購入", size=11, color=SECONDARY, align=PP_ALIGN.CENTER)
+arrow(s, KX, y2, RX + RW, y2)
+text(s, RX + RW - 4, y2 - 26, KX - RX - RW + 8, 20, "購入", size=11, color=SECONDARY, align=PP_ALIGN.CENTER)
 # 下段：意味合い
 hline(s, 56, DY + DH + 52, 1016)
-cols3 = [(56, "追加の仕組みは不要", ["在庫・出荷は既に弊社側に置く運用。", "AND FLOWERの商品として登録すれば", "すぐ販売できる"]),
-         (396, "取引先は販路が増える", ["弊社の会員43.5万人・SNS32.1万人に", "商品が届く。取引先の出荷作業は", "発生しない"]),
-         (736, "弊社は品揃えと粗利が増える", ["セット商品が AND FLOWER の", "ラインナップになり、顧客データも", "弊社に残る"])]
-for x, t_, ls in cols3:
-    y = panel(s, x, DY + DH + 68, 336, t_, size=17)
-    text(s, x, y - 6, 336, 80, ls, size=14, spacing=1.45)
-text(s, 56, 636, 1016, 60, ["イネイブラー事業を卸・代理出荷で終わらせず、花のECに限らずギフト商品がラインナップされたギフトECへの転換を図り、これを含め中長期の売上成長を志向する。"],
+cols4 = [("① 追加の仕組みは不要", ["在庫・出荷は既に弊社側の運用。", "AND FLOWERの商品として", "登録すればすぐ販売できる"]),
+         ("② 取引先は販路が増える", ["弊社の会員43.5万人・SNS", "32.1万人に商品が届く。", "取引先の出荷作業は発生しない"]),
+         ("③ 弊社は品揃えと粗利が増える", ["セット商品がAND FLOWERの", "ラインナップになり、", "顧客データも弊社に残る"]),
+         ("④ 取引先ECでの認知を獲得", ["プラグイン導入で取引先のEC", "サイト上にAND FLOWERの名前", "が出て、サイテーションを獲得"])]
+PW = (1016 - 3 * 24) / 4
+for i, (t_, ls) in enumerate(cols4):
+    x = 56 + i * (PW + 24)
+    y = panel(s, x, DY + DH + 68, PW, t_, size=15)
+    text(s, x, y - 8, PW, 70, ls, size=13, spacing=1.45)
+tb = text(s, 56, 648, 1016, 60, ["イネイブラー事業を卸・代理出荷で終わらせず、花のECに限らずギフト商品がラインナップされた**ギフトECへの転換**を図り、これを含め中長期の売上成長を志向する。"],
      size=17, bold=True, spacing=1.45)
-tb = text(s, 56, 696, 1016, 26, ["在庫の持ち方は、イネイブラーはあくまで取引先からの**委託在庫**、自社ECでは**消化在庫**（売れた分を精算）とする形で現在提案中。"],
+for r in tb.text_frame.paragraphs[0].runs:
+    if r.text == "ギフトECへの転換":
+        r.font.underline = True
+tb = text(s, 56, 708, 1016, 26, ["在庫の持ち方は、イネイブラーはあくまで取引先からの**委託在庫**、自社ECでは**消化在庫**（売れた分を精算）とする形で現在提案中。"],
      size=14, color=SECONDARY, spacing=1.4)
 for r in tb.text_frame.paragraphs[0].runs:
     if r.text in ("委託在庫", "消化在庫"):
