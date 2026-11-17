@@ -1,0 +1,509 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<title>20261117_カインズ様_協業のご提案</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Zen+Kaku+Gothic+New:wght@400;500;700&display=swap" rel="stylesheet">
+<style>
+/* 欧文: Europa（Adobe Fonts が入っている Mac では local() で解決）→ 無ければ埋め込みの Jost */
+@font-face { font-family: "Europa"; font-weight: 700; font-style: normal;
+  src: local("Europa Bold"), local("Europa-Bold"), local("EuropaBold"), url(fonts/jost-latin.woff2) format("woff2"); }
+@font-face { font-family: "Europa"; font-weight: 400; font-style: normal;
+  src: local("Europa Regular"), local("Europa-Regular"), local("Europa"), url(fonts/jost-latin.woff2) format("woff2"); }
+
+:root {
+  --moss: #004347; --light: #00D79C; --secondary: #626262; --muted: #999999;
+  --bg: #F2F3F3; --border: #C9CFCF; --white: #fff;
+  --en: "Europa", "Zen Kaku Gothic New", "Hiragino Sans", sans-serif;
+}
+@page { size: 1128px 846px; margin: 0; }
+* { box-sizing: border-box; }
+html, body { margin: 0; padding: 0; background: #e6e9e9; }
+body { font-family: var(--en); color: var(--moss); font-weight: 700; line-height: 1.45;
+  -webkit-font-smoothing: antialiased; }
+.page { position: relative; width: 1128px; height: 846px; overflow: hidden; background: var(--white);
+  margin: 0 auto; page-break-after: always; break-after: page; }
+@media screen { .page { margin: 24px auto; box-shadow: 0 1px 4px rgba(0,0,0,.15); } }
+@media print { html, body { background: #fff; } .page { margin: 0; box-shadow: none; } }
+
+.a { position: absolute; white-space: nowrap; }
+.content::before { content: ""; position: absolute; left: 0; top: 0; width: 8px; height: 846px; background: var(--light); }
+.title { left: 64px; top: 21px; font-size: 38px; }
+.sub { left: 64px; top: 85px; font-size: 27px; }
+.sub em { font-style: normal; color: var(--light); }
+.pn { right: 40px; top: 806px; font-size: 14px; color: var(--muted); }
+.reg { font-weight: 400; color: var(--secondary); }
+.med { font-weight: 500; }
+.lt { color: var(--light); }
+.gray { color: var(--secondary); }
+.hl { position: absolute; height: 1px; background: var(--border); }
+.vl { position: absolute; width: 1px; background: var(--border); }
+.box { position: absolute; background: var(--bg); }
+.img { position: absolute; overflow: hidden; }
+.img img { width: 100%; height: 100%; object-fit: cover; display: block; }
+.img.top img { object-position: top; }
+.img.contain { background: var(--bg); }
+.img.contain img { object-fit: contain; }
+.badge { position: absolute; background: var(--moss); color: #fff; font-size: 20px; line-height: 1; padding: 9px 14px 8px; white-space: nowrap; }
+.frame { position: absolute; border: 2px solid var(--moss); font-size: 20px; line-height: 1; padding: 10px 14px 9px; white-space: nowrap; }
+.bar { position: absolute; height: 50px; color: #fff; font-size: 24px; line-height: 50px; padding-left: 16px; white-space: nowrap; }
+.bar.moss { background: var(--moss); } .bar.light { background: var(--light); }
+.sq::before { content: ""; display: inline-block; width: 8px; height: 8px; background: var(--light); margin-right: 12px; vertical-align: 3px; }
+.arrow { position: absolute; width: 36px; height: 16px; }
+.num { font-size: 64px; line-height: 1; color: var(--light); }
+.track { letter-spacing: .32em; }
+
+/* 章扉 */
+.divider { background: var(--moss); color: #fff; }
+.divider .no { left: 96px; top: 262px; font-size: 128px; line-height: 1; color: transparent;
+  -webkit-text-stroke: 2px rgba(255,255,255,.55); letter-spacing: .02em; }
+.divider .label { left: 96px; top: 436px; font-size: 24px; letter-spacing: .4em; color: #B5C6C7; }
+.divider .ttl { left: 96px; top: 494px; font-size: 46px; line-height: 1.45; }
+
+/* ケアアプリ POP（店頭）。基準幅 206px、transform で縮小して使う */
+.pop { position: absolute; width: 206px; background: #fff; border: 1px solid #c9cfcf; padding: 7px; transform-origin: 0 0; }
+.pop .ph { height: 88px; overflow: hidden; }
+.pop .ph img { width: 100%; height: 100%; object-fit: cover; object-position: 50% 100%; display: block; }
+.pop .bd { background: var(--moss); color: #fff; text-align: center; padding: 10px 8px 10px; }
+.pop .bd img.logo { width: 58px; display: block; margin: 0 auto 4px; }
+.pop .h { font-size: 15px; line-height: 1.4; }
+.pop .s { white-space: nowrap; font-size: 11px; color: var(--light); margin-top: 4px; }
+.pop .qr { background: #fff; margin: 10px 6px 0; padding: 7px 6px; display: flex; align-items: center; gap: 7px; text-align: left; color: var(--moss); }
+.pop .qr img { width: 50px; height: 48px; display: block; }
+.pop .qr .free { display: inline-block; background: var(--light); color: #fff; font-size: 9.5px; line-height: 1; padding: 3px 5px; margin-bottom: 3px; }
+.pop .qr .t { font-size: 10px; line-height: 1.4; }
+
+/* 流れ（丸＋線） */
+.flow .line { position: absolute; height: 3px; background: var(--border); }
+.flow .c { position: absolute; width: 80px; height: 80px; border-radius: 50%; border: 3px solid var(--moss); background: #fff;
+  font-size: 30px; line-height: 74px; text-align: center; }
+.flow .c.on { background: var(--light); border-color: var(--light); color: #fff; }
+.flow .lb { position: absolute; width: 320px; text-align: center; font-size: 30px; }
+.flow .ul { position: absolute; height: 1px; background: var(--border); }
+.flow .ul.on { height: 3px; background: var(--light); }
+.flow .k { position: absolute; width: 320px; text-align: center; font-size: 17px; color: var(--light); }
+.flow .v { position: absolute; width: 320px; text-align: center; font-size: 24px; }
+
+/* 効果ボックス */
+.effect { position: absolute; left: 64px; top: 161px; width: 1008px; height: 190px; background: var(--bg); border-left: 8px solid var(--light); }
+.effect .k { position: absolute; left: 48px; top: 40px; font-size: 19px; color: var(--light); letter-spacing: .1em; }
+.effect .big { position: absolute; left: 48px; top: 66px; font-size: 56px; line-height: 1.3; }
+.effect .vl { left: 522px; top: 36px; height: 112px; }
+.effect .k2 { position: absolute; left: 551px; top: 36px; font-size: 19px; color: var(--light); letter-spacing: .1em; }
+.effect .aim { position: absolute; left: 551px; top: 70px; font-size: 24px; line-height: 1.6; }
+</style>
+</head>
+<body>
+
+<!-- 1 表紙 -->
+<section class="page">
+  <div class="a track" style="left:96px;top:252px;font-size:24px">CAINZ × AND PLANTS<span style="display:inline-block;width:1.1em"></span>2026.11</div>
+  <div class="a" style="left:96px;top:312px;font-size:28px">株式会社カインズ 御中</div>
+  <div class="a" style="left:96px;top:387px;font-size:54px">協業のご提案</div>
+  <div class="a" style="left:96px;top:501px;width:96px;height:8px;background:var(--light)"></div>
+  <div class="a reg" style="left:96px;top:555px;font-size:24px">株式会社Domuz</div>
+</section>
+
+<!-- 2 章扉 01 -->
+<section class="page divider">
+  <div class="a no">01</div>
+  <div class="a label">OVERALL IMAGE</div>
+  <div class="a ttl">協業の全体イメージ</div>
+</section>
+
+<!-- 3 協業の全体イメージ -->
+<section class="page content">
+  <div class="a title">協業の全体イメージ</div>
+  <div class="a sub">段階的に、<em>こんな形でご一緒できれば</em>と考えています</div>
+
+  <div class="a gray" style="left:134px;top:156px;font-size:19px">提供価値</div>
+  <div class="a gray" style="left:639px;top:156px;font-size:19px">何をするか</div>
+  <div class="hl" style="left:64px;top:195px;width:1008px"></div>
+  <div class="hl" style="left:64px;top:391px;width:1008px"></div>
+  <div class="hl" style="left:64px;top:557px;width:1008px"></div>
+  <div class="hl" style="left:64px;top:722px;width:1008px"></div>
+
+  <!-- row 1 -->
+  <div class="a num" style="left:64px;top:262px">1</div>
+  <div class="box" style="left:134px;top:222px;width:434px;height:141px"></div>
+  <div class="a" style="left:158px;top:241px;font-size:26px">若年層との接点</div>
+  <div class="a reg" style="left:158px;top:284px;font-size:20px;line-height:1.5">AND PLANTSユーザーの若年層が、<br>カインズに訪れるきっかけとなる</div>
+  <svg class="arrow" style="left:588px;top:281px" viewBox="0 0 36 16"><path d="M0 8h34M27 1l7 7-7 7" fill="none" stroke="#00D79C" stroke-width="1.6"/></svg>
+  <div class="a" style="left:639px;top:223px;font-size:26px;line-height:1.4">カインズ店舗に、<br>AND PLANTSのブースをつくる</div>
+  <div class="a reg" style="left:639px;top:302px;font-size:20px;line-height:1.5">AND PLANTSセレクトの<br>植物・鉢・オリジナルグッズなど</div>
+
+  <!-- row 2 -->
+  <div class="a num" style="left:64px;top:443px">2</div>
+  <div class="box" style="left:134px;top:420px;width:434px;height:113px"></div>
+  <div class="a" style="left:158px;top:436px;font-size:26px">継続的な接点</div>
+  <div class="a reg" style="left:158px;top:480px;font-size:20px">買った後も、店に戻ってきてもらえる</div>
+  <svg class="arrow" style="left:588px;top:463px" viewBox="0 0 36 16"><path d="M0 8h34M27 1l7 7-7 7" fill="none" stroke="#00D79C" stroke-width="1.6"/></svg>
+  <div class="a" style="left:639px;top:418px;font-size:26px;line-height:1.4">買った後のお客さまとの<br>関係づくり（CRM）を受け持つ</div>
+  <div class="a reg" style="left:639px;top:498px;font-size:20px">ケアアプリを中心に、CRMの運営を代行する</div>
+
+  <!-- row 3 -->
+  <div class="a num" style="left:64px;top:609px">3</div>
+  <div class="box" style="left:134px;top:585px;width:434px;height:114px"></div>
+  <div class="a" style="left:158px;top:602px;font-size:26px">新たな売る場所</div>
+  <div class="a reg" style="left:158px;top:645px;font-size:20px">店舗が近くにないお客さまにも届く</div>
+  <svg class="arrow" style="left:588px;top:629px" viewBox="0 0 36 16"><path d="M0 8h34M27 1l7 7-7 7" fill="none" stroke="#00D79C" stroke-width="1.6"/></svg>
+  <div class="a" style="left:639px;top:584px;font-size:26px;line-height:1.4">カインズEC（観葉植物カテゴリー）の<br>立ち上げと運営を行う</div>
+  <div class="a reg" style="left:639px;top:664px;font-size:20px">EC開発・運営・販促・発送業務などを代行する</div>
+  <div class="a pn">3</div>
+</section>
+
+<!-- 4 章扉 02 -->
+<section class="page divider">
+  <div class="a no" style="top:228px">02</div>
+  <div class="a label" style="top:402px">TOWARD GREEN × EXPO 2027</div>
+  <div class="a ttl" style="top:460px">花博までに目指す姿と、<br>ファーストステップ</div>
+</section>
+
+<!-- 5 花博までに目指す姿 -->
+<section class="page content">
+  <div class="a title">花博までに目指す姿</div>
+  <div class="a sub">花博で増える需要を、<em>カインズ店舗の継続的な来客</em>につなげる</div>
+
+  <div class="img" style="left:64px;top:161px;width:420px;height:271px"><img src="img/booth.jpg" alt=""></div>
+  <div class="a num" style="left:500px;top:222px">1</div>
+  <div class="badge" style="left:540px;top:229px">若年層との接点</div>
+  <div class="a" style="left:500px;top:294px;font-size:28px;line-height:1.5">花博によりオンラインで増えたユーザーを、<br>リアルのカインズ店舗の来客につなげる</div>
+
+  <div class="hl" style="left:64px;top:447px;width:1008px"></div>
+
+  <div class="box" style="left:64px;top:463px;width:420px;height:270px"></div>
+  <div class="pop" style="left:92px;top:479px;transform:scale(.82)">
+    <div class="ph"><img src="img/app_store_plants.jpg" alt=""></div>
+    <div class="bd"><img class="logo" src="img/logo.png" alt=""><div class="h">買った植物の育て方、<br>アプリでわかります</div><div class="s">水やりの時期を、アプリがお知らせ</div>
+      <div class="qr"><img src="img/qr.png" alt=""><div><span class="free">無料</span><div class="t">QRを読み取って<br>かんたん登録</div></div></div></div>
+  </div>
+  <svg class="arrow" style="left:270px;top:584px" viewBox="0 0 36 16"><path d="M0 8h34M27 1l7 7-7 7" fill="none" stroke="#00D79C" stroke-width="1.6"/></svg>
+  <div class="img contain" style="left:320px;top:463px;width:125px;height:270px"><img src="img/phone_notify.jpg" alt=""></div>
+  <div class="a num" style="left:500px;top:521px">2</div>
+  <div class="badge" style="left:552px;top:528px">継続的な接点</div>
+  <div class="a" style="left:500px;top:593px;font-size:28px;line-height:1.5">花博によりカインズに来たお客さまを、<br>また店に戻ってきてもらう仕組みを作る</div>
+  <div class="a pn">5</div>
+</section>
+
+<!-- 6 ファーストステップ（PoC） -->
+<section class="page content">
+  <div class="a title">ファーストステップ（PoC）</div>
+  <div class="a sub"><em>リアル店舗でのブース</em>と<em>CRMの実証実験</em>。2つを同時に小さく試す</div>
+
+  <div class="a" style="left:64px;top:140px;display:flex;align-items:stretch">
+    <div style="background:var(--moss);color:#fff;font-size:19px;line-height:1;padding:10px 16px 10px">時期のイメージ</div>
+    <div style="border:2px solid var(--moss);font-size:22px;line-height:1;padding:8px 16px 7px">2027年2〜3月頃に実施</div>
+  </div>
+
+  <div class="bar moss" style="left:64px;top:198px;width:485px">① 店舗でブースを展開・実証</div>
+  <div class="bar light" style="left:586px;top:198px;width:486px">② CRMの実証実験</div>
+
+  <!-- ① a -->
+  <div class="img" style="left:64px;top:266px;width:94px;height:209px"><img src="img/pot.jpg" alt=""></div>
+  <div class="img" style="left:160px;top:266px;width:94px;height:209px"><img src="img/soil2l.jpg" alt=""></div>
+  <div class="a lt" style="left:272px;top:298px;font-size:36px;line-height:1">a</div>
+  <div class="a" style="left:272px;top:338px;font-size:24px;line-height:1.4">30店舗で<br>卸商品を展開</div>
+  <div class="a reg" style="left:272px;top:414px;font-size:18px">ECOPOTS・オリジナルグッズ</div>
+  <div class="hl" style="left:64px;top:492px;width:485px"></div>
+  <!-- ① b -->
+  <div class="img" style="left:64px;top:510px;width:190px;height:210px"><img src="img/booth.jpg" alt=""></div>
+  <div class="a lt" style="left:272px;top:544px;font-size:36px;line-height:1">b</div>
+  <div class="a" style="left:272px;top:584px;font-size:24px;line-height:1.4">一部店舗でAND PLANTS<br>ブースのポップアップ<br>を開催</div>
+  <div class="hl" style="left:64px;top:737px;width:485px"></div>
+
+  <!-- ② a -->
+  <div class="box" style="left:586px;top:266px;width:190px;height:209px"></div>
+  <div class="pop" style="left:614px;top:273px;transform:scale(.655)">
+    <div class="ph"><img src="img/app_store_plants.jpg" alt=""></div>
+    <div class="bd"><img class="logo" src="img/logo.png" alt=""><div class="h">買った植物の育て方、<br>アプリでわかります</div><div class="s">水やりの時期を、アプリがお知らせ</div>
+      <div class="qr"><img src="img/qr.png" alt=""><div><span class="free">無料</span><div class="t">QRを読み取って<br>かんたん登録</div></div></div></div>
+  </div>
+  <div class="a lt" style="left:794px;top:298px;font-size:36px;line-height:1">a</div>
+  <div class="a" style="left:794px;top:338px;font-size:24px;line-height:1.4">30店舗でケアアプリ<br>登録訴求を行う</div>
+  <div class="a reg" style="left:794px;top:414px;font-size:18px">店頭にQR・POPを置く</div>
+  <div class="hl" style="left:586px;top:492px;width:486px"></div>
+  <!-- ② b -->
+  <div class="img contain" style="left:586px;top:510px;width:190px;height:210px"><img src="img/phone_notify.jpg" alt=""></div>
+  <div class="a lt" style="left:794px;top:543px;font-size:36px;line-height:1">b</div>
+  <div class="a" style="left:794px;top:583px;font-size:24px;line-height:1.4">登録ユーザーに<br>CRMの実証実験を行う</div>
+  <div class="a reg" style="left:794px;top:659px;font-size:17px;line-height:1.5">特定の店舗ごとへ、お知らせを<br>プッシュ通知し、また来店してもらう</div>
+  <div class="hl" style="left:586px;top:737px;width:486px"></div>
+  <div class="a pn">6</div>
+</section>
+
+<!-- 7 ①-a 卸商品の展開 -->
+<section class="page content">
+  <div class="a title">①-a<span style="display:inline-block;width:40px"></span>卸商品の展開</div>
+  <div class="a sub"><em>ECOPOTS</em>と<em>AND PLANTSオリジナルグッズ</em>を、30店舗の売場に置く</div>
+
+  <div class="a" style="left:64px;top:154px;font-size:28px">ECOPOTS<span class="reg" style="font-size:18px;margin-left:16px">北欧デザインの植木鉢・鉢カバー</span></div>
+  <div class="a" style="left:64px;top:205px;width:601px;height:3px;background:var(--light)"></div>
+  <div class="img" style="left:64px;top:218px;width:601px;height:323px"><img src="img/ecopots_group.jpg" alt=""></div>
+
+  <div class="a" style="left:700px;top:154px;font-size:28px">オリジナルグッズ</div>
+  <div class="a" style="left:700px;top:205px;width:372px;height:3px;background:var(--light)"></div>
+  <!-- 商品写真は縦長なので、切らずに全体が入る縦長の枠にする -->
+  <div class="img contain" style="left:700px;top:218px;width:115px;height:153px"><img src="img/soil2l.jpg" alt=""></div>
+  <div class="a" style="left:836px;top:256px;font-size:22px;line-height:1.3">観葉植物の土<br><span class="lt" style="font-size:27px">2L</span></div>
+  <div class="img contain" style="left:700px;top:383px;width:115px;height:153px"><img src="img/soil25l.jpg" alt=""></div>
+  <div class="a" style="left:836px;top:421px;font-size:22px;line-height:1.3">観葉植物の土<br><span class="lt" style="font-size:27px">25L</span></div>
+  <div class="img contain" style="left:700px;top:548px;width:115px;height:153px"><img src="img/ampoule.jpg" alt=""></div>
+  <div class="a" style="left:836px;top:594px;font-size:22px;line-height:1.4">観葉植物用<br>活力剤</div>
+
+  <div class="a" style="left:64px;top:722px;width:1008px;height:2px;background:var(--moss)"></div>
+  <div class="a lt" style="left:64px;top:739px;font-size:18px">見せ方</div>
+  <div class="a" style="left:140px;top:736px;font-size:21px">AND PLANTSのコーナーとして出す</div>
+  <div class="a lt" style="left:520px;top:739px;font-size:18px">見る数字</div>
+  <div class="a" style="left:616px;top:736px;font-size:21px">売上・消化率（店舗ごとに比べる）</div>
+  <div class="a pn">7</div>
+</section>
+
+<!-- 8 ①-b ブースのポップアップ -->
+<section class="page content">
+  <div class="a title">①-b<span style="display:inline-block;width:40px"></span>ブースのポップアップ</div>
+  <div class="a sub"><em>AND PLANTSが監修</em>し、ブランドのイメージに沿ったブースを作る</div>
+
+  <div class="img" style="left:64px;top:146px;width:429px;height:265px"><img src="img/booth.jpg" alt=""></div>
+  <div class="a reg" style="left:64px;top:414px;font-size:18px">ブースのイメージ</div>
+
+  <div class="a lt" style="left:526px;top:150px;font-size:18px">置くもの</div>
+  <div class="frame" style="left:526px;top:185px">AND PLANTSが選び、ECOPOTSに植え替えた植物</div>
+  <div class="frame" style="left:526px;top:237px">ECOPOTS</div>
+  <div class="frame" style="left:656px;top:237px">オリジナルグッズ</div>
+  <div class="a lt" style="left:526px;top:300px;font-size:18px">つくり方</div>
+  <div class="a" style="left:526px;top:332px;font-size:25px;line-height:1.45">並べ方・見せ方まで、<br>AND PLANTSが監修</div>
+
+  <div class="a" style="left:64px;top:454px;font-size:24px">期間中のイベント</div>
+  <div class="a" style="left:64px;top:498px;width:1008px;height:2px;background:var(--light)"></div>
+  <div class="img" style="left:64px;top:512px;width:422px;height:166px"><img src="img/insta_live.jpg" alt=""></div>
+  <div class="img" style="left:501px;top:512px;width:277px;height:146px"><img src="img/ippin.jpg" alt=""></div>
+  <div class="img" style="left:795px;top:512px;width:277px;height:146px"><img src="img/workshop.jpg" alt=""></div>
+  <div class="a lt" style="left:64px;top:685px;font-size:22px">インスタライブの店頭配信</div>
+  <div class="a reg" style="left:64px;top:716px;font-size:16px">カインズの店頭から配信し、来店を呼びかける</div>
+  <div class="a reg" style="left:64px;top:748px;font-size:18px">＋ ブースの様子を、SNS・YouTubeでも発信</div>
+  <div class="a" style="left:501px;top:668px;font-size:21px">一点もの販売会</div>
+  <div class="a" style="left:795px;top:668px;font-size:21px">植え替えワークショップ</div>
+  <div class="a pn">8</div>
+</section>
+
+<!-- 9 ①-b これまでの実績 -->
+<section class="page content">
+  <div class="a title">①-b<span style="display:inline-block;width:40px"></span>これまでの実績</div>
+  <div class="a sub">売場づくりからイベントの運営まで、<em>自社でやってきた経験</em>を活かします</div>
+
+  <div class="img" style="left:64px;top:146px;width:491px;height:324px"><img src="img/marui.jpg" alt=""></div>
+  <div class="img" style="left:582px;top:146px;width:490px;height:324px"><img src="img/marche.jpg" alt=""></div>
+  <div class="a" style="left:64px;top:484px;font-size:20px">有楽町マルイでのポップアップ<span class="reg" style="font-size:18px">（2021年）</span></div>
+  <div class="a" style="left:582px;top:484px;font-size:20px;line-height:1.45">AND PLANTS マルシェ '26<span class="reg" style="font-size:18px">（2026年9月・中目黒）</span><br><span class="reg" style="font-size:18px">出店26店・購入 約1,500点・ワークショップは満席</span></div>
+
+  <div class="img" style="left:64px;top:548px;width:318px;height:184px"><img src="img/mall_booth.jpg" alt=""></div>
+  <div class="img" style="left:409px;top:548px;width:318px;height:184px"><img src="img/workshop.jpg" alt=""></div>
+  <div class="img" style="left:755px;top:548px;width:317px;height:184px"><img src="img/ippin.jpg" alt=""></div>
+  <div class="a reg" style="left:64px;top:739px;font-size:18px">商業施設の中でのブースづくり</div>
+  <div class="a reg" style="left:409px;top:739px;font-size:18px">植え替えワークショップ</div>
+  <div class="a reg" style="left:755px;top:739px;font-size:18px">生産者・ブランドの一点もの販売</div>
+  <div class="a pn">9</div>
+</section>
+
+<!-- 10 ①-b 実施店舗 -->
+<section class="page content">
+  <div class="a title">①-b<span style="display:inline-block;width:40px"></span>実施店舗</div>
+  <div class="a sub"><em>大きく試せる</em>りんかんモール店が第一候補。都市型の港北店も選択肢</div>
+
+  <div class="img" style="left:64px;top:142px;width:629px;height:472px"><img src="img/rinkan.jpg" alt=""></div>
+  <div class="badge" style="left:64px;top:630px;font-size:19px;padding:9px 12px 8px">第一候補</div>
+  <div class="a" style="left:184px;top:623px;font-size:30px">カインズ りんかんモール店</div>
+  <div class="a" style="left:64px;top:678px;width:305px;height:3px;background:var(--light)"></div>
+  <div class="a" style="left:389px;top:678px;width:304px;height:3px;background:var(--light)"></div>
+  <div class="a" style="left:64px;top:689px;font-size:21px;line-height:1.45">神奈川県で、<br>比較的都市に近い</div>
+  <div class="a" style="left:389px;top:689px;font-size:21px;line-height:1.45">売場が広く、<br>大きくPoCができる</div>
+
+  <div class="img" style="left:729px;top:142px;width:343px;height:257px"><img src="img/kohoku.jpg" alt=""></div>
+  <div class="frame" style="left:729px;top:413px;font-size:16px;padding:8px 12px 7px">選択肢</div>
+  <div class="a" style="left:729px;top:455px;font-size:23px">カインズ モザイクモール港北店</div>
+  <div class="a reg" style="left:729px;top:496px;font-size:19px;line-height:1.5">より都市型で、<br>AND PLANTSの客層と近い</div>
+  <div class="hl" style="left:729px;top:562px;width:343px"></div>
+  <div class="a reg" style="left:729px;top:570px;font-size:19px;line-height:1.5">売場が広くないため、<br>規模は小さくなる</div>
+  <div class="hl" style="left:729px;top:634px;width:343px"></div>
+  <div class="a pn">10</div>
+</section>
+
+<!-- 11 ①-b ブースのイメージ -->
+<section class="page content">
+  <div class="a title">①-b<span style="display:inline-block;width:40px"></span>ブースのイメージ</div>
+  <div class="a sub">今の売場の一角を、<em>AND PLANTSの世界観</em>に変える</div>
+
+  <div class="a gray track" style="left:64px;top:148px;font-size:18px">BEFORE<span class="reg" style="letter-spacing:.18em;margin-left:18px">現在の売場</span></div>
+  <div class="a lt track" style="left:394px;top:148px;font-size:18px">AFTER<span style="letter-spacing:.18em;margin-left:18px">AND PLANTSブース（イメージ）</span></div>
+  <div class="img" style="left:64px;top:180px;width:302px;height:227px"><img src="img/before.jpg" alt=""></div>
+  <div class="img" style="left:395px;top:180px;width:677px;height:508px"><img src="img/booth.jpg" alt=""></div>
+
+  <div class="a sq" style="left:66px;top:416px;font-size:21px">AND PLANTSの看板</div>
+  <div class="hl" style="left:64px;top:459px;width:302px"></div>
+  <div class="a sq" style="left:66px;top:468px;font-size:21px">ECOPOTSに入った観葉植物</div>
+  <div class="hl" style="left:64px;top:511px;width:302px"></div>
+  <div class="a sq" style="left:66px;top:521px;font-size:21px">ECOPOTS・グッズ</div>
+  <div class="hl" style="left:64px;top:563px;width:302px"></div>
+  <div class="a sq" style="left:66px;top:573px;font-size:21px">ケアアプリのQR</div>
+  <div class="hl" style="left:64px;top:615px;width:302px"></div>
+  <div class="a pn">11</div>
+</section>
+
+<!-- 12 ①-b 期待できる効果 -->
+<section class="page content flow">
+  <div class="a title">①-b<span style="display:inline-block;width:40px"></span>期待できる効果</div>
+  <div class="a sub">AND PLANTSのユーザーを、<em>カインズへの来店</em>につなげる</div>
+
+  <div class="effect">
+    <div class="k">効果</div>
+    <div class="big">来客数の増加</div>
+    <div class="vl"></div>
+    <div class="k2">ねらい</div>
+    <div class="aim">これまでカインズに<br>来ていなかった層の来店</div>
+  </div>
+
+  <div class="line" style="left:232px;top:459px;width:672px"></div>
+  <div class="c" style="left:192px;top:421px">1</div>
+  <div class="c on" style="left:528px;top:421px">2</div>
+  <div class="c" style="left:864px;top:421px">3</div>
+  <div class="lb" style="left:72px;top:520px">告知する</div>
+  <div class="lb" style="left:408px;top:520px">来店する</div>
+  <div class="lb" style="left:744px;top:520px">体験・購入</div>
+  <div class="ul on" style="left:413px;top:592px;width:310px"></div>
+  <div class="ul" style="left:749px;top:593px;width:310px"></div>
+  <div class="k" style="left:408px;top:612px">見る数字</div>
+  <div class="v" style="left:408px;top:640px;font-size:28px">期間中の来店客数</div>
+  <div class="v" style="left:408px;top:688px;font-size:24px">20〜30代の比率</div>
+  <div class="k" style="left:744px;top:610px">見る数字</div>
+  <div class="v" style="left:744px;top:638px">ブースの売上</div>
+  <div class="a pn">12</div>
+</section>
+
+<!-- 13 ② CRMの実証実験 -->
+<section class="page content">
+  <div class="a title">②<span style="display:inline-block;width:40px"></span>CRMの実証実験</div>
+  <div class="a sub"><em>30店舗すべて</em>で、店で登録→店に戻ってきてもらう流れを試す</div>
+
+  <div class="bar moss" style="left:64px;top:144px;width:484px;font-size:22px;height:53px;line-height:53px">a. 30店舗でケアアプリ登録訴求を行う</div>
+  <div class="bar light" style="left:586px;top:144px;width:486px;font-size:22px;height:53px;line-height:53px;padding-left:18px">b. 登録ユーザーにCRMの実証実験を行う</div>
+
+  <div class="box" style="left:64px;top:212px;width:222px;height:417px"></div>
+  <div class="pop" style="left:72px;top:264px">
+    <div class="ph"><img src="img/app_store_plants.jpg" alt=""></div>
+    <div class="bd"><img class="logo" src="img/logo.png" alt=""><div class="h">買った植物の育て方、<br>アプリでわかります</div><div class="s">水やりの時期を、アプリがお知らせ</div>
+      <div class="qr"><img src="img/qr.png" alt=""><div><span class="free">無料</span><div class="t">QRを読み取って<br>かんたん登録</div></div></div></div>
+  </div>
+  <div class="img contain" style="left:326px;top:212px;width:223px;height:417px"><img src="img/phone_home.jpg" alt=""></div>
+  <div class="img contain" style="left:589px;top:212px;width:223px;height:417px"><img src="img/phone_notify.jpg" alt=""></div>
+  <div class="img" style="left:852px;top:212px;width:220px;height:417px"><img src="img/rinkan.jpg" alt=""></div>
+  <svg class="arrow" style="left:290px;top:412px" viewBox="0 0 36 16"><path d="M0 8h34M27 1l7 7-7 7" fill="none" stroke="#00D79C" stroke-width="1.6"/></svg>
+  <svg class="arrow" style="left:552px;top:412px" viewBox="0 0 36 16"><path d="M0 8h34M27 1l7 7-7 7" fill="none" stroke="#00D79C" stroke-width="1.6"/></svg>
+  <svg class="arrow" style="left:815px;top:412px" viewBox="0 0 36 16"><path d="M0 8h34M27 1l7 7-7 7" fill="none" stroke="#00D79C" stroke-width="1.6"/></svg>
+
+  <div class="a" style="left:64px;top:641px;width:222px;text-align:center;font-size:24px">店頭のQR・POP</div>
+  <div class="a" style="left:326px;top:641px;width:223px;text-align:center;font-size:24px">アプリに登録</div>
+  <div class="a reg" style="left:326px;top:677px;width:223px;text-align:center;font-size:18px">登録した店舗を記録</div>
+  <div class="a" style="left:589px;top:641px;width:223px;text-align:center;font-size:24px">通知が届く</div>
+  <div class="a reg" style="left:589px;top:677px;width:223px;text-align:center;font-size:18px">水やり／店舗キャンペーン</div>
+  <div class="a" style="left:852px;top:641px;width:220px;text-align:center;font-size:24px">カインズに再来店</div>
+  <div class="a pn">13</div>
+</section>
+
+<!-- 14 ② ケアアプリ -->
+<section class="page content">
+  <div class="a title">②<span style="display:inline-block;width:40px"></span>ケアアプリ</div>
+  <div class="a sub"><em>AND PLANTSの植物管理アプリ</em>を、カインズで買ったお客さまにも</div>
+
+  <div class="img" style="left:63px;top:146px;width:235px;height:508px"><img src="img/phone_home.jpg" alt=""></div>
+  <div class="img" style="left:321px;top:146px;width:235px;height:508px"><img src="img/phone_notify.jpg" alt=""></div>
+  <div class="img" style="left:579px;top:146px;width:235px;height:508px"><img src="img/phone_season.jpg" alt=""></div>
+  <div class="img" style="left:837px;top:146px;width:235px;height:508px"><img src="img/phone_growth.jpg" alt=""></div>
+  <div class="a" style="left:63px;top:656px;width:235px;text-align:center;font-size:20px">育て方がわかる</div>
+  <div class="a" style="left:321px;top:656px;width:235px;text-align:center;font-size:20px">水やりの時期を通知</div>
+  <div class="a" style="left:579px;top:656px;width:235px;text-align:center;font-size:20px">季節ごとのポイント</div>
+  <div class="a" style="left:837px;top:656px;width:235px;text-align:center;font-size:20px">成長を記録</div>
+  <div class="a pn">14</div>
+</section>
+
+<!-- 15 ② 期待できる効果 -->
+<section class="page content flow">
+  <div class="a title">②<span style="display:inline-block;width:40px"></span>期待できる効果</div>
+  <div class="a sub">アプリの登録を入口に、<em>カインズへの再来店</em>を増やす</div>
+
+  <div class="effect">
+    <div class="k">効果</div>
+    <div class="big">再来訪率の上昇</div>
+    <div class="vl"></div>
+    <div class="k2">ねらい</div>
+    <div class="aim">通知をきっかけに、<br>カインズの店に戻ってきてもらう</div>
+  </div>
+
+  <div class="line" style="left:190px;top:459px;width:756px"></div>
+  <div class="c" style="left:150px;top:421px">1</div>
+  <div class="c" style="left:402px;top:421px">2</div>
+  <div class="c" style="left:654px;top:421px">3</div>
+  <div class="c on" style="left:906px;top:421px">4</div>
+  <div class="lb" style="left:30px;top:520px">店頭で知る</div>
+  <div class="lb" style="left:282px;top:520px">アプリに登録</div>
+  <div class="lb" style="left:534px;top:520px">通知が届く</div>
+  <div class="lb" style="left:786px;top:520px">また来店する</div>
+  <div class="ul" style="left:327px;top:593px;width:230px"></div>
+  <div class="ul" style="left:579px;top:593px;width:230px"></div>
+  <div class="ul on" style="left:831px;top:592px;width:230px"></div>
+  <div class="k" style="left:282px;top:610px">見る数字</div>
+  <div class="v" style="left:282px;top:638px">店舗ごとの登録数</div>
+  <div class="k" style="left:534px;top:610px">見る数字</div>
+  <div class="v" style="left:534px;top:638px">通知の開封率</div>
+  <div class="k" style="left:786px;top:612px">見る数字</div>
+  <div class="v" style="left:786px;top:640px;font-size:28px">再来訪率</div>
+  <div class="a pn">15</div>
+</section>
+
+<!-- 16 ロードマップ -->
+<section class="page content">
+  <div class="a title">ロードマップ</div>
+  <div class="a sub"><em>2027年2〜3月のPoC</em>から始め、花博の期間に広げていく</div>
+
+  <div class="a" style="left:72px;top:232px;width:1000px;height:3px;background:var(--border)"></div>
+  <div class="a" style="left:69px;top:224px;width:19px;height:19px;border-radius:50%;background:#fff;border:3px solid var(--moss)"></div>
+  <div class="a" style="left:314px;top:221px;width:25px;height:25px;border-radius:50%;background:var(--light)"></div>
+  <div class="a" style="left:649px;top:224px;width:19px;height:19px;border-radius:50%;background:#fff;border:3px solid var(--moss)"></div>
+  <div class="a" style="left:907px;top:224px;width:19px;height:19px;border-radius:50%;background:#fff;border:3px solid var(--moss)"></div>
+
+  <div class="a" style="left:64px;top:179px;font-size:27px">〜2027年1月</div>
+  <div class="a" style="left:300px;top:176px;font-size:30px">2027年2〜3月</div>
+  <div class="a" style="left:622px;top:179px;font-size:26px;display:flex;align-items:center;gap:10px">2027年3〜9月<span style="background:var(--light);color:#fff;font-size:16px;line-height:1;padding:5px 8px">花博</span></div>
+  <div class="a" style="left:885px;top:179px;font-size:26px">2027年秋〜</div>
+
+  <!-- col1 -->
+  <div class="a" style="left:64px;top:277px;font-size:28px">準備</div>
+  <div class="a reg sq" style="left:68px;top:343px;font-size:22px">PoCの中身</div>
+  <div class="a reg sq" style="left:68px;top:392px;font-size:22px">店舗と時期</div>
+  <div class="a reg sq" style="left:68px;top:441px;font-size:22px">役割分担</div>
+  <div class="a reg sq" style="left:68px;top:490px;font-size:22px">商品・POPの準備</div>
+
+  <!-- col2 -->
+  <div class="box" style="left:300px;top:275px;width:300px;height:436px;border-top:4px solid var(--light)"></div>
+  <div class="a" style="left:318px;top:299px;font-size:28px;line-height:1.4">ファーストステップ<br>（PoC）</div>
+  <div class="a lt" style="left:318px;top:400px;font-size:21px">① ブースの展開・実証</div>
+  <div class="a reg sq" style="left:322px;top:440px;font-size:22px">30店舗で卸商品</div>
+  <div class="a reg sq" style="left:322px;top:489px;font-size:22px">一部店舗でポップアップ</div>
+  <div class="a lt" style="left:318px;top:552px;font-size:21px">② CRMの実証実験</div>
+  <div class="a reg sq" style="left:322px;top:592px;font-size:22px">ケアアプリの登録訴求</div>
+  <div class="a reg sq" style="left:322px;top:641px;font-size:22px">登録ユーザーへのCRM</div>
+
+  <!-- col3 -->
+  <div class="a" style="left:622px;top:277px;font-size:28px;line-height:1.4">花博の期間に<br>広げる</div>
+  <div class="a reg" style="left:626px;top:382px;font-size:22px;line-height:1.5"><span class="sq"></span>結果を見て、<br><span style="display:inline-block;width:20px"></span>ブースとイベントを<br><span style="display:inline-block;width:20px"></span>広げる</div>
+  <div class="a reg" style="left:626px;top:497px;font-size:22px;line-height:1.5"><span class="sq"></span>カインズEC<br><span style="display:inline-block;width:20px"></span>（観葉植物カテゴリー）を<br><span style="display:inline-block;width:20px"></span>検討する</div>
+
+  <!-- col4 -->
+  <div class="a" style="left:869px;top:277px;font-size:28px">深める</div>
+  <div class="a reg" style="left:873px;top:343px;font-size:22px;line-height:1.5"><span class="sq"></span>結果を見ながら、<br><span style="display:inline-block;width:20px"></span>次の形を<br><span style="display:inline-block;width:20px"></span>ご相談する</div>
+  <div class="a pn">16</div>
+</section>
+
+</body>
+</html>
